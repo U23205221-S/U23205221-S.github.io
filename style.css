@@ -1,0 +1,723 @@
+
+/* ========================================
+    MobiliAri - Custom Styles
+    Bootstrap-based design system
+   ======================================== */
+
+:root {
+    /* Paleta de colores neutra y cálida */
+    --wood-primary: #8B4513;      /* Marrón madera */
+    --wood-secondary: #A0522D;     /* Sienna */
+    --wood-light: #DEB887;         /* Beige madera */
+    --wood-dark: #654321;          /* Marrón oscuro */
+    --neutral-50: #FAFAFA;         /* Blanco cálido */
+    --neutral-100: #F5F5F5;        /* Gris muy claro */
+    --neutral-200: #EEEEEE;        /* Gris claro */
+    --neutral-300: #E0E0E0;        /* Gris medio claro */
+    --neutral-400: #BDBDBD;        /* Gris medio */
+    --neutral-500: #9E9E9E;        /* Gris */
+    --neutral-600: #757575;        /* Gris oscuro */
+    --neutral-700: #616161;        /* Gris muy oscuro */
+    --neutral-800: #424242;        /* Casi negro */
+    --neutral-900: #212121;        /* Negro */
+    --accent-color: #D4AF37;       /* Dorado para elementos interactivos */
+    --success-color: #4CAF50;      /* Verde */
+    --warning-color: #FF9800;      /* Naranja */
+    --danger-color: #F44336;       /* Rojo */
+    --info-color: #2196F3;        /* Azul */
+    
+    /* Tipografía */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Espaciado */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ========================================
+    Base Styles
+   ======================================== */
+body {
+    font-family: var(--font-primary);
+    background-color: var(--neutral-50);
+    color: var(--neutral-800);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ========================================
+    Custom Bootstrap Classes
+   ======================================== */
+
+/* Wood theme colors */
+.text-wood { color: var(--wood-primary) !important; }
+.text-dark-wood { color: var(--wood-dark) !important; }
+.text-light-wood { color: var(--wood-light) !important; }
+.bg-wood { background-color: var(--wood-primary) !important; }
+.bg-dark-wood { background-color: var(--wood-dark) !important; }
+.bg-light-wood { background-color: var(--wood-light) !important; }
+
+/* Custom buttons */
+.btn-wood {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-wood:hover {
+    background-color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-outline-wood {
+    color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-wood:hover {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Custom cards */
+.card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+.card-product {
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.card-product .card-img-top {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card-product:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* ========================================
+   Layout Components
+   ======================================== */
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, var(--wood-dark), var(--wood-primary));
+}
+
+.sidebar-menu .nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    transform: translateX(5px);
+}
+
+.sidebar-menu .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main content */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}
+
+.content-area {
+    background-color: var(--neutral-50);
+    min-height: calc(100vh - 70px);
+}
+
+/* ========================================
+   E-commerce Specific Styles
+   ======================================== */
+
+/* Navigation */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.nav-link {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--wood-primary) !important;
+}
+
+/* Product grid */
+.product-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.product-image {
+    height: 220px;
+    object-fit: cover;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--wood-primary);
+}
+
+.product-price-original {
+    font-size: 1rem;
+    color: var(--neutral-500);
+    text-decoration: line-through;
+}
+
+/* Category filters */
+.category-filter {
+    background: linear-gradient(135deg, var(--wood-light), var(--neutral-100));
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Shopping cart */
+.cart-item {
+    border-bottom: 1px solid var(--neutral-200);
+    padding: 1rem 0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--neutral-300);
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover {
+    background-color: var(--wood-primary);
+    color: white;
+    border-color: var(--wood-primary);
+}
+
+/* ========================================
+   Management Interface Styles
+   ======================================== */
+
+/* Dashboard cards */
+.stat-card {
+    background: linear-gradient(135deg, white, var(--neutral-50));
+    border-left: 4px solid var(--wood-primary);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--wood-dark);
+    margin: 0;
+}
+
+.stat-card .stat-label {
+    color: var(--neutral-600);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+}
+
+/* Kanban board */
+.kanban-board {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    min-height: 600px;
+}
+
+.kanban-column {
+    min-width: 300px;
+    background-color: var(--neutral-100);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.kanban-header {
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    color: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.kanban-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--wood-primary);
+}
+
+.kanban-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.kanban-card:active {
+    cursor: grabbing;
+}
+
+.kanban-card.sortable-ghost {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+/* Tables */
+.table-custom {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.table-custom thead th {
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.table-custom tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: var(--neutral-200);
+}
+
+.table-custom tbody tr:hover {
+    background-color: var(--neutral-50);
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-disponible {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.status-bajo {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.status-agotado {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.status-pendiente {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: var(--neutral-600);
+}
+
+.status-proceso {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
+}
+
+.status-completado {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+/* Charts */
+.chart-container {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    height: 400px;
+}
+
+/* ========================================
+   Form Styles
+   ======================================== */
+.form-control,
+.form-select {
+    border-radius: 0.75rem;
+    border: 1px solid var(--neutral-300);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.form-label {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+/* File upload */
+.file-upload-area {
+    border: 2px dashed var(--neutral-300);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    border-color: var(--wood-primary);
+    background-color: rgba(139, 69, 19, 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--wood-primary);
+    background-color: rgba(139, 69, 19, 0.1);
+}
+
+/* ========================================
+   Modals
+   ======================================== */
+.modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--neutral-200);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--neutral-200);
+    border-radius: 0 0 1rem 1rem;
+    padding: 1.5rem;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .kanban-board {
+        flex-direction: column;
+    }
+    
+    .kanban-column {
+        min-width: 100%;
+    }
+    
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .stat-card .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.6s ease-out;
+}
+
+.fade-in-right {
+    animation: fadeInRight 0.6s ease-out;
+}
+
+/* Smooth transitions */
+* {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Loading spinner */
+.spinner-custom {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--neutral-200);
+    border-top: 4px solid var(--wood-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.text-gradient {
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bg-gradient-wood {
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+}
+
+.border-wood {
+    border-color: var(--wood-primary) !important;
+}
+
+.shadow-custom {
+    box-shadow: var(--shadow-lg);
+}
+
+.rounded-custom {
+    border-radius: 1rem;
+}
+
+/* Hide elements for specific roles */
+
+.admin-only {
+    display: none;
+}
+
+.cliente-only {
+    display: none;
+}
+
+/* Show elements based on user role */
+body.role-administrador .admin-only,
+body.role-cliente .cliente-only {
+    display: block;
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .modal {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid var(--neutral-300);
+    }
+}

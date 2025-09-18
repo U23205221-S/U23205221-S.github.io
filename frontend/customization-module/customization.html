@@ -1,0 +1,211 @@
+<!-- Customization Module HTML -->
+<div class="customization-module micro-frontend">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark-wood" href="#" id="brandLink">
+                <i class="bi bi-house-door-fill me-2"></i>MobiliAri
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="catalogNavLink">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-section="personalizar">Personalizar</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex">
+                    <button class="btn btn-outline-wood me-2" id="cartBtn">
+                        <i class="bi bi-cart3"></i>
+                        <span class="badge bg-wood ms-1" id="cartCount">0</span>
+                    </button>
+                    <button class="btn btn-wood" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-5 mt-4">
+        <div class="container py-5">
+            <h2 class="text-dark-wood mb-4">Personaliza tu Mueble</h2>
+            
+            <!-- Product Selection Section -->
+            <div class="row mb-4" id="selectionSection">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 bg-light h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-pencil-square text-wood display-4 mb-3"></i>
+                            <h5 class="card-title">Crear Desde Cero</h5>
+                            <p class="text-muted mb-3">Diseña tu mueble completamente personalizado desde el inicio</p>
+                            <button class="btn btn-wood" id="createFromScratchBtn">
+                                <i class="bi bi-plus-circle me-2"></i>Empezar Diseño
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 bg-light h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-collection text-wood display-4 mb-3"></i>
+                            <h5 class="card-title">Personalizar del Catálogo</h5>
+                            <p class="text-muted mb-3">Escoge un mueble de nuestro catálogo como base para tu personalización</p>
+                            <button class="btn btn-outline-wood" id="selectProductBtn">
+                                <i class="bi bi-collection me-2"></i>Seleccionar del Catálogo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customization Form -->
+            <div class="row" id="customizeContent" style="display: none;">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">Configuración del Mueble</h5>
+                            
+                            <form id="customizeForm">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tipo de Mueble</label>
+                                        <select class="form-select" name="tipo" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="mesa">Mesa</option>
+                                            <option value="silla">Silla</option>
+                                            <option value="armario">Armario</option>
+                                            <option value="cama">Cama</option>
+                                            <option value="escritorio">Escritorio</option>
+                                            <option value="sofa">Sofá</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Material</label>
+                                        <select class="form-select" name="material" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="roble">Roble</option>
+                                            <option value="pino">Pino</option>
+                                            <option value="cedro">Cedro</option>
+                                            <option value="mdf">MDF</option>
+                                            <option value="melamina">Melamina</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Ancho (cm)</label>
+                                        <input type="number" class="form-control" name="ancho" min="10" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Alto (cm)</label>
+                                        <input type="number" class="form-control" name="alto" min="10" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Profundidad (cm)</label>
+                                        <input type="number" class="form-control" name="profundidad" min="10" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Color/Acabado</label>
+                                        <select class="form-select" name="acabado" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="natural">Natural</option>
+                                            <option value="barniz-mate">Barniz Mate</option>
+                                            <option value="barniz-brillante">Barniz Brillante</option>
+                                            <option value="pintura-blanca">Pintura Blanca</option>
+                                            <option value="pintura-negra">Pintura Negra</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Imagen de Referencia</label>
+                                        <input type="file" class="form-control" accept="image/*" name="referenceImage">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Notas Adicionales</label>
+                                    <textarea class="form-control" rows="3" name="notas" placeholder="Describe cualquier detalle especial..."></textarea>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-wood">
+                                        <i class="bi bi-calculator me-2"></i>Generar Cotización
+                                    </button>
+                                    <button type="button" class="btn btn-outline-wood" id="resetFormBtn">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Reiniciar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title">Vista Previa</h5>
+                            <div class="text-center py-5 bg-light rounded" id="previewArea">
+                                <i class="bi bi-image text-muted display-1"></i>
+                                <p class="text-muted mt-3">La vista previa aparecerá aquí</p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Cotización Estimada</h6>
+                                <div class="d-flex justify-content-between">
+                                    <span>Materiales:</span>
+                                    <span id="materialCost">$0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Mano de obra:</span>
+                                    <span id="laborCost">$0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Acabados:</span>
+                                    <span id="finishCost">$0.00</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span id="totalCost">$0.00</span>
+                                </div>
+                                
+                                <button class="btn btn-wood w-100 mt-3" id="addCustomToCartBtn" disabled>
+                                    <i class="bi bi-cart-plus me-2"></i>Agregar al Carrito
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Product Selection Modal -->
+    <div class="modal fade" id="productSelectionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Seleccionar Producto para Personalizar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="productSelectionGrid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,392 @@
+/* ========================================
+    Customization Module Styles
+   ======================================== */
+
+.customization-module {
+    min-height: 100vh;
+    background-color: var(--neutral-50);
+}
+
+/* ========================================
+   Navigation Styles
+   ======================================== */
+
+.customization-module .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+}
+
+.customization-module .nav-link {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700) !important;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.customization-module .nav-link:hover,
+.customization-module .nav-link.active {
+    color: var(--wood-primary) !important;
+}
+
+/* ========================================
+   Selection Cards Styles
+   ======================================== */
+
+.customization-module .card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.customization-module .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+.customization-module .display-4 {
+    font-size: 3rem;
+}
+
+/* ========================================
+   Form Styles
+   ======================================== */
+
+.customization-module .form-control,
+.customization-module .form-select {
+    border-radius: 0.75rem;
+    border: 1px solid var(--neutral-300);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.customization-module .form-control:focus,
+.customization-module .form-select:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.customization-module .form-label {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+/* Form validation styles */
+.customization-module .form-control.is-invalid,
+.customization-module .form-select.is-invalid {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 0.2rem rgba(244, 67, 54, 0.25);
+}
+
+.customization-module .form-control.is-valid,
+.customization-module .form-select.is-valid {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+}
+
+.customization-module .invalid-feedback {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* ========================================
+   Preview Area Styles
+   ======================================== */
+
+.customization-module #previewArea {
+    min-height: 200px;
+    border: 2px dashed var(--neutral-300);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.customization-module #previewArea.has-preview {
+    border-style: solid;
+    border-color: var(--wood-primary);
+    background-color: white;
+}
+
+.customization-module #previewArea img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 0.5rem;
+}
+
+/* ========================================
+   Quotation Styles
+   ======================================== */
+
+.customization-module .quotation-section {
+    background: linear-gradient(135deg, var(--wood-light), var(--neutral-100));
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.customization-module .cost-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.customization-module .cost-item:last-child {
+    border-bottom: none;
+    font-weight: var(--font-weight-bold);
+    font-size: 1.1rem;
+    color: var(--wood-dark);
+}
+
+.customization-module .cost-value {
+    color: var(--wood-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+
+.customization-module .btn-wood {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.customization-module .btn-wood:hover {
+    background-color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.customization-module .btn-wood:disabled {
+    background-color: var(--neutral-400);
+    border-color: var(--neutral-400);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.customization-module .btn-outline-wood {
+    color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    font-weight: var(--font-weight-medium);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.customization-module .btn-outline-wood:hover {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Product Selection Modal Styles
+   ======================================== */
+
+.customization-module .modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-xl);
+}
+
+.customization-module .modal-header {
+    border-bottom: 1px solid var(--neutral-200);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.5rem;
+}
+
+.customization-module .modal-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.customization-module .product-selection-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.customization-module .product-selection-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.customization-module .product-selection-image {
+    height: 150px;
+    object-fit: cover;
+    border-radius: 1rem 1rem 0 0;
+}
+
+/* ========================================
+   File Upload Styles
+   ======================================== */
+
+.customization-module .file-upload-area {
+    border: 2px dashed var(--neutral-300);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.customization-module .file-upload-area:hover {
+    border-color: var(--wood-primary);
+    background-color: rgba(139, 69, 19, 0.05);
+}
+
+.customization-module .file-upload-area.dragover {
+    border-color: var(--wood-primary);
+    background-color: rgba(139, 69, 19, 0.1);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .customization-module .navbar-collapse {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--neutral-200);
+    }
+    
+    .customization-module .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .customization-module .modal-body {
+        max-height: 50vh;
+    }
+    
+    .customization-module .display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .customization-module .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .customization-module .card-body {
+        padding: 1.5rem;
+    }
+    
+    .customization-module .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .customization-module .product-selection-image {
+        height: 120px;
+    }
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+
+.customization-module .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.customization-module .spinner-custom {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--neutral-200);
+    border-top: 4px solid var(--wood-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Animation Classes
+   ======================================== */
+
+.customization-module .fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.customization-module .slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.customization-module .text-wood { 
+    color: var(--wood-primary) !important; 
+}
+
+.customization-module .text-dark-wood { 
+    color: var(--wood-dark) !important; 
+}
+
+.customization-module .bg-wood { 
+    background-color: var(--wood-primary) !important; 
+}
+
+.customization-module .border-wood {
+    border-color: var(--wood-primary) !important;
+}
+
+/* ========================================
+   Badge Styles
+   ======================================== */
+
+.customization-module .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.customization-module .badge.bg-wood {
+    background-color: var(--wood-primary) !important;
+}

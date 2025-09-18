@@ -1,0 +1,436 @@
+/* ========================================
+    Dashboard Module Styles
+   ======================================== */
+
+.dashboard-module {
+    min-height: 100vh;
+    background-color: var(--neutral-50);
+}
+
+/* ========================================
+   Sidebar Styles
+   ======================================== */
+
+.dashboard-module .sidebar {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.dashboard-module .sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+.dashboard-module .sidebar-header {
+    background: linear-gradient(135deg, var(--wood-dark), var(--wood-primary));
+}
+
+.dashboard-module .sidebar-menu .nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-module .sidebar-menu .nav-link:hover,
+.dashboard-module .sidebar-menu .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    transform: translateX(5px);
+}
+
+.dashboard-module .sidebar-menu .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ========================================
+   Main Content Styles
+   ======================================== */
+
+.dashboard-module .main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+.dashboard-module .main-content.expanded {
+    margin-left: 0;
+}
+
+.dashboard-module .content-area {
+    background-color: var(--neutral-50);
+    min-height: calc(100vh - 70px);
+}
+
+/* ========================================
+   Stats Cards Styles
+   ======================================== */
+
+.dashboard-module .stat-card {
+    background: linear-gradient(135deg, white, var(--neutral-50));
+    border-left: 4px solid var(--wood-primary);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.dashboard-module .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.dashboard-module .stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.dashboard-module .stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--wood-dark);
+    margin: 0;
+}
+
+.dashboard-module .stat-card .stat-label {
+    color: var(--neutral-600);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ========================================
+   Table Styles
+   ======================================== */
+
+.dashboard-module .table {
+    margin-bottom: 0;
+}
+
+.dashboard-module .table thead th {
+    background: linear-gradient(135deg, var(--wood-primary), var(--wood-secondary));
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.dashboard-module .table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: var(--neutral-200);
+}
+
+.dashboard-module .table tbody tr:hover {
+    background-color: var(--neutral-50);
+}
+
+/* ========================================
+   Status Badge Styles
+   ======================================== */
+
+.dashboard-module .status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dashboard-module .status-pendiente {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: var(--neutral-600);
+}
+
+.dashboard-module .status-proceso {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
+}
+
+.dashboard-module .status-completado {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.dashboard-module .status-disponible {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.dashboard-module .status-bajo {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.dashboard-module .status-agotado {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+/* ========================================
+   Card Styles
+   ======================================== */
+
+.dashboard-module .card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-module .card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-module .card-header {
+    background: linear-gradient(135deg, var(--wood-light), var(--neutral-100));
+    border-bottom: 1px solid var(--neutral-200);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1rem 1.5rem;
+}
+
+.dashboard-module .card-header h5 {
+    color: var(--wood-dark);
+    font-weight: var(--font-weight-semibold);
+}
+
+.dashboard-module .card-body {
+    padding: 1.5rem;
+}
+
+/* ========================================
+   Inventory Item Styles
+   ======================================== */
+
+.dashboard-module .inventory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.dashboard-module .inventory-item:last-child {
+    border-bottom: none;
+}
+
+.dashboard-module .inventory-item-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-800);
+}
+
+.dashboard-module .inventory-item-quantity {
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+
+.dashboard-module .btn-wood {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-module .btn-wood:hover {
+    background-color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.dashboard-module .btn-outline-wood {
+    color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-module .btn-outline-wood:hover {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-module .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.dashboard-module .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    color: white;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .dashboard-module .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .dashboard-module .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .dashboard-module .main-content {
+        margin-left: 0;
+    }
+    
+    .dashboard-module .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-module .stat-card .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-module .content-area {
+        padding: 1rem !important;
+    }
+    
+    .dashboard-module .card-body {
+        padding: 1rem;
+    }
+    
+    .dashboard-module .stat-card {
+        padding: 1rem;
+    }
+    
+    .dashboard-module .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+
+.dashboard-module .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.dashboard-module .spinner-custom {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--neutral-200);
+    border-top: 4px solid var(--wood-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Empty States
+   ======================================== */
+
+.dashboard-module .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--neutral-500);
+}
+
+.dashboard-module .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+.dashboard-module .fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.dashboard-module .slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.dashboard-module .text-wood { 
+    color: var(--wood-primary) !important; 
+}
+
+.dashboard-module .text-dark-wood { 
+    color: var(--wood-dark) !important; 
+}
+
+.dashboard-module .bg-wood { 
+    background-color: var(--wood-primary) !important; 
+}
+
+.dashboard-module .bg-dark-wood { 
+    background-color: var(--wood-dark) !important; 
+}
+
+.dashboard-module .border-wood {
+    border-color: var(--wood-primary) !important;
+}
+
+/* Hide elements for specific roles */
+.dashboard-module .admin-only {
+    display: none;
+}
+
+/* Show elements based on user role */
+body.role-administrador .dashboard-module .admin-only {
+    display: block;
+}

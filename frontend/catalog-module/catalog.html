@@ -1,0 +1,129 @@
+<!-- E-commerce Catalog Module HTML -->
+<div class="catalog-module micro-frontend">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark-wood" href="#">
+                <i class="bi bi-house-door-fill me-2"></i>MobiliAri
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-section="catalogo">Catálogo</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Categorías</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-category="salas">Salas</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="comedores">Comedores</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="dormitorios">Dormitorios</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="oficina">Oficina</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="customizeNavLink">Personalizar</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex">
+                    <button class="btn btn-outline-wood me-2" id="cartBtn">
+                        <i class="bi bi-cart3"></i>
+                        <span class="badge bg-wood ms-1" id="cartCount">0</span>
+                    </button>
+                    <button class="btn btn-wood" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-5 mt-4">
+        <!-- Catálogo Section -->
+        <div id="catalogoSection" class="container py-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="text-dark-wood mb-3">Nuestro Catálogo</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar muebles..." id="searchInput">
+                                <button class="btn btn-outline-wood" type="button" id="searchBtn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">Todas las categorías</option>
+                                <option value="salas">Salas</option>
+                                <option value="comedores">Comedores</option>
+                                <option value="dormitorios">Dormitorios</option>
+                                <option value="oficina">Oficina</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="priceFilter">
+                                <option value="">Todos los precios</option>
+                                <option value="0-5000">$0 - $5,000</option>
+                                <option value="5000-15000">$5,000 - $15,000</option>
+                                <option value="15000-30000">$15,000 - $30,000</option>
+                                <option value="30000+">$30,000+</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" id="productGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="productModalContent">
+                    <!-- Product details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Carrito de Compras</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div id="cartItems">
+                <div class="text-center py-5">
+                    <i class="bi bi-cart-x text-muted display-1"></i>
+                    <p class="text-muted mt-3">Tu carrito está vacío</p>
+                </div>
+            </div>
+            <div class="mt-auto">
+                <div class="d-flex justify-content-between fw-bold mb-3">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0.00</span>
+                </div>
+                <button class="btn btn-wood w-100" id="checkoutBtn" disabled>
+                    Proceder al Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

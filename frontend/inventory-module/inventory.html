@@ -1,0 +1,314 @@
+<!-- Inventory Module HTML -->
+<div class="inventory-module micro-frontend">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark-wood text-white" id="sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h4 class="mb-0">
+                <i class="bi bi-house-door-fill me-2"></i>MobiliAri
+            </h4>
+            <small class="text-light">Sistema de Gestión</small>
+        </div>
+        
+        <div class="sidebar-menu p-3">
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="dashboard">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="orders">
+                        <i class="bi bi-clipboard-check me-2"></i>Pedidos y Tareas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white active" href="#" data-module="inventory">
+                        <i class="bi bi-boxes me-2"></i>Materia Prima
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="suppliers">
+                        <i class="bi bi-truck me-2"></i>Proveedores
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="reports">
+                        <i class="bi bi-graph-up me-2"></i>Reportes
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="users">
+                        <i class="bi bi-people me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="payments">
+                        <i class="bi bi-credit-card me-2"></i>Pagos
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <div class="d-flex align-items-center">
+                    <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="Usuario">
+                    <div>
+                        <small class="d-block" id="userName">Usuario</small>
+                        <small class="text-light" id="userRole">Rol</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm mt-2 w-100" id="logoutBtnMgmt">
+                    <i class="bi bi-box-arrow-right me-1"></i>Salir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <nav class="navbar navbar-light bg-white shadow-sm border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h5 class="mb-0">Gestión de Inventario</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-wood" id="addStockBtn">
+                        <i class="bi bi-plus-circle me-2"></i>Agregar Stock
+                    </button>
+                    <button class="btn btn-wood" id="newMaterialBtn">
+                        <i class="bi bi-plus-circle me-2"></i>Nuevo Material
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area p-4">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3">
+                                <i class="bi bi-boxes"></i>
+                            </div>
+                            <div>
+                                <h3 class="stat-number" id="totalMaterials">0</h3>
+                                <p class="stat-label">Materiales Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3 bg-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <h3 class="stat-number" id="lowStockCount">0</h3>
+                                <p class="stat-label">Bajo Stock</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3 bg-danger">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                            <div>
+                                <h3 class="stat-number" id="outOfStockCount">0</h3>
+                                <p class="stat-label">Agotados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3 bg-success">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div>
+                                <h3 class="stat-number" id="totalValue">$0</h3>
+                                <p class="stat-label">Valor Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="Bajo inventario">Bajo inventario</option>
+                        <option value="Agotado">Agotado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Buscar material..." id="materialSearch">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="supplierFilter">
+                        <option value="">Todos los proveedores</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="sortBy">
+                        <option value="material">Ordenar por Material</option>
+                        <option value="quantity">Ordenar por Cantidad</option>
+                        <option value="status">Ordenar por Estado</option>
+                        <option value="value">Ordenar por Valor</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Material</th>
+                                    <th>Cantidad</th>
+                                    <th>Unidad</th>
+                                    <th>Mínimo</th>
+                                    <th>Precio/Unidad</th>
+                                    <th>Valor Total</th>
+                                    <th>Estado</th>
+                                    <th>Proveedor</th>
+                                    <th>Última Compra</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Inventory items will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Detail Modal -->
+    <div class="modal fade" id="materialModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="materialModalTitle">Detalle del Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="materialModalContent">
+                    <!-- Material details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-wood" id="saveMaterialBtn">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div class="modal fade" id="addStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">Material</label>
+                            <select class="form-select" name="materialId" required>
+                                <option value="">Seleccionar material...</option>
+                                <!-- Options will be loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" name="quantity" min="0.1" step="0.1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Precio por Unidad</label>
+                            <input type="number" class="form-control" name="pricePerUnit" min="0" step="0.01">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-control" rows="2" name="notes" placeholder="Notas sobre la compra..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="confirmAddStockBtn">Agregar Stock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Material Modal -->
+    <div class="modal fade" id="newMaterialModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newMaterialForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Material</label>
+                            <input type="text" class="form-control" name="material" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Cantidad Inicial</label>
+                                <input type="number" class="form-control" name="currentQuantity" min="0" step="0.1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Unidad</label>
+                                <select class="form-select" name="unit" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="m²">m² (metros cuadrados)</option>
+                                    <option value="m³">m³ (metros cúbicos)</option>
+                                    <option value="kg">kg (kilogramos)</option>
+                                    <option value="pzas">pzas (piezas)</option>
+                                    <option value="lts">lts (litros)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Cantidad Mínima</label>
+                                <input type="number" class="form-control" name="minThreshold" min="0" step="0.1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio por Unidad</label>
+                                <input type="number" class="form-control" name="pricePerUnit" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Proveedor</label>
+                            <input type="text" class="form-control" name="supplier" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="createMaterialBtn">Crear Material</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

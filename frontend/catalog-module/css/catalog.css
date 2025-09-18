@@ -1,0 +1,349 @@
+/* ========================================
+    Catalog Module Styles
+   ======================================== */
+
+.catalog-module {
+    min-height: 100vh;
+    background-color: var(--neutral-50);
+}
+
+/* ========================================
+   Navigation Styles
+   ======================================== */
+
+/* Navigation */
+.catalog-module .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.catalog-module .nav-link {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700) !important;
+    transition: color 0.3s ease;
+}
+
+.catalog-module .nav-link:hover,
+.catalog-module .nav-link.active {
+    color: var(--wood-primary) !important;
+}
+
+/* ========================================
+   Product Grid Styles
+   ======================================== */
+
+/* Product cards */
+.catalog-module .product-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.catalog-module .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.catalog-module .product-image {
+    height: 220px;
+    object-fit: cover;
+    border-radius: 1rem 1rem 0 0;
+    transition: transform 0.3s ease;
+}
+
+.catalog-module .product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.catalog-module .product-price {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--wood-primary);
+}
+
+.catalog-module .product-price-original {
+    font-size: 1rem;
+    color: var(--neutral-500);
+    text-decoration: line-through;
+}
+
+/* ========================================
+   Search and Filter Styles
+   ======================================== */
+
+.catalog-module .form-control,
+.catalog-module .form-select {
+    border-radius: 0.75rem;
+    border: 1px solid var(--neutral-300);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.catalog-module .form-control:focus,
+.catalog-module .form-select:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.catalog-module .input-group .btn {
+    border-radius: 0 0.75rem 0.75rem 0;
+}
+
+/* ========================================
+   Shopping Cart Styles
+   ======================================== */
+
+/* Cart button */
+.catalog-module .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Cart offcanvas */
+.catalog-module .offcanvas {
+    width: 400px;
+}
+
+.catalog-module .cart-item {
+    border-bottom: 1px solid var(--neutral-200);
+    padding: 1rem 0;
+}
+
+.catalog-module .cart-item:last-child {
+    border-bottom: none;
+}
+
+.catalog-module .cart-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.catalog-module .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.catalog-module .quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--neutral-300);
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.catalog-module .quantity-btn:hover {
+    background-color: var(--wood-primary);
+    color: white;
+    border-color: var(--wood-primary);
+}
+
+/* ========================================
+   Product Modal Styles
+   ======================================== */
+
+.catalog-module .modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-xl);
+}
+
+.catalog-module .modal-header {
+    border-bottom: 1px solid var(--neutral-200);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.5rem;
+}
+
+.catalog-module .modal-body {
+    padding: 1.5rem;
+}
+
+.catalog-module .spec-item {
+    padding: 0.5rem 0;
+}
+
+.catalog-module .spec-item strong {
+    color: var(--wood-dark);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+
+.catalog-module .btn-wood {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.catalog-module .btn-wood:hover {
+    background-color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.catalog-module .btn-outline-wood {
+    color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.catalog-module .btn-outline-wood:hover {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .catalog-module .offcanvas {
+        width: 100%;
+    }
+    
+    .catalog-module .navbar-collapse {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--neutral-200);
+    }
+    
+    .catalog-module .product-image {
+        height: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .catalog-module .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .catalog-module .card-body {
+        padding: 1rem;
+    }
+    
+    .catalog-module .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .catalog-module .product-image {
+        height: 180px;
+    }
+}
+
+/* ========================================
+   Loading and Empty States
+   ======================================== */
+
+.catalog-module .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.catalog-module .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--neutral-500);
+}
+
+.catalog-module .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+.catalog-module .fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.catalog-module .slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   Badge Styles
+   ======================================== */
+
+.catalog-module .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.catalog-module .badge.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.catalog-module .badge.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.catalog-module .badge.bg-light {
+    background-color: var(--neutral-200) !important;
+    color: var(--neutral-700) !important;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.catalog-module .text-wood { 
+    color: var(--wood-primary) !important; 
+}
+
+.catalog-module .text-dark-wood { 
+    color: var(--wood-dark) !important; 
+}
+
+.catalog-module .bg-wood { 
+    background-color: var(--wood-primary) !important; 
+}
+
+.catalog-module .border-wood {
+    border-color: var(--wood-primary) !important;
+}
