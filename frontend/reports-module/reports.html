@@ -1,0 +1,346 @@
+<!-- Reports Module HTML -->
+<div class="reports-module micro-frontend">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark-wood text-white" id="sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h4 class="mb-0">
+                <i class="bi bi-house-door-fill me-2"></i>MobiliAri
+            </h4>
+            <small class="text-light">Sistema de Gestión</small>
+        </div>
+        
+        <div class="sidebar-menu p-3">
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="dashboard">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="orders">
+                        <i class="bi bi-clipboard-check me-2"></i>Pedidos y Tareas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="inventory">
+                        <i class="bi bi-boxes me-2"></i>Materia Prima
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="suppliers">
+                        <i class="bi bi-truck me-2"></i>Proveedores
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white active" href="#" data-module="reports">
+                        <i class="bi bi-graph-up me-2"></i>Reportes
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="users">
+                        <i class="bi bi-people me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="payments">
+                        <i class="bi bi-credit-card me-2"></i>Pagos
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <div class="d-flex align-items-center">
+                    <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="Usuario">
+                    <div>
+                        <small class="d-block" id="userName">Usuario</small>
+                        <small class="text-light" id="userRole">Rol</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm mt-2 w-100" id="logoutBtnMgmt">
+                    <i class="bi bi-box-arrow-right me-1"></i>Salir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <nav class="navbar navbar-light bg-white shadow-sm border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h5 class="mb-0">Reportes y Análisis</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-wood" id="exportBtn">
+                        <i class="bi bi-download me-2"></i>Exportar
+                    </button>
+                    <button class="btn btn-wood" id="generateReportBtn">
+                        <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area p-4">
+            <!-- Date Range Filter -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    <input type="date" class="form-control" id="dateFrom">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" class="form-control" id="dateTo">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tipo de Reporte</label>
+                    <select class="form-select" id="reportType">
+                        <option value="sales">Ventas</option>
+                        <option value="inventory">Inventario</option>
+                        <option value="suppliers">Proveedores</option>
+                        <option value="production">Producción</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-wood w-100" id="updateReportBtn">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value" id="totalRevenue">$0</h3>
+                            <p class="kpi-label">Ingresos Totales</p>
+                            <div class="kpi-trend">
+                                <i class="bi bi-arrow-up text-success"></i>
+                                <span class="text-success" id="revenueTrend">+0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-info">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value" id="totalOrders">0</h3>
+                            <p class="kpi-label">Pedidos Completados</p>
+                            <div class="kpi-trend">
+                                <i class="bi bi-arrow-up text-success"></i>
+                                <span class="text-success" id="ordersTrend">+0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-warning">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value" id="avgDeliveryTime">0</h3>
+                            <p class="kpi-label">Tiempo Promedio (días)</p>
+                            <div class="kpi-trend">
+                                <i class="bi bi-arrow-down text-success"></i>
+                                <span class="text-success" id="deliveryTrend">-0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-success">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value" id="customerSatisfaction">0%</h3>
+                            <p class="kpi-label">Satisfacción Cliente</p>
+                            <div class="kpi-trend">
+                                <i class="bi bi-arrow-up text-success"></i>
+                                <span class="text-success" id="satisfactionTrend">+0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-lg-8 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h5>Ingresos por Mes</h5>
+                            <div class="chart-controls">
+                                <button class="btn btn-sm btn-outline-wood active" data-chart="revenue">Ingresos</button>
+                                <button class="btn btn-sm btn-outline-wood" data-chart="orders">Pedidos</button>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="revenueChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h5>Productos Más Vendidos</h5>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="productsChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables Row -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h5>Top Clientes</h5>
+                        </div>
+                        <div class="table-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Pedidos</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topClientsTable">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h5>Inventario Crítico</h5>
+                        </div>
+                        <div class="table-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="criticalInventoryTable">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Report Modal -->
+    <div class="modal fade" id="generateReportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generar Reporte Personalizado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Reporte</label>
+                                <select class="form-select" name="reportType" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="sales">Reporte de Ventas</option>
+                                    <option value="inventory">Reporte de Inventario</option>
+                                    <option value="suppliers">Reporte de Proveedores</option>
+                                    <option value="production">Reporte de Producción</option>
+                                    <option value="financial">Reporte Financiero</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Formato</label>
+                                <select class="form-select" name="format" required>
+                                    <option value="pdf">PDF</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Inicio</label>
+                                <input type="date" class="form-control" name="startDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Fin</label>
+                                <input type="date" class="form-control" name="endDate" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Filtros Adicionales</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="includeCharts" id="includeCharts" checked>
+                                        <label class="form-check-label" for="includeCharts">
+                                            Incluir gráficos
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="includeDetails" id="includeDetails" checked>
+                                        <label class="form-check-label" for="includeDetails">
+                                            Incluir detalles
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="includeTrends" id="includeTrends">
+                                        <label class="form-check-label" for="includeTrends">
+                                            Incluir tendencias
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="includeComparisons" id="includeComparisons">
+                                        <label class="form-check-label" for="includeComparisons">
+                                            Incluir comparaciones
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas Adicionales</label>
+                            <textarea class="form-control" rows="3" name="notes" placeholder="Comentarios o instrucciones especiales..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="confirmGenerateBtn">
+                        <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

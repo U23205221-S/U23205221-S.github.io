@@ -264,11 +264,27 @@ class MicroFrontendRouter {
 
             // Load and execute JavaScript
             await this.loadJS(module.path + module.jsFile, moduleName);
+            
+            // Wait a bit for the script to execute
+            await new Promise(resolve => setTimeout(resolve, 50));
 
             // Initialize the module if it has an init function
-            if (window[`${moduleName}Module`] && window[`${moduleName}Module`].init) {
-                window[`${moduleName}Module`].init(data);
-            }
+            // Add a small delay to ensure DOM is ready
+            setTimeout(() => {
+                const moduleObject = window[`${moduleName}Module`];
+                console.log(`Looking for module: ${moduleName}Module`, moduleObject);
+                
+                if (moduleObject && moduleObject.init) {
+                    console.log(`Initializing ${moduleName} module`);
+                    try {
+                        moduleObject.init(data);
+                    } catch (initError) {
+                        console.error(`Error initializing ${moduleName} module:`, initError);
+                    }
+                } else {
+                    console.warn(`Module ${moduleName}Module not found or has no init function`);
+                }
+            }, 100);
 
             // Update current module
             this.currentMicroFrontend = moduleName;
@@ -285,7 +301,9 @@ class MicroFrontendRouter {
 
         } catch (error) {
             console.error(`Error loading micro frontend ${moduleName}:`, error);
-            this.showError(`Error loading ${moduleName} module`);
+            console.error('Module config:', module);
+            console.error('Error details:', error.message, error.stack);
+            this.showError(`Error loading ${moduleName} module: ${error.message}`);
         }
     }
 
