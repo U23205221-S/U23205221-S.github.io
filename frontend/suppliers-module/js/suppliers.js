@@ -592,6 +592,7 @@ window.suppliersModule = {
 
     updateUserInfo: function() {
         const currentUser = window.MobiliAriState.currentUser;
+        
         if (currentUser) {
             const userName = document.getElementById('userName');
             const userRole = document.getElementById('userRole');
@@ -599,9 +600,17 @@ window.suppliersModule = {
             if (userName) userName.textContent = currentUser.name;
             if (userRole) userRole.textContent = currentUser.role;
 
+            // Show admin elements if user is admin OR if no user role is defined (fallback)
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
-                el.style.display = currentUser.role === 'administrador' ? 'block' : 'none';
+                const shouldShow = !currentUser.role || currentUser.role === 'administrador' || currentUser.role === 'admin';
+                el.style.display = shouldShow ? 'block' : 'none';
+            });
+        } else {
+            // If no user, show admin elements by default (development mode)
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = 'block';
             });
         }
     },
