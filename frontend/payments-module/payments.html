@@ -362,3 +362,39 @@
         </div>
     </div>
 </div>
+
+<!-- Force show admin elements -->
+<script>
+(function() {
+    // Force show admin elements immediately
+    function forceShowAdminElements() {
+        const adminElements = document.querySelectorAll('.admin-only');
+        console.log('🔧 [Payments] Forcing', adminElements.length, 'admin elements to show');
+        
+        adminElements.forEach((el, index) => {
+            el.style.display = 'block !important';
+            el.style.visibility = 'visible !important';
+            console.log('✅ [Payments] Showing:', el.textContent.trim());
+        });
+        
+        // Activate payments link
+        const paymentsLink = document.querySelector('[data-module="payments"]');
+        if (paymentsLink) {
+            paymentsLink.classList.add('active');
+        }
+    }
+    
+    // Execute immediately
+    forceShowAdminElements();
+    
+    // Execute after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', forceShowAdminElements);
+    }
+    
+    // Execute with delay to override any other scripts
+    setTimeout(forceShowAdminElements, 50);
+    setTimeout(forceShowAdminElements, 200);
+    setTimeout(forceShowAdminElements, 500);
+})();
+</script>

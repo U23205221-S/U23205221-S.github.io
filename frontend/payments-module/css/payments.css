@@ -7,6 +7,12 @@
     background-color: var(--neutral-50);
 }
 
+/* Force admin elements to be visible */
+.payments-module .admin-only {
+    display: block !important;
+    visibility: visible !important;
+}
+
 /* ========================================
    Sidebar Styles (Inherited from Dashboard)
    ======================================== */

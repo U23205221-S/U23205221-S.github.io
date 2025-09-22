@@ -17,6 +17,11 @@ window.paymentsModule = {
             this.updateStats();
             this.updateUserInfo();
             this.loadReconciliationData();
+            
+            // Force show admin elements after initialization
+            setTimeout(() => {
+                this.forceShowAdminElements();
+            }, 100);
         } catch (error) {
             console.error('Error initializing payments module:', error);
         }
@@ -606,6 +611,25 @@ window.paymentsModule = {
             adminElements.forEach(el => {
                 el.style.display = 'block';
             });
+        }
+    },
+
+    forceShowAdminElements: function() {
+        console.log('🔧 Forcing admin elements to show...');
+        const adminElements = document.querySelectorAll('.admin-only');
+        console.log('📋 Found admin elements:', adminElements.length);
+        
+        adminElements.forEach((el, index) => {
+            el.style.display = 'block';
+            el.style.visibility = 'visible';
+            console.log(`✅ Showing element ${index}:`, el.textContent.trim());
+        });
+        
+        // Also ensure the payments link is active
+        const paymentsLink = document.querySelector('[data-module="payments"]');
+        if (paymentsLink) {
+            paymentsLink.classList.add('active');
+            console.log('✅ Payments link activated');
         }
     },
 

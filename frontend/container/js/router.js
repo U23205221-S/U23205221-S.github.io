@@ -336,7 +336,9 @@ class MicroFrontendRouter {
             }
 
             const script = document.createElement('script');
-            script.src = jsPath;
+            // Add cache-busting parameter
+            const cacheBuster = new Date().getTime();
+            script.src = jsPath + '?v=' + cacheBuster;
             script.setAttribute('data-module', moduleName);
             
             script.onload = () => resolve();
