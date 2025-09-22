@@ -8,7 +8,7 @@
 }
 
 /* ========================================
-   Sidebar Styles
+    Sidebar Styles
    ======================================== */
 
 .dashboard-module .sidebar {
@@ -51,7 +51,7 @@
 }
 
 /* ========================================
-   Main Content Styles
+    Main Content Styles
    ======================================== */
 
 .dashboard-module .main-content {
@@ -70,7 +70,7 @@
 }
 
 /* ========================================
-   Stats Cards Styles
+    Stats Cards Styles
    ======================================== */
 
 .dashboard-module .stat-card {
@@ -114,7 +114,7 @@
 }
 
 /* ========================================
-   Table Styles
+    Table Styles
    ======================================== */
 
 .dashboard-module .table {
@@ -140,7 +140,7 @@
 }
 
 /* ========================================
-   Status Badge Styles
+    Status Badge Styles
    ======================================== */
 
 .dashboard-module .status-badge {
@@ -183,7 +183,7 @@
 }
 
 /* ========================================
-   Card Styles
+    Card Styles
    ======================================== */
 
 .dashboard-module .card {
@@ -198,7 +198,7 @@
 }
 
 .dashboard-module .card-header {
-    background: linear-gradient(135deg, var(--wood-light), var(--neutral-100));
+    background: #deb887;
     border-bottom: 1px solid var(--neutral-200);
     border-radius: 1rem 1rem 0 0;
     padding: 1rem 1.5rem;
@@ -214,7 +214,7 @@
 }
 
 /* ========================================
-   Inventory Item Styles
+    Inventory Item Styles
    ======================================== */
 
 .dashboard-module .inventory-item {
@@ -240,7 +240,7 @@
 }
 
 /* ========================================
-   Button Styles
+    Button Styles
    ======================================== */
 
 .dashboard-module .btn-wood {
@@ -290,7 +290,7 @@
 }
 
 /* ========================================
-   Responsive Design
+    Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
