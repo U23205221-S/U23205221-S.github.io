@@ -1,0 +1,213 @@
+/* ========================================
+    Register Module Styles
+   ======================================== */
+
+.auth-module {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--wood-light), var(--neutral-100));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Modal overrides for full-screen auth */
+.auth-module .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050;
+}
+
+.auth-module .modal-dialog {
+    margin: 0 auto;
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.auth-module .modal-dialog .modal-content {
+    width: 100%;
+    margin: auto;
+}
+
+.auth-module .modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-xl);
+    background: white;
+}
+
+.auth-module .modal-body {
+    padding: 2.5rem;
+}
+
+/* Form styles */
+.auth-module .form-control {
+    border-radius: 0.75rem;
+    border: 1px solid var(--neutral-300);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.auth-module .form-control:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.auth-module .form-label {
+    font-weight: var(--font-weight-medium);
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+/* Button styles */
+.auth-module .btn-wood {
+    background-color: var(--wood-primary);
+    border-color: var(--wood-primary);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.auth-module .btn-wood:hover {
+    background-color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Icon styles */
+.auth-module .display-4 {
+    font-size: 3rem;
+}
+
+/* Link styles */
+.auth-module a.text-wood {
+    color: var(--wood-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: color 0.3s ease;
+}
+
+.auth-module a.text-wood:hover {
+    color: var(--wood-dark);
+    text-decoration: underline;
+}
+
+/* Demo credentials box */
+.auth-module .bg-light {
+    background-color: var(--neutral-100) !important;
+    border: 1px solid var(--neutral-200);
+}
+
+.auth-module .bg-light h6 {
+    color: var(--wood-dark);
+    font-weight: var(--font-weight-semibold);
+}
+
+.auth-module .bg-light small {
+    color: var(--neutral-600);
+    line-height: 1.4;
+}
+
+/* Animation for modal appearance */
+.auth-module .modal-content {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form validation styles */
+.auth-module .form-control.is-invalid {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 0.2rem rgba(244, 67, 54, 0.25);
+}
+
+.auth-module .form-control.is-valid {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+}
+
+.auth-module .invalid-feedback {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.auth-module .valid-feedback {
+    color: var(--success-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Loading state */
+.auth-module .btn-wood:disabled {
+    background-color: var(--neutral-400);
+    border-color: var(--neutral-400);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auth-module .btn-wood .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.125rem;
+}
+
+/* Responsive design */
+@media (max-width: 576px) {
+    .auth-module .modal-dialog {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .auth-module .modal-body {
+        padding: 2rem 1.5rem;
+    }
+    
+    .auth-module .display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Focus management for accessibility */
+.auth-module .form-control:focus,
+.auth-module .btn:focus {
+    outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .auth-module .modal-content {
+        border: 2px solid var(--neutral-800);
+    }
+    
+    .auth-module .form-control {
+        border-width: 2px;
+    }
+}

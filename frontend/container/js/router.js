@@ -9,13 +9,21 @@ class MicroFrontendRouter {
         this.container = null;
         this.currentUser = null;
         this.microFrontends = {
-            // Authentication module
-            auth: {
-                path: '../auth-module/',
-                htmlFile: 'auth.html',
-                cssFile: 'css/auth.css',
-                jsFile: 'js/auth.js',
-                title: 'Autenticación - MobiliAri'
+            // Login module
+            login: {
+                path: '../login/',
+                htmlFile: 'login.html',
+                cssFile: 'css/login.css',
+                jsFile: 'js/login.js',
+                title: 'Iniciar Sesión - MobiliAri'
+            },
+            // Register module
+            register: {
+                path: '../register/',
+                htmlFile: 'register.html',
+                cssFile: 'css/register.css',
+                jsFile: 'js/register.js',
+                title: 'Registro - MobiliAri'
             },
             // E-commerce catalog module
             catalog: {
@@ -130,7 +138,7 @@ class MicroFrontendRouter {
         // Listen for logout events
         window.addEventListener('user-logout', () => {
             this.currentUser = null;
-            this.loadMicroFrontend('auth');
+            this.loadMicroFrontend('login');
         });
     }
 
@@ -213,13 +221,13 @@ class MicroFrontendRouter {
             window.MobiliAriState.currentUser = this.currentUser;
             this.handleAuthentication(this.currentUser);
         } else {
-            // Load authentication module by default
-            await this.loadMicroFrontend('auth');
+            // Load login module by default
+            await this.loadMicroFrontend('login');
         }
     }
 
     handleRouteChange() {
-        const hash = window.location.hash.slice(1);
+        const hash = window.location.hash.slice(1).replace(/^\//, ''); // Remove leading slash
         if (hash && this.microFrontends[hash]) {
             this.loadMicroFrontend(hash);
         }
@@ -271,7 +279,10 @@ class MicroFrontendRouter {
             // Initialize the module if it has an init function
             // Add a small delay to ensure DOM is ready
             setTimeout(() => {
-                const moduleObject = window[`${moduleName}Module`];
+                // Try different module naming patterns
+                let moduleObject = window[`${moduleName}Module`];
+                
+                
                 console.log(`Looking for module: ${moduleName}Module`, moduleObject);
                 
                 if (moduleObject && moduleObject.init) {
