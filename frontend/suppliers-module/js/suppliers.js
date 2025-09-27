@@ -183,6 +183,76 @@ window.suppliersModule = {
                 this.createSupplierOrder();
             });
         }
+        
+        // Modal close buttons
+        const closeNewSupplierModalBtn = document.getElementById('closeNewSupplierModalBtn');
+        const cancelNewSupplierBtn = document.getElementById('cancelNewSupplierBtn');
+        const closeNewOrderModalBtn = document.getElementById('closeNewOrderModalBtn');
+        const cancelNewOrderBtn = document.getElementById('cancelNewOrderBtn');
+        
+        if (closeNewSupplierModalBtn) {
+            closeNewSupplierModalBtn.addEventListener('click', () => {
+                this.closeNewSupplierModal();
+            });
+        }
+        
+        if (cancelNewSupplierBtn) {
+            cancelNewSupplierBtn.addEventListener('click', () => {
+                this.closeNewSupplierModal();
+            });
+        }
+        
+        if (closeNewOrderModalBtn) {
+            closeNewOrderModalBtn.addEventListener('click', () => {
+                this.closeNewOrderModal();
+            });
+        }
+        
+        if (cancelNewOrderBtn) {
+            cancelNewOrderBtn.addEventListener('click', () => {
+                this.closeNewOrderModal();
+            });
+        }
+        
+        // Modal backdrop clicks
+        const newSupplierModal = document.getElementById('newSupplierModal');
+        const newOrderModal = document.getElementById('newOrderModal');
+        
+        if (newSupplierModal) {
+            newSupplierModal.addEventListener('click', (e) => {
+                if (e.target === newSupplierModal) {
+                    this.closeNewSupplierModal();
+                }
+            });
+            
+            newSupplierModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        if (newOrderModal) {
+            newOrderModal.addEventListener('click', (e) => {
+                if (e.target === newOrderModal) {
+                    this.closeNewOrderModal();
+                }
+            });
+            
+            newOrderModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
 
         // Filters
         const statusFilter = document.getElementById('statusFilter');
@@ -555,6 +625,114 @@ window.suppliersModule = {
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
+    
+    closeNewSupplierModal: function() {
+        const modal = document.getElementById('newSupplierModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing new supplier modal:', error);
+            this.forceCloseModal('newSupplierModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('newSupplierForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de nuevo proveedor cerrado');
+    },
+    
+    closeNewOrderModal: function() {
+        const modal = document.getElementById('newOrderModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing new order modal:', error);
+            this.forceCloseModal('newOrderModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('newOrderForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        // Clear current supplier
+        this.currentOrderSupplier = null;
+        
+        console.log('Modal de nuevo pedido cerrado');
+    },
+    
+    forceCloseModal: function(modalId) {
+        const modal = document.getElementById(modalId);
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar:', modalId);
+    },
 
     createSupplierOrder: function() {
         const form = document.getElementById('newOrderForm');
@@ -674,3 +852,33 @@ if (document.readyState === 'loading') {
 } else {
     window.suppliersModule.init();
 }
+
+// Global emergency function for suppliers modals
+window.emergencyCloseSuppliersModals = function() {
+    if (window.suppliersModule) {
+        console.log('🚨 Cerrando modales de proveedores de emergencia...');
+        
+        try {
+            window.suppliersModule.forceCloseModal('newSupplierModal');
+            window.suppliersModule.forceCloseModal('newOrderModal');
+        } catch (error) {
+            console.log('Error con funciones del módulo, usando fallback...');
+        }
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Modales de proveedores cerrados');
+    }
+};

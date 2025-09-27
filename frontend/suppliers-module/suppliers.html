@@ -203,7 +203,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo Proveedor</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="closeNewSupplierModalBtn" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="newSupplierForm">
@@ -258,7 +260,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelNewSupplierBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createSupplierBtn">Crear Proveedor</button>
                 </div>
             </div>
@@ -271,7 +273,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo Pedido a Proveedor</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="closeNewOrderModalBtn" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="newOrderForm">
@@ -315,7 +319,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelNewOrderBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createOrderBtn">Crear Pedido</button>
                 </div>
             </div>

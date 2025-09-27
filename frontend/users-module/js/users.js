@@ -187,6 +187,76 @@ window.usersModule = {
                 this.savePermissions();
             });
         }
+        
+        // Modal close buttons
+        const closeNewUserModalBtn = document.getElementById('closeNewUserModalBtn');
+        const cancelNewUserBtn = document.getElementById('cancelNewUserBtn');
+        const closePermissionsModalBtn = document.getElementById('closePermissionsModalBtn');
+        const cancelPermissionsBtn = document.getElementById('cancelPermissionsBtn');
+        
+        if (closeNewUserModalBtn) {
+            closeNewUserModalBtn.addEventListener('click', () => {
+                this.closeNewUserModal();
+            });
+        }
+        
+        if (cancelNewUserBtn) {
+            cancelNewUserBtn.addEventListener('click', () => {
+                this.closeNewUserModal();
+            });
+        }
+        
+        if (closePermissionsModalBtn) {
+            closePermissionsModalBtn.addEventListener('click', () => {
+                this.closePermissionsModal();
+            });
+        }
+        
+        if (cancelPermissionsBtn) {
+            cancelPermissionsBtn.addEventListener('click', () => {
+                this.closePermissionsModal();
+            });
+        }
+        
+        // Modal backdrop clicks
+        const newUserModal = document.getElementById('newUserModal');
+        const permissionsModal = document.getElementById('permissionsModal');
+        
+        if (newUserModal) {
+            newUserModal.addEventListener('click', (e) => {
+                if (e.target === newUserModal) {
+                    this.closeNewUserModal();
+                }
+            });
+            
+            newUserModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        if (permissionsModal) {
+            permissionsModal.addEventListener('click', (e) => {
+                if (e.target === permissionsModal) {
+                    this.closePermissionsModal();
+                }
+            });
+            
+            permissionsModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
 
         // Filters
         const statusFilter = document.getElementById('statusFilter');
@@ -443,6 +513,104 @@ window.usersModule = {
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
+    },
+    
+    closeNewUserModal: function() {
+        const modal = document.getElementById('newUserModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing new user modal:', error);
+            this.forceCloseModal('newUserModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('newUserForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de nuevo usuario cerrado');
+    },
+    
+    closePermissionsModal: function() {
+        const modal = document.getElementById('permissionsModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing permissions modal:', error);
+            this.forceCloseModal('permissionsModal');
+        }
+        
+        console.log('Modal de permisos cerrado');
+    },
+    
+    forceCloseModal: function(modalId) {
+        const modal = document.getElementById(modalId);
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar:', modalId);
     },
 
     createNewUser: function() {
@@ -730,3 +898,33 @@ if (document.readyState === 'loading') {
 } else {
     window.usersModule.init();
 }
+
+// Global emergency function for users modals
+window.emergencyCloseUsersModals = function() {
+    if (window.usersModule) {
+        console.log('🚨 Cerrando modales de usuarios de emergencia...');
+        
+        try {
+            window.usersModule.forceCloseModal('newUserModal');
+            window.usersModule.forceCloseModal('permissionsModal');
+        } catch (error) {
+            console.log('Error con funciones del módulo, usando fallback...');
+        }
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Modales de usuarios cerrados');
+    }
+};

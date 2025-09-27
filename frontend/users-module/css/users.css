@@ -725,3 +725,65 @@
 body.role-administrador .users-module .admin-only {
     display: block;
 }
+
+/* ========================================
+    Modal Styles
+   ======================================== */
+
+.users-module .modal-header {
+    background-color: var(--wood-primary);
+    color: white;
+    border-bottom: none;
+}
+
+.users-module .modal-header .btn-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #8B4513;
+    text-shadow: none;
+    opacity: 1;
+    padding: 0.25rem;
+    margin: -0.25rem -0.25rem -0.25rem auto;
+}
+
+.users-module .modal-header .btn-close:hover {
+    color: #654321;
+    opacity: 0.9;
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+.users-module .modal-header .btn-close:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(139, 69, 19, 0.25);
+}
+
+.users-module .modal-header .btn-close span {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Cancel button styling */
+.users-module #cancelNewUserBtn,
+.users-module #cancelPermissionsBtn {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.users-module #cancelNewUserBtn:hover,
+.users-module #cancelPermissionsBtn:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    transform: translateY(-1px);
+}
+
+.users-module .form-control:focus,
+.users-module .form-select:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}

@@ -221,7 +221,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo Usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="closeNewUserModalBtn" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="newUserForm">
@@ -290,7 +292,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelNewUserBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createUserBtn">Crear Usuario</button>
                 </div>
             </div>
@@ -303,7 +305,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Gestionar Permisos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="closePermissionsModalBtn" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -352,7 +356,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelPermissionsBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="savePermissionsBtn">Guardar Permisos</button>
                 </div>
             </div>

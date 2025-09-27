@@ -195,6 +195,76 @@ window.inventoryModule = {
                 this.saveMaterialChanges();
             });
         }
+        
+        // Modal close buttons
+        const closeAddStockModalBtn = document.getElementById('closeAddStockModalBtn');
+        const cancelAddStockBtn = document.getElementById('cancelAddStockBtn');
+        const closeNewMaterialModalBtn = document.getElementById('closeNewMaterialModalBtn');
+        const cancelNewMaterialBtn = document.getElementById('cancelNewMaterialBtn');
+        
+        if (closeAddStockModalBtn) {
+            closeAddStockModalBtn.addEventListener('click', () => {
+                this.closeAddStockModal();
+            });
+        }
+        
+        if (cancelAddStockBtn) {
+            cancelAddStockBtn.addEventListener('click', () => {
+                this.closeAddStockModal();
+            });
+        }
+        
+        if (closeNewMaterialModalBtn) {
+            closeNewMaterialModalBtn.addEventListener('click', () => {
+                this.closeNewMaterialModal();
+            });
+        }
+        
+        if (cancelNewMaterialBtn) {
+            cancelNewMaterialBtn.addEventListener('click', () => {
+                this.closeNewMaterialModal();
+            });
+        }
+        
+        // Modal backdrop clicks
+        const addStockModal = document.getElementById('addStockModal');
+        const newMaterialModal = document.getElementById('newMaterialModal');
+        
+        if (addStockModal) {
+            addStockModal.addEventListener('click', (e) => {
+                if (e.target === addStockModal) {
+                    this.closeAddStockModal();
+                }
+            });
+            
+            addStockModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        if (newMaterialModal) {
+            newMaterialModal.addEventListener('click', (e) => {
+                if (e.target === newMaterialModal) {
+                    this.closeNewMaterialModal();
+                }
+            });
+            
+            newMaterialModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
 
         // Filters
         const statusFilter = document.getElementById('statusFilter');
@@ -495,6 +565,111 @@ window.inventoryModule = {
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
+    
+    closeNewMaterialModal: function() {
+        const modal = document.getElementById('newMaterialModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing new material modal:', error);
+            this.forceCloseModal('newMaterialModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('newMaterialForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de nuevo material cerrado');
+    },
+    
+    closeAddStockModal: function() {
+        const modal = document.getElementById('addStockModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing add stock modal:', error);
+            this.forceCloseModal('addStockModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('addStockForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de agregar stock cerrado');
+    },
+    
+    forceCloseModal: function(modalId) {
+        const modal = document.getElementById(modalId);
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar:', modalId);
+    },
 
     createNewMaterial: function() {
         const form = document.getElementById('newMaterialForm');
@@ -762,3 +937,34 @@ if (document.readyState === 'loading') {
 } else {
     window.inventoryModule.init();
 }
+
+// Global emergency function for inventory modals
+window.emergencyCloseInventoryModals = function() {
+    if (window.inventoryModule) {
+        console.log('🚨 Cerrando modales de inventario de emergencia...');
+        
+        // Try to close using module functions
+        try {
+            window.inventoryModule.forceCloseModal('newMaterialModal');
+            window.inventoryModule.forceCloseModal('addStockModal');
+        } catch (error) {
+            console.log('Error con funciones del módulo, usando fallback...');
+        }
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Modales de inventario cerrados');
+    }
+};

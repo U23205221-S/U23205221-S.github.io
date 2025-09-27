@@ -144,15 +144,15 @@ window.paymentsModule = {
         }
 
         // Payment actions
-        const addPaymentBtn = document.getElementById('addPaymentBtn');
+        const newPaymentBtn = document.getElementById('newPaymentBtn');
         const reconcileBtn = document.getElementById('reconcileBtn');
         const exportBtn = document.getElementById('exportBtn');
-        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+        const createPaymentBtn = document.getElementById('createPaymentBtn');
         const confirmReconciliationBtn = document.getElementById('confirmReconciliationBtn');
 
-        if (addPaymentBtn) {
-            addPaymentBtn.addEventListener('click', () => {
-                this.showAddPaymentModal();
+        if (newPaymentBtn) {
+            newPaymentBtn.addEventListener('click', () => {
+                this.showNewPaymentModal();
             });
         }
 
@@ -168,15 +168,85 @@ window.paymentsModule = {
             });
         }
 
-        if (confirmPaymentBtn) {
-            confirmPaymentBtn.addEventListener('click', () => {
-                this.savePayment();
+        if (createPaymentBtn) {
+            createPaymentBtn.addEventListener('click', () => {
+                this.createNewPayment();
             });
         }
 
         if (confirmReconciliationBtn) {
             confirmReconciliationBtn.addEventListener('click', () => {
                 this.processReconciliation();
+            });
+        }
+        
+        // Modal close buttons
+        const closeNewPaymentModalBtn = document.getElementById('closeNewPaymentModalBtn');
+        const cancelNewPaymentBtn = document.getElementById('cancelNewPaymentBtn');
+        const closeReconciliationModalBtn = document.getElementById('closeReconciliationModalBtn');
+        const cancelReconciliationBtn = document.getElementById('cancelReconciliationBtn');
+        
+        if (closeNewPaymentModalBtn) {
+            closeNewPaymentModalBtn.addEventListener('click', () => {
+                this.closeNewPaymentModal();
+            });
+        }
+        
+        if (cancelNewPaymentBtn) {
+            cancelNewPaymentBtn.addEventListener('click', () => {
+                this.closeNewPaymentModal();
+            });
+        }
+        
+        if (closeReconciliationModalBtn) {
+            closeReconciliationModalBtn.addEventListener('click', () => {
+                this.closeReconciliationModal();
+            });
+        }
+        
+        if (cancelReconciliationBtn) {
+            cancelReconciliationBtn.addEventListener('click', () => {
+                this.closeReconciliationModal();
+            });
+        }
+        
+        // Modal backdrop clicks
+        const newPaymentModal = document.getElementById('newPaymentModal');
+        const reconciliationModal = document.getElementById('reconciliationModal');
+        
+        if (newPaymentModal) {
+            newPaymentModal.addEventListener('click', (e) => {
+                if (e.target === newPaymentModal) {
+                    this.closeNewPaymentModal();
+                }
+            });
+            
+            newPaymentModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        if (reconciliationModal) {
+            reconciliationModal.addEventListener('click', (e) => {
+                if (e.target === reconciliationModal) {
+                    this.closeReconciliationModal();
+                }
+            });
+            
+            reconciliationModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
             });
         }
 
@@ -392,25 +462,70 @@ window.paymentsModule = {
         modal.show();
     },
 
-    showAddPaymentModal: function() {
-        const modal = document.getElementById('addPaymentModal');
-        const form = document.getElementById('paymentForm');
+    showNewPaymentModal: function() {
+        console.log('Abriendo modal de nuevo pago...');
+        const modal = document.getElementById('newPaymentModal');
+        const form = document.getElementById('newPaymentForm');
+        
+        if (!modal) {
+            console.error('Modal newPaymentModal no encontrado');
+            return;
+        }
+        
+        if (!form) {
+            console.error('Formulario newPaymentForm no encontrado');
+            return;
+        }
         
         // Reset form
         form.reset();
         form.classList.remove('was-validated');
         
+        // Load clients into select
+        this.loadClientOptions();
+        
         // Set default date to today
         const today = new Date().toISOString().split('T')[0];
-        form.querySelector('[name="date"]').value = today;
-        form.querySelector('[name="dueDate"]').value = today;
+        const paymentDateField = form.querySelector('[name="paymentDate"]');
+        
+        if (paymentDateField) paymentDateField.value = today;
+        
+        // Setup method change listener
+        this.setupPaymentMethodListener();
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
+    
+    loadClientOptions: function() {
+        const clientSelect = document.querySelector('#newPaymentForm [name="clientId"]');
+        if (!clientSelect) return;
+        
+        // Get clients from orders module if available
+        const orders = window.MobiliAriState.getState('orders') || [];
+        const clients = [...new Set(orders.map(order => order.cliente).filter(Boolean))];
+        
+        clientSelect.innerHTML = '<option value="">Seleccionar cliente...</option>' +
+            clients.map(client => `<option value="${client}">${client}</option>`).join('');
+    },
+    
+    setupPaymentMethodListener: function() {
+        const methodSelect = document.querySelector('#newPaymentForm [name="method"]');
+        const bankDetailsSection = document.getElementById('bankDetailsSection');
+        
+        if (!methodSelect || !bankDetailsSection) return;
+        
+        methodSelect.addEventListener('change', function() {
+            if (this.value === 'Transferencia') {
+                bankDetailsSection.style.display = 'block';
+            } else {
+                bankDetailsSection.style.display = 'none';
+            }
+        });
+    },
 
-    savePayment: function() {
-        const form = document.getElementById('paymentForm');
+    createNewPayment: function() {
+        const form = document.getElementById('newPaymentForm');
         const formData = new FormData(form);
 
         if (!form.checkValidity()) {
@@ -420,17 +535,19 @@ window.paymentsModule = {
 
         const newPayment = {
             id: Math.max(...this.payments.map(p => p.id), 0) + 1,
-            type: formData.get('type'),
+            type: 'Ingreso',
             concept: formData.get('concept'),
             amount: parseFloat(formData.get('amount')),
             method: formData.get('method'),
-            status: formData.get('status'),
-            date: formData.get('date'),
-            dueDate: formData.get('dueDate'),
-            client: formData.get('client'),
-            supplier: formData.get('supplier'),
+            status: formData.get('autoConfirm') ? 'Confirmado' : 'Pendiente',
+            date: formData.get('paymentDate'),
+            client: formData.get('clientId'),
+            orderId: formData.get('orderId'),
             reference: formData.get('reference'),
-            description: formData.get('description')
+            notes: formData.get('notes'),
+            bankName: formData.get('bankName'),
+            accountNumber: formData.get('accountNumber'),
+            sendReceipt: formData.get('sendReceipt') === 'on'
         };
 
         this.payments.push(newPayment);
@@ -439,8 +556,7 @@ window.paymentsModule = {
         this.applyFilters();
         
         // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addPaymentModal'));
-        modal.hide();
+        this.closeNewPaymentModal();
         
         this.showAlert('success', 'Pago registrado exitosamente');
     },
@@ -508,6 +624,104 @@ window.paymentsModule = {
         this.renderReconciliationList();
         const modal = new bootstrap.Modal(document.getElementById('reconciliationModal'));
         modal.show();
+    },
+    
+    closeNewPaymentModal: function() {
+        const modal = document.getElementById('newPaymentModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing new payment modal:', error);
+            this.forceCloseModal('newPaymentModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('newPaymentForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de nuevo pago cerrado');
+    },
+    
+    closeReconciliationModal: function() {
+        const modal = document.getElementById('reconciliationModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing reconciliation modal:', error);
+            this.forceCloseModal('reconciliationModal');
+        }
+        
+        console.log('Modal de conciliación cerrado');
+    },
+    
+    forceCloseModal: function(modalId) {
+        const modal = document.getElementById(modalId);
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar:', modalId);
     },
 
     renderReconciliationList: function() {
@@ -693,3 +907,33 @@ if (typeof window.MicroFrontendRouter === 'undefined') {
         window.paymentsModule.init();
     }
 }
+
+// Global emergency function for payments modals
+window.emergencyClosePaymentsModals = function() {
+    if (window.paymentsModule) {
+        console.log('🚨 Cerrando modales de pagos de emergencia...');
+        
+        try {
+            window.paymentsModule.forceCloseModal('newPaymentModal');
+            window.paymentsModule.forceCloseModal('reconciliationModal');
+        } catch (error) {
+            console.log('Error con funciones del módulo, usando fallback...');
+        }
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Modales de pagos cerrados');
+    }
+};

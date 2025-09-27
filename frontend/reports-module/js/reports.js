@@ -131,6 +131,43 @@ window.reportsModule = {
                 this.generateCustomReport();
             });
         }
+        
+        // Modal close buttons
+        const closeGenerateReportModalBtn = document.getElementById('closeGenerateReportModalBtn');
+        const cancelGenerateReportBtn = document.getElementById('cancelGenerateReportBtn');
+        
+        if (closeGenerateReportModalBtn) {
+            closeGenerateReportModalBtn.addEventListener('click', () => {
+                this.closeGenerateReportModal();
+            });
+        }
+        
+        if (cancelGenerateReportBtn) {
+            cancelGenerateReportBtn.addEventListener('click', () => {
+                this.closeGenerateReportModal();
+            });
+        }
+        
+        // Modal backdrop clicks
+        const generateReportModal = document.getElementById('generateReportModal');
+        
+        if (generateReportModal) {
+            generateReportModal.addEventListener('click', (e) => {
+                if (e.target === generateReportModal) {
+                    this.closeGenerateReportModal();
+                }
+            });
+            
+            generateReportModal.addEventListener('hidden.bs.modal', () => {
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
 
         // Chart controls
         const chartControls = document.querySelectorAll('[data-chart]');
@@ -459,6 +496,69 @@ window.reportsModule = {
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
+    
+    closeGenerateReportModal: function() {
+        const modal = document.getElementById('generateReportModal');
+        
+        try {
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing generate report modal:', error);
+            this.forceCloseModal('generateReportModal');
+        }
+        
+        // Reset form
+        const form = document.getElementById('reportForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('Modal de generar reporte cerrado');
+    },
+    
+    forceCloseModal: function(modalId) {
+        const modal = document.getElementById(modalId);
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar:', modalId);
+    },
 
     generateCustomReport: function() {
         const form = document.getElementById('reportForm');
@@ -655,7 +755,7 @@ Reporte generado por MobiliAri - Sistema de Gestión
 };
 
 // Initialize module when loaded (only if not in micro frontend environment)
-if (typeof window.MicroFrontendRouter === 'undefined') {
+if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             window.reportsModule.init();
@@ -664,3 +764,32 @@ if (typeof window.MicroFrontendRouter === 'undefined') {
         window.reportsModule.init();
     }
 }
+
+// Global emergency function for reports modals
+window.emergencyCloseReportsModals = function() {
+    if (window.reportsModule) {
+        console.log(' Cerrando modales de reportes de emergencia...');
+        
+        try {
+            window.reportsModule.forceCloseModal('generateReportModal');
+        } catch (error) {
+            console.log('Error con funcion del modulo, usando fallback...');
+        }
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log(' Modales de reportes cerrados');
+    }
+};
