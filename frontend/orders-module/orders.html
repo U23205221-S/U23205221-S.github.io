@@ -220,7 +220,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo Pedido</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="closeModalBtn" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="newOrderForm">
@@ -231,15 +233,24 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Producto</label>
-                                <input type="text" class="form-control" name="product" required>
+                                <select class="form-select" name="product" id="productSelect" required>
+                                    <option value="">Seleccionar producto...</option>
+                                    <!-- Options will be loaded dynamically -->
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">Monto</label>
-                                <input type="number" class="form-control" name="amount" min="0" required>
+                                <input type="number" class="form-control" name="amount" min="0" required readonly>
+                                <small class="text-muted">Se llena automáticamente al seleccionar producto</small>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="form-label">Tipo de Producto</label>
+                                <input type="text" class="form-control" name="productType" id="productType" readonly>
+                                <small class="text-muted">Personalizado o Prefabricado</small>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label">Fecha de Entrega</label>
                                 <input type="date" class="form-control" name="deliveryDate" required>
                             </div>
@@ -252,7 +263,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelOrderBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createOrderBtn">Crear Pedido</button>
                 </div>
             </div>

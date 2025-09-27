@@ -206,6 +206,46 @@ window.ordersModule = {
                 this.createNewOrder();
             });
         }
+        
+        // Close modal button (X)
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                this.closeNewOrderModal();
+            });
+        }
+        
+        // Cancel order button
+        const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+        if (cancelOrderBtn) {
+            cancelOrderBtn.addEventListener('click', () => {
+                this.closeNewOrderModal();
+            });
+        }
+        
+        // Modal backdrop click (close when clicking outside)
+        const newOrderModal = document.getElementById('newOrderModal');
+        if (newOrderModal) {
+            newOrderModal.addEventListener('click', (e) => {
+                if (e.target === newOrderModal) {
+                    this.closeNewOrderModal();
+                }
+            });
+            
+            // Also listen for Bootstrap modal events
+            newOrderModal.addEventListener('hidden.bs.modal', () => {
+                // Ensure everything is cleaned up when modal is hidden
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
 
         // Save order button
         const saveOrderBtn = document.getElementById('saveOrderBtn');
@@ -577,12 +617,106 @@ window.ordersModule = {
         bsModal.show();
     },
 
+    loadProductOptions: function() {
+        const productSelect = document.getElementById('productSelect');
+        if (!productSelect) return;
+        
+        // Get available products from inventory or predefined list
+        const availableProducts = this.getAvailableProducts();
+        
+        // Clear existing options except the first one
+        productSelect.innerHTML = '<option value="">Seleccionar producto...</option>';
+        
+        // Add product options
+        availableProducts.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.name;
+            option.textContent = `${product.name} - $${product.price.toLocaleString()}`;
+            option.setAttribute('data-price', product.price);
+            option.setAttribute('data-type', product.type);
+            productSelect.appendChild(option);
+        });
+        
+        // Add event listener to auto-fill price and type when product is selected
+        productSelect.addEventListener('change', (e) => {
+            const selectedOption = e.target.selectedOptions[0];
+            if (selectedOption && selectedOption.getAttribute('data-price')) {
+                const amountInput = document.querySelector('[name="amount"]');
+                const typeInput = document.getElementById('productType');
+                
+                if (amountInput) {
+                    amountInput.value = selectedOption.getAttribute('data-price');
+                }
+                
+                if (typeInput) {
+                    const productType = selectedOption.getAttribute('data-type');
+                    typeInput.value = productType === 'personalizado' ? 'Personalizado' : 'Prefabricado';
+                }
+            } else {
+                // Clear fields if no product selected
+                const amountInput = document.querySelector('[name="amount"]');
+                const typeInput = document.getElementById('productType');
+                if (amountInput) amountInput.value = '';
+                if (typeInput) typeInput.value = '';
+            }
+        });
+    },
+
+    getAvailableProducts: function() {
+        // This could be loaded from inventory module or a separate products list
+        // For now, we'll use a predefined list of common furniture products
+        return [
+            // Mesas
+            { name: 'Mesa de Comedor Rectangular', price: 15000, type: 'personalizado', category: 'mesas' },
+            { name: 'Mesa de Comedor Redonda', price: 18000, type: 'personalizado', category: 'mesas' },
+            { name: 'Mesa de Centro', price: 8500, type: 'prefabricado', category: 'mesas' },
+            { name: 'Mesa de Noche', price: 4500, type: 'prefabricado', category: 'mesas' },
+            { name: 'Mesa de Trabajo/Escritorio', price: 12000, type: 'personalizado', category: 'mesas' },
+            
+            // Sillas
+            { name: 'Silla de Comedor (Unidad)', price: 2500, type: 'prefabricado', category: 'sillas' },
+            { name: 'Juego de 4 Sillas', price: 9000, type: 'prefabricado', category: 'sillas' },
+            { name: 'Silla Ejecutiva', price: 8000, type: 'personalizado', category: 'sillas' },
+            
+            // Armarios y Closets
+            { name: 'Armario de Dormitorio 2 Puertas', price: 25000, type: 'personalizado', category: 'armarios' },
+            { name: 'Armario de Dormitorio 3 Puertas', price: 35000, type: 'personalizado', category: 'armarios' },
+            { name: 'Closet Empotrado', price: 45000, type: 'personalizado', category: 'armarios' },
+            
+            // Camas
+            { name: 'Cama Individual', price: 18000, type: 'personalizado', category: 'camas' },
+            { name: 'Cama Matrimonial', price: 25000, type: 'personalizado', category: 'camas' },
+            { name: 'Cama King Size', price: 32000, type: 'personalizado', category: 'camas' },
+            
+            // Sofás y Salas
+            { name: 'Sofá 2 Puestos', price: 20000, type: 'personalizado', category: 'sofas' },
+            { name: 'Sofá 3 Puestos', price: 28000, type: 'personalizado', category: 'sofas' },
+            { name: 'Sofá Esquinero', price: 35000, type: 'personalizado', category: 'sofas' },
+            
+            // Libreros y Estanterías
+            { name: 'Librero Modular', price: 15000, type: 'personalizado', category: 'libreros' },
+            { name: 'Estantería de Pared', price: 8000, type: 'prefabricado', category: 'libreros' },
+            
+            // Cocina
+            { name: 'Mueble de Cocina Integral', price: 80000, type: 'personalizado', category: 'cocina' },
+            { name: 'Isla de Cocina', price: 35000, type: 'personalizado', category: 'cocina' },
+            
+            // Otros
+            { name: 'Aparador/Buffet', price: 22000, type: 'personalizado', category: 'otros' },
+            { name: 'Cómoda', price: 18000, type: 'personalizado', category: 'otros' },
+            { name: 'Banco/Taburete', price: 3500, type: 'prefabricado', category: 'otros' }
+        ];
+    },
+
     showNewOrderModal: function() {
         const modal = document.getElementById('newOrderModal');
         const form = document.getElementById('newOrderForm');
         
         // Reset form
         form.reset();
+        
+        // Load products into select
+        this.loadProductOptions();
         
         // Set default delivery date (30 days from now)
         const deliveryDate = new Date();
@@ -591,6 +725,128 @@ window.ordersModule = {
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
+    },
+    
+    closeNewOrderModal: function() {
+        const modal = document.getElementById('newOrderModal');
+        
+        try {
+            // Try to get existing modal instance
+            let bsModal = bootstrap.Modal.getInstance(modal);
+            
+            if (bsModal) {
+                // Close the modal
+                bsModal.hide();
+            } else {
+                // If no instance exists, create one and hide it
+                bsModal = new bootstrap.Modal(modal);
+                bsModal.hide();
+            }
+            
+            // Force remove modal backdrop and classes after a short delay
+            setTimeout(() => {
+                // Remove modal backdrop
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Remove modal-open class from body
+                document.body.classList.remove('modal-open');
+                
+                // Reset body styles
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Hide modal element
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.removeAttribute('aria-modal');
+                
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error closing modal:', error);
+            
+            // Fallback: force close modal
+            this.forceCloseModal();
+        }
+        
+        // Reset form
+        const form = document.getElementById('newOrderForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        // Clear product selection
+        const productSelect = document.getElementById('productSelect');
+        const amountInput = document.querySelector('[name="amount"]');
+        const typeInput = document.getElementById('productType');
+        
+        if (productSelect) productSelect.value = '';
+        if (amountInput) amountInput.value = '';
+        if (typeInput) typeInput.value = '';
+        
+        console.log('Modal cerrado - permaneciendo en módulo de pedidos');
+    },
+    
+    forceCloseModal: function() {
+        const modal = document.getElementById('newOrderModal');
+        
+        // Force remove all modal-related elements and classes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Remove modal-open class from body
+        document.body.classList.remove('modal-open');
+        
+        // Reset body styles
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Hide modal
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        }
+        
+        console.log('Modal forzado a cerrar');
+    },
+    
+    // Emergency function to close modal (can be called from console)
+    emergencyCloseModal: function() {
+        console.log('🚨 Cerrando modal de emergencia...');
+        
+        // Remove all possible modal elements
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.removeAttribute('aria-modal');
+        });
+        
+        // Remove all backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Clean body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Reset form
+        const form = document.getElementById('newOrderForm');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        console.log('✅ Modal cerrado exitosamente');
     },
 
     createNewOrder: function() {
@@ -603,19 +859,29 @@ window.ordersModule = {
             return;
         }
 
+        // Determine product type and initial status
+        const productType = formData.get('productType');
+        const isPersonalizado = productType === 'Personalizado';
+        
         const newOrder = {
             id: `ORD-${String(Date.now()).slice(-3)}`,
             client: formData.get('client'),
             product: formData.get('product'),
-            status: 'Pendiente',
+            status: isPersonalizado ? 'Emitido' : 'Pagado', // Personalizado starts at Emitido, Prefabricado starts at Pagado
             date: new Date().toISOString().split('T')[0],
             deliveryDate: formData.get('deliveryDate'),
             amount: parseFloat(formData.get('amount')),
-            customizations: formData.get('customizations') || 'Sin personalizaciones especiales',
+            paidAmount: isPersonalizado ? 0 : parseFloat(formData.get('amount')), // Prefabricados are paid in full
+            customizations: formData.get('customizations') || (isPersonalizado ? 'Pendiente de definir personalizaciones' : 'Producto en stock - Sin personalizaciones'),
             assignedTo: '',
-            progress: 0,
-            notes: formData.get('notes') ? [formData.get('notes')] : [],
-            priority: 'medium'
+            progress: isPersonalizado ? 10 : 100, // Personalizado starts at 10%, Prefabricado is 100%
+            notes: [
+                isPersonalizado ? 
+                    'Nuevo pedido personalizado - Cliente debe realizar primer pago del 50%' : 
+                    'Producto prefabricado - Pago completo recibido, listo para entrega'
+            ],
+            priority: 'medium',
+            type: isPersonalizado ? 'personalizado' : 'prefabricado'
         };
 
         // Add to orders
@@ -842,3 +1108,28 @@ if (document.readyState === 'loading') {
 } else {
     window.ordersModule.init();
 }
+
+// Global emergency function for modal issues
+window.emergencyCloseModal = function() {
+    if (window.ordersModule && window.ordersModule.emergencyCloseModal) {
+        window.ordersModule.emergencyCloseModal();
+    } else {
+        console.log('🚨 Cerrando modal de emergencia (fallback)...');
+        
+        // Fallback emergency close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+            modal.classList.remove('show', 'fade');
+        });
+        
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Modal cerrado con fallback');
+    }
+};

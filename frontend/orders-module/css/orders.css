@@ -415,6 +415,82 @@
 }
 
 /* ========================================
+    New Order Modal Styles
+   ======================================== */
+
+.orders-module #productSelect {
+    background-color: #fff;
+    border: 2px solid #e9ecef;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.orders-module #productSelect:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.orders-module input[readonly] {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+.orders-module .form-control:focus {
+    border-color: var(--wood-primary);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+.orders-module .modal-header {
+    background-color: var(--wood-primary);
+    color: white;
+    border-bottom: none;
+}
+
+.orders-module .modal-header .btn-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #8B4513;
+    text-shadow: none;
+    opacity: 1;
+    padding: 0.25rem;
+    margin: -0.25rem -0.25rem -0.25rem auto;
+}
+
+.orders-module .modal-header .btn-close:hover {
+    color: #654321;
+    opacity: 0.9;
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+.orders-module .modal-header .btn-close:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(139, 69, 19, 0.25);
+}
+
+.orders-module .modal-header .btn-close span {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Cancel button styling */
+.orders-module #cancelOrderBtn {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.orders-module #cancelOrderBtn:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    transform: translateY(-1px);
+}
+
+/* ========================================
     Button Styles
    ======================================== */
 
