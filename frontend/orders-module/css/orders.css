@@ -8,7 +8,7 @@
 }
 
 /* ========================================
-   Sidebar Styles (Inherited from Dashboard)
+    Sidebar Styles (Inherited from Dashboard)
    ======================================== */
 
 .orders-module .sidebar {
@@ -51,7 +51,7 @@
 }
 
 /* ========================================
-   Main Content Styles
+    Main Content Styles
    ======================================== */
 
 .orders-module .main-content {
@@ -70,7 +70,7 @@
 }
 
 /* ========================================
-   Kanban Board Styles
+    Kanban Board Styles
    ======================================== */
 
 .orders-module .kanban-board {
@@ -136,7 +136,7 @@
 }
 
 /* ========================================
-   Order Card Content Styles
+    Order Card Content Styles
    ======================================== */
 
 .orders-module .order-id {
@@ -195,7 +195,7 @@
 }
 
 /* ========================================
-   Filter Styles
+    Filter Styles
    ======================================== */
 
 .orders-module .form-control,
@@ -213,7 +213,7 @@
 }
 
 /* ========================================
-   Modal Styles
+    Modal Styles
    ======================================== */
 
 .orders-module .modal-content {
@@ -245,7 +245,7 @@
 }
 
 /* ========================================
-   Order Detail Styles
+    Order Detail Styles
    ======================================== */
 
 .orders-module .order-detail-section {
@@ -283,7 +283,7 @@
 }
 
 /* ========================================
-   Status Badge Styles
+    Status Badge Styles
    ======================================== */
 
 .orders-module .status-badge {
@@ -295,23 +295,127 @@
     letter-spacing: 0.5px;
 }
 
+/* Estados del flujo de trabajo */
+.orders-module .status-emitido {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.orders-module .status-produccion {
+    background-color: rgba(253, 126, 20, 0.1);
+    color: #fd7e14;
+    border: 1px solid rgba(253, 126, 20, 0.2);
+}
+
+.orders-module .status-construido {
+    background-color: rgba(32, 201, 151, 0.1);
+    color: #20c997;
+    border: 1px solid rgba(32, 201, 151, 0.2);
+}
+
 .orders-module .status-pendiente {
-    background-color: rgba(158, 158, 158, 0.1);
-    color: var(--neutral-600);
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-.orders-module .status-proceso {
-    background-color: rgba(33, 150, 243, 0.1);
-    color: var(--info-color);
+.orders-module .status-pagado {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
 }
 
-.orders-module .status-completado {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: var(--success-color);
+.orders-module .status-entregando {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+}
+
+.orders-module .status-finalizado {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+    font-weight: 600;
+}
+
+.orders-module .status-cancelado {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 /* ========================================
-   Button Styles
+    Enhanced Card Styles
+   ======================================== */
+
+.orders-module .kanban-card .status-info {
+    border-left: 3px solid transparent;
+    padding-left: 0.5rem;
+    margin-left: -0.5rem;
+}
+
+.orders-module .kanban-card .status-info .status-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.orders-module .kanban-card .payment-info {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.orders-module .kanban-card .badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+}
+
+.orders-module .kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Status-specific card borders */
+.orders-module .kanban-card[data-order-id] .status-info {
+    border-left-color: #6c757d;
+}
+
+.orders-module .status-emitido .status-info {
+    border-left-color: #6c757d;
+}
+
+.orders-module .status-produccion .status-info {
+    border-left-color: #fd7e14;
+}
+
+.orders-module .status-construido .status-info {
+    border-left-color: #20c997;
+}
+
+.orders-module .status-pendiente .status-info {
+    border-left-color: #ffc107;
+}
+
+.orders-module .status-pagado .status-info {
+    border-left-color: #198754;
+}
+
+.orders-module .status-entregando .status-info {
+    border-left-color: #0d6efd;
+}
+
+.orders-module .status-finalizado .status-info {
+    border-left-color: #198754;
+}
+
+.orders-module .status-cancelado .status-info {
+    border-left-color: #dc3545;
+}
+
+/* ========================================
+    Button Styles
    ======================================== */
 
 .orders-module .btn-wood {
@@ -361,7 +465,7 @@
 }
 
 /* ========================================
-   Notes and Timeline Styles
+    Notes and Timeline Styles
    ======================================== */
 
 .orders-module .notes-list {
@@ -383,7 +487,7 @@
 }
 
 /* ========================================
-   Empty State Styles
+    Empty State Styles
    ======================================== */
 
 .orders-module .empty-column {
@@ -401,7 +505,7 @@
 }
 
 /* ========================================
-   Responsive Design
+    Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -442,7 +546,7 @@
 }
 
 /* ========================================
-   Animations
+    Animations
    ======================================== */
 
 .orders-module .fade-in {
@@ -470,7 +574,7 @@
 }
 
 /* ========================================
-   Utility Classes
+    Utility Classes
    ======================================== */
 
 .orders-module .text-wood { 

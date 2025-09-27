@@ -33,43 +33,49 @@ window.ordersModule = {
                 id: 'ORD-001',
                 client: 'Juan Pérez',
                 product: 'Mesa de Comedor Personalizada',
-                status: 'Pendiente',
+                status: 'Emitido',
                 date: '2025-01-15',
                 deliveryDate: '2025-02-15',
                 amount: 16500,
+                paidAmount: 0,
                 customizations: 'Dimensiones: 180x90x75cm, Material: Roble, Acabado: Barniz mate',
                 assignedTo: '',
-                progress: 0,
-                notes: ['Cliente solicita entrega urgente', 'Verificar disponibilidad de roble'],
-                priority: 'high'
+                progress: 10,
+                notes: ['Cliente debe seleccionar acabado final', 'Pendiente primer pago 50%'],
+                priority: 'high',
+                type: 'personalizado'
             },
             {
                 id: 'ORD-002',
                 client: 'María González',
-                product: 'Armario de Dormitorio',
-                status: 'En Progreso',
+                product: 'Armario de Dormitorio Personalizado',
+                status: 'En Producción',
                 date: '2025-01-10',
                 deliveryDate: '2025-02-10',
                 amount: 28000,
+                paidAmount: 14000,
                 customizations: 'Dimensiones: 200x60x220cm, Material: MDF, Acabado: Pintura blanca',
-                assignedTo: 'Admin',
+                assignedTo: 'Carlos Mendoza',
                 progress: 60,
                 notes: ['Corte completado', 'Ensamblaje en proceso', 'Pintura programada para mañana'],
-                priority: 'medium'
+                priority: 'medium',
+                type: 'personalizado'
             },
             {
                 id: 'ORD-003',
                 client: 'Roberto Silva',
                 product: 'Escritorio Ejecutivo',
-                status: 'Completado',
+                status: 'Finalizado',
                 date: '2025-01-05',
                 deliveryDate: '2025-01-20',
                 amount: 13500,
+                paidAmount: 13500,
                 customizations: 'Dimensiones: 160x80x75cm, Material: Cedro, Acabado: Barniz brillante',
-                assignedTo: 'Admin',
+                assignedTo: 'Luis Torres',
                 progress: 100,
-                notes: ['Entregado satisfactoriamente', 'Cliente muy satisfecho'],
-                priority: 'low'
+                notes: ['Entregado satisfactoriamente', 'Cliente muy satisfecho', 'Producto personalizado completado'],
+                priority: 'low',
+                type: 'personalizado'
             },
             {
                 id: 'ORD-004',
@@ -79,11 +85,77 @@ window.ordersModule = {
                 date: '2025-01-16',
                 deliveryDate: '2025-02-20',
                 amount: 24000,
+                paidAmount: 12000,
                 customizations: 'Dimensiones: 220x90x85cm, Material: Pino y Tela, Color: Azul marino',
+                assignedTo: 'María Rodriguez',
+                progress: 85,
+                notes: ['Producto construido', 'Esperando pago del 50% restante', 'Cliente confirmado para entrega'],
+                priority: 'medium',
+                type: 'personalizado'
+            },
+            {
+                id: 'ORD-005',
+                client: 'Pedro Ramirez',
+                product: 'Mesa de Centro Prefabricada',
+                status: 'Pagado',
+                date: '2025-01-18',
+                deliveryDate: '2025-01-25',
+                amount: 8500,
+                paidAmount: 8500,
+                customizations: 'Producto en stock - Sin personalizaciones',
+                assignedTo: 'Equipo de Entrega',
+                progress: 100,
+                notes: ['Producto prefabricado', 'Pago completo recibido', 'Listo para entrega'],
+                priority: 'low',
+                type: 'prefabricado'
+            },
+            {
+                id: 'ORD-006',
+                client: 'Laura Vega',
+                product: 'Librero Modular',
+                status: 'Entregando',
+                date: '2025-01-12',
+                deliveryDate: '2025-01-22',
+                amount: 15000,
+                paidAmount: 15000,
+                customizations: 'Dimensiones: 180x30x200cm, Material: Melamina, Color: Blanco',
+                assignedTo: 'Equipo de Entrega',
+                progress: 100,
+                notes: ['Coordinando entrega para el sábado', 'Cliente disponible de 9am a 2pm'],
+                priority: 'high',
+                type: 'personalizado'
+            },
+            {
+                id: 'ORD-007',
+                client: 'Diego Morales',
+                product: 'Cama King Size Personalizada',
+                status: 'Construido',
+                date: '2025-01-08',
+                deliveryDate: '2025-02-08',
+                amount: 32000,
+                paidAmount: 16000,
+                customizations: 'Dimensiones: 200x200x120cm, Material: Roble, Cabecera tapizada',
+                assignedTo: 'Ana Gutierrez',
+                progress: 90,
+                notes: ['Producto terminado', 'Pendiente pago final', 'Calidad verificada'],
+                priority: 'medium',
+                type: 'personalizado'
+            },
+            {
+                id: 'ORD-008',
+                client: 'Carmen Flores',
+                product: 'Juego de Comedor',
+                status: 'Cancelado',
+                date: '2025-01-20',
+                deliveryDate: '2025-02-25',
+                amount: 45000,
+                paidAmount: 0,
+                customizations: 'Mesa + 6 sillas, Material: Cedro, Acabado: Natural',
                 assignedTo: '',
-                progress: 0,
-                notes: ['Esperando confirmación de tela', 'Cliente prefiere entrega en fin de semana'],
-                priority: 'medium'
+                progress: 5,
+                notes: ['Cliente canceló por cambio de domicilio', 'Dentro del periodo de cancelación'],
+                priority: 'low',
+                type: 'personalizado'
             }
         ];
     },
@@ -172,11 +244,19 @@ window.ordersModule = {
     },
 
     setupKanbanBoard: function() {
-        const columns = ['pendingCards', 'progressCards', 'completedCards'];
+        const columns = [
+            'emitidoCards', 'produccionCards', 'construidoCards', 'pendienteCards',
+            'pagadoCards', 'entregandoCards', 'finalizadoCards', 'canceladoCards'
+        ];
         const statusMap = {
-            'pendingCards': 'Pendiente',
-            'progressCards': 'En Progreso',
-            'completedCards': 'Completado'
+            'emitidoCards': 'Emitido',
+            'produccionCards': 'En Producción',
+            'construidoCards': 'Construido',
+            'pendienteCards': 'Pendiente',
+            'pagadoCards': 'Pagado',
+            'entregandoCards': 'Entregando',
+            'finalizadoCards': 'Finalizado',
+            'canceladoCards': 'Cancelado'
         };
 
         columns.forEach(columnId => {
@@ -234,22 +314,33 @@ window.ordersModule = {
     },
 
     renderOrders: function() {
-        const pendingCards = document.getElementById('pendingCards');
-        const progressCards = document.getElementById('progressCards');
-        const completedCards = document.getElementById('completedCards');
-
-        if (!pendingCards || !progressCards || !completedCards) return;
+        // Get all kanban card containers
+        const containers = {
+            'Emitido': document.getElementById('emitidoCards'),
+            'En Producción': document.getElementById('produccionCards'),
+            'Construido': document.getElementById('construidoCards'),
+            'Pendiente': document.getElementById('pendienteCards'),
+            'Pagado': document.getElementById('pagadoCards'),
+            'Entregando': document.getElementById('entregandoCards'),
+            'Finalizado': document.getElementById('finalizadoCards'),
+            'Cancelado': document.getElementById('canceladoCards')
+        };
 
         // Clear existing cards
-        pendingCards.innerHTML = '';
-        progressCards.innerHTML = '';
-        completedCards.innerHTML = '';
+        Object.values(containers).forEach(container => {
+            if (container) container.innerHTML = '';
+        });
 
         // Group orders by status
         const ordersByStatus = {
+            'Emitido': [],
+            'En Producción': [],
+            'Construido': [],
             'Pendiente': [],
-            'En Progreso': [],
-            'Completado': []
+            'Pagado': [],
+            'Entregando': [],
+            'Finalizado': [],
+            'Cancelado': []
         };
 
         this.filteredOrders.forEach(order => {
@@ -261,14 +352,15 @@ window.ordersModule = {
         // Render cards for each status
         Object.keys(ordersByStatus).forEach(status => {
             const orders = ordersByStatus[status];
-            const container = status === 'Pendiente' ? pendingCards :
-                            status === 'En Progreso' ? progressCards : completedCards;
+            const container = containers[status];
+            
+            if (!container) return;
 
             if (orders.length === 0) {
                 container.innerHTML = `
                     <div class="empty-column">
                         <i class="bi bi-inbox"></i>
-                        <p>No hay pedidos ${status.toLowerCase()}</p>
+                        <p>No hay pedidos en ${status.toLowerCase()}</p>
                     </div>
                 `;
             } else {
@@ -277,20 +369,63 @@ window.ordersModule = {
         });
 
         // Update counters
-        document.getElementById('pendingCount').textContent = ordersByStatus['Pendiente'].length;
-        document.getElementById('progressCount').textContent = ordersByStatus['En Progreso'].length;
-        document.getElementById('completedCount').textContent = ordersByStatus['Completado'].length;
+        const counters = {
+            'emitidoCount': ordersByStatus['Emitido'].length,
+            'produccionCount': ordersByStatus['En Producción'].length,
+            'construidoCount': ordersByStatus['Construido'].length,
+            'pendienteCount': ordersByStatus['Pendiente'].length,
+            'pagadoCount': ordersByStatus['Pagado'].length,
+            'entregandoCount': ordersByStatus['Entregando'].length,
+            'finalizadoCount': ordersByStatus['Finalizado'].length,
+            'canceladoCount': ordersByStatus['Cancelado'].length
+        };
+        
+        Object.keys(counters).forEach(counterId => {
+            const element = document.getElementById(counterId);
+            if (element) {
+                element.textContent = counters[counterId];
+            }
+        });
     },
 
     createOrderCard: function(order) {
         const priorityIcon = this.getPriorityIcon(order.priority);
-        const progressBar = order.status === 'En Progreso' ? `
+        const statusInfo = this.getStatusInfo(order.status);
+        
+        // Progress bar for production states
+        const showProgress = ['En Producción', 'Construido', 'Pendiente'].includes(order.status);
+        const progressBar = showProgress ? `
             <div class="order-progress">
                 <div class="progress">
                     <div class="progress-bar" style="width: ${order.progress}%"></div>
                 </div>
                 <small class="text-muted">${order.progress}% completado</small>
             </div>
+        ` : '';
+        
+        // Payment information
+        const paidAmount = order.paidAmount || 0;
+        const remainingAmount = order.amount - paidAmount;
+        const paymentInfo = order.amount > 0 ? `
+            <div class="payment-info mt-2">
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Pagado:</small>
+                    <small class="text-success">$${paidAmount.toLocaleString()}</small>
+                </div>
+                ${remainingAmount > 0 ? `
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">Pendiente:</small>
+                        <small class="text-warning">$${remainingAmount.toLocaleString()}</small>
+                    </div>
+                ` : ''}
+            </div>
+        ` : '';
+        
+        // Product type badge
+        const typeBadge = order.type ? `
+            <span class="badge ${order.type === 'personalizado' ? 'bg-info' : 'bg-secondary'} mb-2">
+                ${order.type === 'personalizado' ? 'Personalizado' : 'Prefabricado'}
+            </span>
         ` : '';
 
         return `
@@ -299,13 +434,21 @@ window.ordersModule = {
                     <span class="order-id">${order.id}</span>
                     <i class="bi bi-${priorityIcon} text-${this.getPriorityColor(order.priority)}"></i>
                 </div>
+                ${typeBadge}
                 <h6 class="order-client">${order.client}</h6>
                 <p class="order-product">${order.product}</p>
+                <div class="status-info mb-2">
+                    <span class="status-badge status-${this.getStatusClass(order.status)}">
+                        <i class="bi bi-${statusInfo.icon} me-1"></i>${order.status}
+                    </span>
+                    <small class="d-block text-muted mt-1">${statusInfo.phase}</small>
+                </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="order-amount">$${order.amount.toLocaleString()}</span>
                     <small class="order-date">${this.formatDate(order.date)}</small>
                 </div>
                 ${progressBar}
+                ${paymentInfo}
                 ${order.assignedTo ? `<span class="order-assigned"><i class="bi bi-person me-1"></i>${order.assignedTo}</span>` : ''}
                 <div class="mt-2">
                     <small class="text-muted">
@@ -578,11 +721,70 @@ window.ordersModule = {
     // Helper functions
     getStatusClass: function(status) {
         const statusMap = {
+            'Emitido': 'emitido',
+            'En Producción': 'produccion',
+            'Construido': 'construido',
             'Pendiente': 'pendiente',
-            'En Progreso': 'proceso',
-            'Completado': 'completado'
+            'Pagado': 'pagado',
+            'Entregando': 'entregando',
+            'Finalizado': 'finalizado',
+            'Cancelado': 'cancelado'
         };
-        return statusMap[status] || 'pendiente';
+        return statusMap[status] || 'emitido';
+    },
+
+    getStatusInfo: function(status) {
+        const statusInfo = {
+            'Emitido': {
+                phase: '1ª Fase del Personalizado',
+                description: 'Venta personalizada ingresada. Cliente debe seleccionar producto y realizar primer pago (50%)',
+                icon: 'file-earmark-plus',
+                color: '#6c757d'
+            },
+            'En Producción': {
+                phase: '2ª Fase del Personalizado',
+                description: 'Elaboración del producto en proceso',
+                icon: 'tools',
+                color: '#fd7e14'
+            },
+            'Construido': {
+                phase: '3ª Fase del Personalizado',
+                description: 'Producto terminado en su elaboración',
+                icon: 'check2-square',
+                color: '#20c997'
+            },
+            'Pendiente': {
+                phase: '4ª Fase del Personalizado',
+                description: 'En espera del 50% restante del pago',
+                icon: 'clock-history',
+                color: '#ffc107'
+            },
+            'Pagado': {
+                phase: '5ª Fase del Personalizado / 1ª Fase de Prefabricado',
+                description: 'Cancelación completa del producto (100% pagado)',
+                icon: 'credit-card-fill',
+                color: '#198754'
+            },
+            'Entregando': {
+                phase: '6ª Fase del Personalizado / 2ª Fase de Prefabricado',
+                description: 'Coordinación del día de entrega con el cliente',
+                icon: 'truck',
+                color: '#0d6efd'
+            },
+            'Finalizado': {
+                phase: '7ª Fase del Personalizado / 3ª Fase de Prefabricado',
+                description: 'Finalización de la venta - Producto entregado',
+                icon: 'check-circle-fill',
+                color: '#198754'
+            },
+            'Cancelado': {
+                phase: 'Estado Final',
+                description: 'Venta cancelada por el cliente dentro del rango establecido',
+                icon: 'x-circle-fill',
+                color: '#dc3545'
+            }
+        };
+        return statusInfo[status] || statusInfo['Emitido'];
     },
 
     getPriorityIcon: function(priority) {

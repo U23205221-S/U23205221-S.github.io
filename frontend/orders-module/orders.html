@@ -85,9 +85,14 @@
                 <div class="col-md-3">
                     <select class="form-select" id="statusFilter">
                         <option value="">Todos los estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Progreso">En Progreso</option>
-                        <option value="Completado">Completado</option>
+                        <option value="Emitido">1. Emitido (1ª Fase Personalizado)</option>
+                        <option value="En Producción">2. En Producción (2ª Fase Personalizado)</option>
+                        <option value="Construido">3. Construido (3ª Fase Personalizado)</option>
+                        <option value="Pendiente">4. Pendiente (4ª Fase Personalizado)</option>
+                        <option value="Pagado">5. Pagado (5ª Fase Personalizado / 1ª Prefabricado)</option>
+                        <option value="Entregando">6. Entregando (6ª Fase Personalizado / 2ª Prefabricado)</option>
+                        <option value="Finalizado">7. Finalizado (7ª Fase Personalizado / 3ª Prefabricado)</option>
+                        <option value="Cancelado">8. Cancelado</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -107,32 +112,82 @@
 
             <!-- Kanban Board -->
             <div class="kanban-board" id="kanbanBoard">
+                <div class="kanban-column" data-status="Emitido">
+                    <div class="kanban-header">
+                        <i class="bi bi-file-earmark-plus me-2"></i>Emitido
+                        <span class="badge bg-light text-dark ms-2" id="emitidoCount">0</span>
+                    </div>
+                    <div class="kanban-cards" id="emitidoCards">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="kanban-column" data-status="En Producción">
+                    <div class="kanban-header">
+                        <i class="bi bi-tools me-2"></i>En Producción
+                        <span class="badge bg-light text-dark ms-2" id="produccionCount">0</span>
+                    </div>
+                    <div class="kanban-cards" id="produccionCards">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="kanban-column" data-status="Construido">
+                    <div class="kanban-header">
+                        <i class="bi bi-check2-square me-2"></i>Construido
+                        <span class="badge bg-light text-dark ms-2" id="construidoCount">0</span>
+                    </div>
+                    <div class="kanban-cards" id="construidoCards">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+                
                 <div class="kanban-column" data-status="Pendiente">
                     <div class="kanban-header">
-                        <i class="bi bi-clock me-2"></i>Pendiente
-                        <span class="badge bg-light text-dark ms-2" id="pendingCount">0</span>
+                        <i class="bi bi-clock-history me-2"></i>Pendiente
+                        <span class="badge bg-light text-dark ms-2" id="pendienteCount">0</span>
                     </div>
-                    <div class="kanban-cards" id="pendingCards">
+                    <div class="kanban-cards" id="pendienteCards">
                         <!-- Cards will be loaded here -->
                     </div>
                 </div>
                 
-                <div class="kanban-column" data-status="En Progreso">
+                <div class="kanban-column" data-status="Pagado">
                     <div class="kanban-header">
-                        <i class="bi bi-gear me-2"></i>En Progreso
-                        <span class="badge bg-light text-dark ms-2" id="progressCount">0</span>
+                        <i class="bi bi-credit-card-fill me-2"></i>Pagado
+                        <span class="badge bg-light text-dark ms-2" id="pagadoCount">0</span>
                     </div>
-                    <div class="kanban-cards" id="progressCards">
+                    <div class="kanban-cards" id="pagadoCards">
                         <!-- Cards will be loaded here -->
                     </div>
                 </div>
                 
-                <div class="kanban-column" data-status="Completado">
+                <div class="kanban-column" data-status="Entregando">
                     <div class="kanban-header">
-                        <i class="bi bi-check-circle me-2"></i>Completado
-                        <span class="badge bg-light text-dark ms-2" id="completedCount">0</span>
+                        <i class="bi bi-truck me-2"></i>Entregando
+                        <span class="badge bg-light text-dark ms-2" id="entregandoCount">0</span>
                     </div>
-                    <div class="kanban-cards" id="completedCards">
+                    <div class="kanban-cards" id="entregandoCards">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="kanban-column" data-status="Finalizado">
+                    <div class="kanban-header">
+                        <i class="bi bi-check-circle-fill me-2"></i>Finalizado
+                        <span class="badge bg-light text-dark ms-2" id="finalizadoCount">0</span>
+                    </div>
+                    <div class="kanban-cards" id="finalizadoCards">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="kanban-column" data-status="Cancelado">
+                    <div class="kanban-header">
+                        <i class="bi bi-x-circle-fill me-2"></i>Cancelado
+                        <span class="badge bg-light text-dark ms-2" id="canceladoCount">0</span>
+                    </div>
+                    <div class="kanban-cards" id="canceladoCards">
                         <!-- Cards will be loaded here -->
                     </div>
                 </div>
@@ -193,10 +248,7 @@
                             <label class="form-label">Personalizaciones</label>
                             <textarea class="form-control" rows="3" name="customizations" placeholder="Describe las personalizaciones del mueble..."></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Notas</label>
-                            <textarea class="form-control" rows="2" name="notes" placeholder="Notas adicionales..."></textarea>
-                        </div>
+                        
                     </form>
                 </div>
                 <div class="modal-footer">
