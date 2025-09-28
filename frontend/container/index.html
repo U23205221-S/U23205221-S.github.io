@@ -31,14 +31,26 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Router -->
-    <script src="js/router.js"></script>
+    <script src="js/router-simple.js"></script>
     
     <!-- Initialize App -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the micro frontend router
-            MicroFrontendRouter.init();
-        });
+        // Global state initialization
+        window.MobiliAriState = {
+            data: {},
+            currentUser: null,
+            
+            getState: function(key) {
+                return this.data[key] || [];
+            },
+            
+            updateState: function(key, value) {
+                this.data[key] = value;
+                window.dispatchEvent(new CustomEvent('state-updated', {
+                    detail: { key, value }
+                }));
+            }
+        };
     </script>
 </body>
 </html>

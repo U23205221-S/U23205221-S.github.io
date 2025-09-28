@@ -1,6 +1,6 @@
 /**
- * MobiliAri - Micro Frontend Router
- * Manages loading and routing between different micro frontends
+ * MobiliAri - Micro Frontend Router - BACKUP
+ * Simple version to fix loading issues
  */
 
 class MicroFrontendRouter {
@@ -16,30 +16,6 @@ class MicroFrontendRouter {
                 cssFile: 'css/login.css',
                 jsFile: 'js/login.js',
                 title: 'Iniciar Sesión - MobiliAri'
-            },
-            // Register module
-            register: {
-                path: '../register/',
-                htmlFile: 'register.html',
-                cssFile: 'css/register.css',
-                jsFile: 'js/register.js',
-                title: 'Registro - MobiliAri'
-            },
-            // E-commerce catalog module
-            catalog: {
-                path: '../catalog-module/',
-                htmlFile: 'catalog.html',
-                cssFile: 'css/catalog.css',
-                jsFile: 'js/catalog.js',
-                title: 'Catálogo - MobiliAri'
-            },
-            // Customization module
-            customization: {
-                path: '../customization-module/',
-                htmlFile: 'customization.html',
-                cssFile: 'css/customization.css',
-                jsFile: 'js/customization.js',
-                title: 'Personalización - MobiliAri'
             },
             // Management dashboard module
             dashboard: {
@@ -104,14 +80,6 @@ class MicroFrontendRouter {
                 cssFile: 'css/products.css',
                 jsFile: 'js/products.js',
                 title: 'Productos - MobiliAri'
-            },
-            // Shopping cart module
-            cart: {
-                path: '../cart-module/',
-                htmlFile: 'cart.html',
-                cssFile: 'css/cart.css',
-                jsFile: 'js/cart.js',
-                title: 'Carrito - MobiliAri'
             }
         };
         
@@ -127,20 +95,9 @@ class MicroFrontendRouter {
     }
 
     setupEventListeners() {
-        // Listen for hash changes for client-side routing
-        window.addEventListener('hashchange', () => {
-            this.handleRouteChange();
-        });
-
         // Listen for custom events from micro frontends
         window.addEventListener('navigate-to-module', (event) => {
             this.loadMicroFrontend(event.detail.module, event.detail.data);
-        });
-
-        // Listen for authentication events
-        window.addEventListener('user-authenticated', (event) => {
-            this.currentUser = event.detail.user;
-            this.handleAuthentication(event.detail.user);
         });
 
         // Listen for logout events
@@ -152,104 +109,40 @@ class MicroFrontendRouter {
 
     setupGlobalState() {
         // Create global state management
-        window.MobiliAriState = {
-            currentUser: null,
-            cart: JSON.parse(localStorage.getItem('mobiliariCart') || '[]'),
-            products: JSON.parse(localStorage.getItem('mobiliariProducts') || '[]'),
-            orders: JSON.parse(localStorage.getItem('mobiliariOrders') || '[]'),
-            inventory: JSON.parse(localStorage.getItem('mobiliariInventory') || '[]'),
-            suppliers: JSON.parse(localStorage.getItem('mobiliariSuppliers') || '[]'),
-            users: JSON.parse(localStorage.getItem('mobiliariUsers') || '[]'),
-            payments: JSON.parse(localStorage.getItem('mobiliariPayments') || '[]'),
-            
-            // State update methods
-            updateState: function(key, value) {
-                this[key] = value;
-                localStorage.setItem(`mobiliari${key.charAt(0).toUpperCase() + key.slice(1)}`, JSON.stringify(value));
-                window.dispatchEvent(new CustomEvent('state-updated', { 
-                    detail: { key, value } 
-                }));
-            },
+        if (!window.MobiliAriState) {
+            window.MobiliAriState = {
+                currentUser: null,
+                data: {},
+                
+                updateState: function(key, value) {
+                    this.data[key] = value;
+                    window.dispatchEvent(new CustomEvent('state-updated', { 
+                        detail: { key, value } 
+                    }));
+                },
 
-            // Get state method
-            getState: function(key) {
-                return this[key];
-            }
-        };
-
-        // Initialize default data if empty
-        if (window.MobiliAriState.products.length === 0) {
-            this.initializeDefaultData();
+                getState: function(key) {
+                    return this.data[key] || [];
+                }
+            };
         }
-    }
-
-    initializeDefaultData() {
-        // Initialize with default products, orders, etc.
-        const defaultProducts = [
-            {
-                id: 1,
-                name: 'Mesa de Comedor Rústica',
-                category: 'comedores',
-                price: 15000,
-                originalPrice: 18000,
-                image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
-                material: 'Roble',
-                dimensions: '200x100x75 cm',
-                origin: 'México',
-                description: 'Mesa de comedor hecha en roble macizo con acabado rústico',
-                customizable: true,
-                inStock: true
-            },
-            {
-                id: 2,
-                name: 'Silla Moderna Tapizada',
-                category: 'comedores',
-                price: 3500,
-                originalPrice: 4000,
-                image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
-                material: 'Pino y Tela',
-                dimensions: '45x50x85 cm',
-                origin: 'México',
-                description: 'Silla moderna con tapizado en tela de alta calidad',
-                customizable: true,
-                inStock: true
-            }
-        ];
-
-        window.MobiliAriState.updateState('products', defaultProducts);
     }
 
     async init() {
         this.container = document.getElementById('micro-frontend-container');
-        
-        // Check if user is already authenticated
+        if (!this.container) {
+            console.error('Container not found');
+            return;
+        }
+
+        // Check for saved user
         const savedUser = localStorage.getItem('mobiliariCurrentUser');
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
             window.MobiliAriState.currentUser = this.currentUser;
-            this.handleAuthentication(this.currentUser);
-        } else {
-            // Load login module by default
-            await this.loadMicroFrontend('login');
-        }
-    }
-
-    handleRouteChange() {
-        const hash = window.location.hash.slice(1).replace(/^\//, ''); // Remove leading slash
-        if (hash && this.microFrontends[hash]) {
-            this.loadMicroFrontend(hash);
-        }
-    }
-
-    handleAuthentication(user) {
-        localStorage.setItem('mobiliariCurrentUser', JSON.stringify(user));
-        window.MobiliAriState.currentUser = user;
-        
-        // Route based on user role
-        if (user.role === 'cliente') {
-            this.loadMicroFrontend('catalog');
-        } else if (user.role === 'administrador') {
             this.loadMicroFrontend('dashboard');
+        } else {
+            this.loadMicroFrontend('login');
         }
     }
 
@@ -282,18 +175,17 @@ class MicroFrontendRouter {
             await this.loadJS(module.path + module.jsFile, moduleName);
             
             // Wait a bit for the script to execute
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Initialize the module if it has an init function
-            // Add a small delay to ensure DOM is ready
             setTimeout(() => {
-                // Preserve admin state across modules
-                this.preserveAdminState();
+                // Preserve admin state
+                if (document.body.classList.contains('role-administrador')) {
+                    sessionStorage.setItem('isAdmin', 'true');
+                }
                 
-                // Try different module naming patterns
+                // Try to find and initialize module
                 let moduleObject = window[`${moduleName}Module`];
-                
-                console.log(`Looking for module: ${moduleName}Module`, moduleObject);
                 
                 if (moduleObject && moduleObject.init) {
                     console.log(`Initializing ${moduleName} module`);
@@ -302,14 +194,17 @@ class MicroFrontendRouter {
                     } catch (initError) {
                         console.error(`Error initializing ${moduleName} module:`, initError);
                     }
-                } else {
-                    console.warn(`Module ${moduleName}Module not found or has no init function`);
                 }
                 
-                // Restore admin state after module initialization
+                // Restore admin state
                 setTimeout(() => {
-                    if (window.restoreAdminState) {
-                        window.restoreAdminState();
+                    const wasAdmin = sessionStorage.getItem('isAdmin');
+                    if (wasAdmin === 'true') {
+                        document.body.classList.add('role-administrador');
+                        const adminElements = document.querySelectorAll('.admin-only');
+                        adminElements.forEach(el => {
+                            el.style.display = '';
+                        });
                     }
                 }, 50);
             }, 100);
@@ -317,20 +212,8 @@ class MicroFrontendRouter {
             // Update current module
             this.currentMicroFrontend = moduleName;
 
-            // Update URL hash
-            if (window.location.hash !== `#${moduleName}`) {
-                window.location.hash = moduleName;
-            }
-
-            // Dispatch module loaded event
-            window.dispatchEvent(new CustomEvent('module-loaded', {
-                detail: { module: moduleName, data }
-            }));
-
         } catch (error) {
             console.error(`Error loading micro frontend ${moduleName}:`, error);
-            console.error('Module config:', module);
-            console.error('Error details:', error.message, error.stack);
             this.showError(`Error loading ${moduleName} module: ${error.message}`);
         }
     }
@@ -364,9 +247,7 @@ class MicroFrontendRouter {
             }
 
             const script = document.createElement('script');
-            // Add cache-busting parameter
-            const cacheBuster = new Date().getTime();
-            script.src = jsPath + '?v=' + cacheBuster;
+            script.src = jsPath;
             script.setAttribute('data-module', moduleName);
             
             script.onload = () => resolve();
@@ -380,8 +261,10 @@ class MicroFrontendRouter {
         this.container.innerHTML = `
             <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
                 <div class="text-center">
-                    <div class="spinner-custom mb-3"></div>
-                    <p class="text-muted">Cargando módulo...</p>
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-3">Cargando módulo...</p>
                 </div>
             </div>
         `;
@@ -394,52 +277,16 @@ class MicroFrontendRouter {
                     <i class="bi bi-exclamation-triangle text-danger display-1 mb-3"></i>
                     <h3 class="text-danger mb-3">Error</h3>
                     <p class="text-muted">${message}</p>
-                    <button class="btn btn-wood" onclick="location.reload()">
+                    <button class="btn btn-primary" onclick="location.reload()">
                         <i class="bi bi-arrow-clockwise me-2"></i>Recargar
                     </button>
                 </div>
             </div>
         `;
     }
-
-    preserveAdminState() {
-        // Check if current user is admin or if body has admin class
-        const isAdmin = document.body.classList.contains('role-administrador') || 
-                       (this.currentUser && (this.currentUser.role === 'administrador' || this.currentUser.role === 'admin'));
-        
-        if (isAdmin) {
-            sessionStorage.setItem('isAdmin', 'true');
-        }
-    }
-    
-    restoreAdminState() {
-        const wasAdmin = sessionStorage.getItem('isAdmin');
-        if (wasAdmin === 'true') {
-            document.body.classList.add('role-administrador');
-            
-            // Show all admin-only elements
-            const adminElements = document.querySelectorAll('.admin-only');
-            adminElements.forEach(el => {
-                el.style.display = '';
-            });
-        }
-    }
-
-    // Public methods for navigation
-    navigateToModule(moduleName, data = null) {
-        this.loadMicroFrontend(moduleName, data);
-    }
-
-    getCurrentModule() {
-        return this.currentMicroFrontend;
-    }
-
-    getCurrentUser() {
-        return this.currentUser;
-    }
 }
 
-// Global utility function for restoring admin state
+// Global utility functions
 window.restoreAdminState = function() {
     const wasAdmin = sessionStorage.getItem('isAdmin');
     if (wasAdmin === 'true') {
@@ -451,21 +298,13 @@ window.restoreAdminState = function() {
     }
 };
 
-// Global utility function for preserving admin state
-window.preserveAdminState = function() {
-    const isAdmin = document.body.classList.contains('role-administrador');
-    if (isAdmin) {
-        sessionStorage.setItem('isAdmin', 'true');
-    }
-};
-
 // Initialize router when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        MicroFrontendRouter.init();
+        MicroFrontendRouter.init().then(router => router.init());
     });
 } else {
-    MicroFrontendRouter.init();
+    MicroFrontendRouter.init().then(router => router.init());
 }
 
 // Export for use in other modules

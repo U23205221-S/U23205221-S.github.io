@@ -14,6 +14,11 @@ window.usersModule = {
         this.renderUsers();
         this.updateStats();
         this.updateUserInfo();
+        
+        // Restore admin state
+        if (window.restoreAdminState) {
+            window.restoreAdminState();
+        }
     },
 
     loadUsers: function() {
@@ -887,6 +892,18 @@ window.usersModule = {
                 alert.remove();
             }
         }, 5000);
+    },
+    
+    restoreAdminState: function() {
+        // Check if admin state was preserved in session
+        const wasAdmin = sessionStorage.getItem('isAdmin');
+        if (wasAdmin === 'true') {
+            document.body.classList.add('role-administrador');
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = '';
+            });
+        }
     }
 };
 

@@ -8,6 +8,7 @@ window.dashboardModule = {
     inventory: [],
     users: [],
     payments: [],
+    products: [],
     
     init: function(data) {
         console.log('Dashboard module initialized');
@@ -17,6 +18,13 @@ window.dashboardModule = {
         this.loadRecentOrders();
         this.loadCriticalInventory();
         this.updateUserInfo();
+        
+        // Restore admin state if preserved in session
+        setTimeout(() => {
+            if (window.restoreAdminState) {
+                window.restoreAdminState();
+            }
+        }, 100);
     },
 
     loadData: function() {
@@ -24,6 +32,7 @@ window.dashboardModule = {
         this.inventory = window.MobiliAriState.getState('inventory') || this.getDefaultInventory();
         this.users = window.MobiliAriState.getState('users') || [];
         this.payments = window.MobiliAriState.getState('payments') || [];
+        this.products = window.MobiliAriState.getState('products') || [];
         
         // Initialize with default data if empty
         if (window.MobiliAriState.getState('orders').length === 0) {
@@ -142,22 +151,29 @@ window.dashboardModule = {
                 pricePerUnit: 3.5,
                 status: 'Disponible',
                 supplier: 'Ferretería Industrial',
-                lastPurchase: '2025-01-14'
+                lastPurchase: '2025-01-05'
             }
         ];
     },
 
     setupEventListeners: function() {
-        // Sidebar navigation
-        const navLinks = document.querySelectorAll('[data-module]');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
+        // Sidebar navigation and quick action buttons (unified handler)
+        const moduleElements = document.querySelectorAll('[data-module]');
+        moduleElements.forEach(element => {
+            element.addEventListener('click', (e) => {
                 e.preventDefault();
                 const module = e.target.getAttribute('data-module') || 
                               e.target.closest('[data-module]').getAttribute('data-module');
                 
                 if (module && module !== 'dashboard') {
-                    this.navigateToModule(module);
+                    // Store current admin state before navigation
+                    const isAdmin = document.body.classList.contains('role-administrador');
+                    sessionStorage.setItem('isAdmin', isAdmin.toString());
+                    
+                    // Navigate to module
+                    window.dispatchEvent(new CustomEvent('navigate-to-module', {
+                        detail: { module: module }
+                    }));
                 }
             });
         });
@@ -166,7 +182,15 @@ window.dashboardModule = {
         const sidebarToggle = document.getElementById('sidebarToggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
-                this.toggleSidebar();
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (sidebar) {
+                    sidebar.classList.toggle('collapsed');
+                }
+                if (mainContent) {
+                    mainContent.classList.toggle('expanded');
+                }
             });
         }
 
@@ -180,7 +204,7 @@ window.dashboardModule = {
 
         // Listen for state updates
         window.addEventListener('state-updated', (event) => {
-            if (['orders', 'inventory', 'users', 'payments'].includes(event.detail.key)) {
+            if (['orders', 'inventory', 'users', 'payments', 'products'].includes(event.detail.key)) {
                 this[event.detail.key] = event.detail.value;
                 this.updateStats();
                 if (event.detail.key === 'orders') {
@@ -236,6 +260,43 @@ window.dashboardModule = {
         // Active users
         const activeUsers = this.users.filter(user => user.status === 'Activo').length;
         document.getElementById('activeUsers').textContent = activeUsers;
+        
+        // Products stats (admin-only)
+        this.updateProductsStats();
+    },
+    
+    updateProductsStats: function() {
+        // Only update if products data exists
+        if (!this.products || this.products.length === 0) {
+            // Set default values if no products
+            const totalProductsEl = document.getElementById('totalProducts');
+            const inStockProductsEl = document.getElementById('inStockProducts');
+            const lowStockProductsEl = document.getElementById('lowStockProducts');
+            const outOfStockProductsEl = document.getElementById('outOfStockProducts');
+            
+            if (totalProductsEl) totalProductsEl.textContent = '0';
+            if (inStockProductsEl) inStockProductsEl.textContent = '0';
+            if (lowStockProductsEl) lowStockProductsEl.textContent = '0';
+            if (outOfStockProductsEl) outOfStockProductsEl.textContent = '0';
+            return;
+        }
+        
+        // Calculate product statistics
+        const totalProducts = this.products.length;
+        const inStockProducts = this.products.filter(p => p.stock > p.minStock).length;
+        const lowStockProducts = this.products.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
+        const outOfStockProducts = this.products.filter(p => p.stock === 0).length;
+        
+        // Update DOM elements
+        const totalProductsEl = document.getElementById('totalProducts');
+        const inStockProductsEl = document.getElementById('inStockProducts');
+        const lowStockProductsEl = document.getElementById('lowStockProducts');
+        const outOfStockProductsEl = document.getElementById('outOfStockProducts');
+        
+        if (totalProductsEl) totalProductsEl.textContent = totalProducts;
+        if (inStockProductsEl) inStockProductsEl.textContent = inStockProducts;
+        if (lowStockProductsEl) lowStockProductsEl.textContent = lowStockProducts;
+        if (outOfStockProductsEl) outOfStockProductsEl.textContent = outOfStockProducts;
     },
 
     loadRecentOrders: function() {
@@ -321,14 +382,21 @@ window.dashboardModule = {
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
                 const shouldShow = !currentUser.role || currentUser.role === 'administrador' || currentUser.role === 'admin';
-                el.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) {
+                    el.style.display = '';
+                    document.body.classList.add('role-administrador');
+                } else {
+                    el.style.display = 'none';
+                    document.body.classList.remove('role-administrador');
+                }
             });
         } else {
             // If no user, show admin elements by default (development mode)
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
-                el.style.display = 'block';
+                el.style.display = '';
             });
+            document.body.classList.add('role-administrador');
         }
     },
 
@@ -349,7 +417,19 @@ window.dashboardModule = {
         };
         return statusMap[status] || 'disponible';
     },
-
+    
+    restoreAdminState: function() {
+        // Check if admin state was preserved in session
+        const wasAdmin = sessionStorage.getItem('isAdmin');
+        if (wasAdmin === 'true') {
+            document.body.classList.add('role-administrador');
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = '';
+            });
+        }
+    },
+    
     // Utility methods for other modules to call
     refreshStats: function() {
         this.loadData();
@@ -357,32 +437,11 @@ window.dashboardModule = {
         this.loadRecentOrders();
         this.loadCriticalInventory();
     },
-
-    showAlert: function(type, message) {
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        alert.innerHTML = `
-            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        document.body.appendChild(alert);
-        
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
-        }, 5000);
+    
+    refreshData: function() {
+        this.loadData();
+        this.updateStats();
+        this.loadRecentOrders();
+        this.loadCriticalInventory();
     }
 };
-
-// Initialize module when loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.dashboardModule.init();
-    });
-} else {
-    window.dashboardModule.init();
-}

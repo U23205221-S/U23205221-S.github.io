@@ -7,6 +7,8 @@
     background-color: var(--neutral-50);
 }
 
+
+
 /* ========================================
     Sidebar Styles
    ======================================== */
@@ -427,10 +429,25 @@
 
 /* Hide elements for specific roles */
 .dashboard-module .admin-only {
-    display: none;
+    display: none !important;
 }
 
-/* Show elements based on user role */
+/* Show elements based on user role - preserve Bootstrap grid */
 body.role-administrador .dashboard-module .admin-only {
-    display: block;
+    display: flex !important;
+    flex-wrap: wrap;
+}
+
+/* Ensure Bootstrap columns work properly within admin-only sections */
+body.role-administrador .dashboard-module .admin-only.row {
+    display: flex !important;
+    flex-wrap: wrap;
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+}
+
+body.role-administrador .dashboard-module .admin-only .col-md-3 {
+    display: block !important;
+    flex: 0 0 auto;
+    width: 25%;
 }
