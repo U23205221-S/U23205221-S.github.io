@@ -139,215 +139,85 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Buscar</label>
-                        <input type="text" class="form-control" id="searchProducts" placeholder="Buscar por nombre o código...">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Estado de Stock</label>
-                        <select class="form-select" id="stockFilter">
-                            <option value="">Todos</option>
-                            <option value="in-stock">En Stock</option>
-                            <option value="low-stock">Stock Bajo</option>
-                            <option value="out-of-stock">Sin Stock</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Ordenar por</label>
-                        <select class="form-select" id="sortBy">
-                            <option value="name">Nombre</option>
-                            <option value="code">Código</option>
-                            <option value="price">Precio</option>
-                            <option value="stock">Stock</option>
-                            <option value="lastProduction">Última Producción</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Precio</label>
-                        <select class="form-select" id="priceFilter">
-                            <option value="">Todos</option>
-                            <option value="0-1000">$0 - $1,000</option>
-                            <option value="1000-5000">$1,000 - $5,000</option>
-                            <option value="5000-10000">$5,000 - $10,000</option>
-                            <option value="10000+">$10,000+</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-secondary flex-fill" id="clearFilters">
-                                <i class="bi bi-x-circle me-1"></i>Limpiar
-                            </button>
-                            <button class="btn btn-primary flex-fill" id="applyFilters">
-                                <i class="bi bi-funnel me-1"></i>Aplicar
-                            </button>
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="prefabricated-tab" data-bs-toggle="tab" data-bs-target="#prefabricated-products" type="button" role="tab">Productos Prefabricados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom-products" type="button" role="tab">Productos Personalizados</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="productTabsContent">
+            <!-- Prefabricated Products Table -->
+            <div class="tab-pane fade show active" id="prefabricated-products" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Especificación</th>
+                                        <th>Categoría</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Precio Base</th>
+                                        <th>Imagen</th>
+                                        <th>Precio de Venta</th>
+                                        <th>Stock</th>
+                                        <th>Stock Mínimo</th>
+                                        <th>Última Producción</th>
+                                        <th>Estado</th>
+                                        <th>Descripción</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prefabricatedProductsTableBody">
+                                    <!-- Prefabricated products will be loaded here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Products Table -->
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Estado Stock</th>
-                                <th>Material</th>
-                                <th>Última Producción</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsTableBody">
-                            <!-- Products will be loaded here -->
-                        </tbody>
-                    </table>
+            <!-- Custom Products Table -->
+            <div class="tab-pane fade" id="custom-products" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Especificaciones</th>
+                                        <th>Tiempo Estimado (Horas)</th>
+                                        <th>Estado</th>
+                                        <th>Descripción</th>
+                                        <th>Precio Base</th>
+                                        <th>Imagen</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customProductsTableBody">
+                                    <!-- Custom products will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-    <!-- New Product Modal -->
-    <div class="modal fade" id="newProductModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nuevo Producto Prefabricado</h5>
-                    <button type="button" class="btn-close" id="closeNewProductModalBtn" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="newProductForm">
-                        <div class="row">
-                            <!-- Left Column -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre del Producto</label>
-                                    <input type="text" class="form-control" name="name" required placeholder="Ej: Mesa de Comedor Clásica">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Código del Producto</label>
-                                    <input type="text" class="form-control" name="code" required placeholder="Ej: MC-001">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Precio</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" name="price" min="0" step="0.01" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Stock Disponible</label>
-                                        <input type="number" class="form-control" name="stock" min="0" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Stock Mínimo</label>
-                                        <input type="number" class="form-control" name="minStock" min="0" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Última Fecha de Producción</label>
-                                    <input type="date" class="form-control" name="lastProduction">
-                                </div>
-                            </div>
-                            
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Imagen del Producto</label>
-                                    <input type="file" class="form-control" name="image" accept="image/*">
-                                    <div class="form-text">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</div>
-                                    <div class="image-preview mt-2" id="imagePreview" style="display: none;">
-                                        <img src="" alt="Vista previa" class="img-thumbnail" style="max-height: 200px;">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Especificaciones</label>
-                                    <textarea class="form-control" rows="8" name="specifications" placeholder="Describe las características técnicas, materiales, dimensiones, etc."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Additional Information -->
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <h6 class="mb-3">Información Adicional</h6>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Categoría</label>
-                                    <select class="form-select" name="category">
-                                        <option value="">Seleccionar...</option>
-                                        <option value="Mesas">Mesas</option>
-                                        <option value="Sillas">Sillas</option>
-                                        <option value="Armarios">Armarios</option>
-                                        <option value="Camas">Camas</option>
-                                        <option value="Escritorios">Escritorios</option>
-                                        <option value="Estanterías">Estanterías</option>
-                                        <option value="Otros">Otros</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Material Principal</label>
-                                    <select class="form-select" name="material">
-                                        <option value="">Seleccionar...</option>
-                                        <option value="Madera Maciza">Madera Maciza</option>
-                                        <option value="MDF">MDF</option>
-                                        <option value="Aglomerado">Aglomerado</option>
-                                        <option value="Contrachapado">Contrachapado</option>
-                                        <option value="Metal">Metal</option>
-                                        <option value="Mixto">Mixto</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Estado</label>
-                                    <select class="form-select" name="status">
-                                        <option value="active">Activo</option>
-                                        <option value="inactive">Inactivo</option>
-                                        <option value="discontinued">Descontinuado</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelNewProductBtn">Cancelar</button>
-                    <button type="button" class="btn btn-wood" id="createProductBtn">Crear Producto</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Product Detail Modal -->
     <div class="modal fade" id="productDetailModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="productDetailTitle">Detalle del Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body" id="productDetailContent">
+                <div class="modal-body" id="productDetailBody">
                     <!-- Product details will be loaded here -->
                 </div>
                 <div class="modal-footer">

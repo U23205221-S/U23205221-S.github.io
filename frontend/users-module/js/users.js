@@ -5,13 +5,18 @@
 
 window.usersModule = {
     users: [],
+    workers: [],
+    clients: [],
     filteredUsers: [],
+    filteredWorkers: [],
+    filteredClients: [],
     
-    init: function(data) {
+    init: async function(data) {
         console.log('Users module initialized');
-        this.loadUsers();
+        await this.loadData();
         this.setupEventListeners();
-        this.renderUsers();
+        this.renderTables();
+        this.renderWorkers();
         this.updateStats();
         this.updateUserInfo();
         
@@ -21,111 +26,21 @@ window.usersModule = {
         }
     },
 
-    loadUsers: function() {
-        this.users = window.MobiliAriState.getState('users') || this.getDefaultUsers();
-        this.filteredUsers = [...this.users];
-        
-        if (window.MobiliAriState.getState('users').length === 0) {
-            window.MobiliAriState.updateState('users', this.users);
-        }
-    },
-
-    getDefaultUsers: function() {
-        return [
-            {
-                id: 1,
-                name: 'Administrador Principal',
-                email: 'admin@mobiliari.mx',
-                phone: '+52 55 1234-5678',
-                role: 'administrador',
-                status: 'Activo',
-                lastLogin: '2025-01-15',
-                address: 'Oficina Central, CDMX',
-                orders: 0,
-                notes: 'Usuario administrador principal del sistema',
-                permissions: ['dashboard', 'orders', 'inventory', 'suppliers', 'reports', 'users', 'payments'],
-                createdAt: '2024-01-01',
-                avatar: null
-            },
-            {
-                id: 2,
-                name: 'Cliente Usuario',
-                email: 'cliente@mobiliari.mx',
-                phone: '+52 55 2345-6789',
-                role: 'cliente',
-                status: 'Activo',
-                lastLogin: '2025-01-14',
-                address: 'Col. Roma Norte, CDMX',
-                orders: 3,
-                notes: 'Cliente frecuente con múltiples pedidos',
-                permissions: ['dashboard'],
-                createdAt: '2024-06-15',
-                avatar: null
-            },
-            {
-                id: 3,
-                name: 'Juan Pérez García',
-                email: 'juan.perez@email.com',
-                phone: '+52 55 3456-7890',
-                role: 'cliente',
-                status: 'Activo',
-                lastLogin: '2025-01-13',
-                address: 'Col. Condesa, CDMX',
-                orders: 8,
-                notes: 'Cliente VIP con pedidos de alto valor',
-                permissions: ['dashboard'],
-                createdAt: '2024-03-20',
-                avatar: null
-            },
-            {
-                id: 4,
-                name: 'María González López',
-                email: 'maria.gonzalez@email.com',
-                phone: '+52 55 4567-8901',
-                role: 'cliente',
-                status: 'Activo',
-                lastLogin: '2025-01-12',
-                address: 'Col. Polanco, CDMX',
-                orders: 6,
-                notes: 'Especialista en muebles de oficina',
-                permissions: ['dashboard'],
-                createdAt: '2024-05-10',
-                avatar: null
-            },
-            {
-                id: 5,
-                name: 'Carlos Empleado',
-                email: 'carlos.empleado@mobiliari.mx',
-                phone: '+52 55 5678-9012',
-                role: 'empleado',
-                status: 'Activo',
-                lastLogin: '2025-01-15',
-                address: 'Col. Centro, CDMX',
-                orders: 0,
-                notes: 'Empleado de producción',
-                permissions: ['dashboard', 'orders', 'inventory'],
-                createdAt: '2024-02-01',
-                avatar: null
-            },
-            {
-                id: 6,
-                name: 'Ana Martínez',
-                email: 'ana.martinez@email.com',
-                phone: '+52 55 6789-0123',
-                role: 'cliente',
-                status: 'Inactivo',
-                lastLogin: '2024-12-20',
-                address: 'Col. Del Valle, CDMX',
-                orders: 2,
-                notes: 'Cliente inactivo desde diciembre',
-                permissions: ['dashboard'],
-                createdAt: '2024-08-15',
-                avatar: null
+    loadData: async function() {
+        let allUsers = window.MobiliAriState.getState('users');
+        if (!allUsers || allUsers.length === 0) {
+            try {
+                const response = await fetch('../data/users.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                allUsers = await response.json();
+                window.MobiliAriState.updateState('users', allUsers);
+            } catch (error) {
+                console.error('Error loading users.json:', error);
+                allUsers = [];
             }
-        ];
-    },
+        }
 
-    setupEventListeners: function() {
+        this.users = allUsers.filter(u => u.profileType === 'system_user');
         // Navigation
         const navLinks = document.querySelectorAll('[data-module]');
         navLinks.forEach(link => {
@@ -166,6 +81,14 @@ window.usersModule = {
         if (newUserBtn) {
             newUserBtn.addEventListener('click', () => {
                 this.showNewUserModal();
+            });
+        }
+
+        // Profile type selector change
+        const profileTypeSelector = document.getElementById('profileTypeSelector');
+        if (profileTypeSelector) {
+            profileTypeSelector.addEventListener('change', (e) => {
+                this.renderDynamicFormFields(e.target.value);
             });
         }
 
@@ -282,10 +205,18 @@ window.usersModule = {
             sortBy.addEventListener('change', () => this.applyFilters());
         }
 
+        // Tab switching
+        const userTabs = document.querySelectorAll('#userTabs .nav-link');
+        userTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', () => {
+                this.applyFilters();
+            });
+        });
+
         // Listen for state updates
         window.addEventListener('state-updated', (event) => {
             if (event.detail.key === 'users') {
-                this.users = event.detail.value;
+                this.loadData(); // Reload and re-split data
                 this.applyFilters();
                 this.updateStats();
             }
@@ -314,102 +245,131 @@ window.usersModule = {
         const userSearch = document.getElementById('userSearch')?.value.toLowerCase() || '';
         const sortBy = document.getElementById('sortBy')?.value || 'name';
 
+        // Filter System Users
         this.filteredUsers = this.users.filter(user => {
             const matchesStatus = !statusFilter || user.status === statusFilter;
             const matchesRole = !roleFilter || user.role === roleFilter;
-            const matchesSearch = !userSearch || 
-                user.name.toLowerCase().includes(userSearch) ||
-                user.email.toLowerCase().includes(userSearch);
-
+            const matchesSearch = !userSearch || user.name.toLowerCase().includes(userSearch) || user.email.toLowerCase().includes(userSearch);
             return matchesStatus && matchesRole && matchesSearch;
         });
 
-        // Sort users
+        // Filter Workers
+        this.filteredWorkers = this.workers.filter(worker => {
+            const matchesStatus = !statusFilter || worker.status === statusFilter;
+            const matchesSearch = !userSearch || worker.name.toLowerCase().includes(userSearch) || worker.email.toLowerCase().includes(userSearch);
+            return matchesStatus && matchesSearch;
+        });
+
+        // Filter Clients
+        this.filteredClients = this.clients.filter(client => {
+            const matchesStatus = !statusFilter || client.status === statusFilter;
+            const matchesSearch = !userSearch || client.name.toLowerCase().includes(userSearch) || client.email.toLowerCase().includes(userSearch);
+            return matchesStatus && matchesSearch;
+        });
+
+        // Note: Sorting is simplified for now and only applies to system users as before.
+        // More complex sorting can be added if needed.
         this.filteredUsers.sort((a, b) => {
             switch (sortBy) {
-                case 'email':
-                    return a.email.localeCompare(b.email);
-                case 'lastLogin':
-                    return new Date(b.lastLogin) - new Date(a.lastLogin);
-                case 'role':
-                    return a.role.localeCompare(b.role);
-                default:
-                    return a.name.localeCompare(b.name);
+                case 'email': return a.email.localeCompare(b.email);
+                case 'lastLogin': return new Date(b.lastLogin) - new Date(a.lastLogin);
+                case 'role': return a.role.localeCompare(b.role);
+                default: return a.name.localeCompare(b.name);
             }
         });
 
-        this.renderUsers();
+        this.renderTables();
     },
 
-    renderUsers: function() {
+    renderTables: function() {
+        this.renderSystemUsers();
+        this.renderWorkers();
+        this.renderClients();
+    },
+
+    renderSystemUsers: function() {
         const tableBody = document.getElementById('usersTableBody');
         if (!tableBody) return;
-
-        if (this.filteredUsers.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-5">
-                        <div class="empty-state">
-                            <i class="bi bi-people text-muted"></i>
-                            <p>No se encontraron usuarios</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
         tableBody.innerHTML = this.filteredUsers.map(user => `
             <tr class="fade-in">
-                <td>
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            ${user.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <div class="user-name">${user.name}</div>
-                            <div class="user-email">${user.email}</div>
-                        </div>
-                    </div>
-                </td>
+                <td>${user.name}</td>
+                <td>${this.formatDate(user.birth_date)}</td>
+                <td>${this.calculateAge(user.birth_date)}</td>
+                <td>${user.area || 'N/A'}</td>
+                <td>${user.position || 'N/A'}</td>
+                <td>${user.username}</td>
                 <td>${user.email}</td>
-                <td>
-                    <span class="role-badge role-${user.role}">
-                        ${user.role}
-                    </span>
-                </td>
-                <td>
-                    <span class="status-badge status-${this.getStatusClass(user.status)}">
-                        ${user.status}
-                    </span>
-                </td>
-                <td>
-                    <div class="activity-indicator">
-                        <div class="activity-dot ${this.getActivityClass(user.lastLogin)}"></div>
-                        ${this.formatDate(user.lastLogin)}
-                    </div>
-                </td>
-                <td><strong>${user.orders}</strong></td>
+                <td>********</td>
+                <td>${this.formatDate(user.lastLogin)}</td>
+                <td>${this.formatDate(user.loginDate)}</td>
+                <td>${user.successfulLoginAttempts || 0}</td>
+                <td>${user.failedLoginAttempts || 0}</td>
+                <td>${user.ipAddress || 'N/A'}</td>
+                <td>${this.formatDate(user.createdAt)}</td>
+                <td>${this.formatDate(user.password_change_date)}</td>
+                <td><span class="status-badge status-${this.getStatusClass(user.status)}">${user.status}</span></td>
+                <td>${user.role === 'administrador' ? 'Admin' : 'Empleado'}</td>
+                <td>${user.permissions.length}</td>
+                <td><span class="role-badge role-${user.role}">${user.role}</span></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn btn-action btn-edit" onclick="usersModule.showUserDetail(${user.id})" title="Ver detalles">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-action btn-permissions" onclick="usersModule.showPermissions(${user.id})" title="Permisos">
-                            <i class="bi bi-shield-check"></i>
-                        </button>
-                        <button class="btn btn-action btn-suspend" onclick="usersModule.toggleUserStatus(${user.id})" title="Suspender/Activar">
-                            <i class="bi bi-${user.status === 'Activo' ? 'person-x' : 'person-check'}"></i>
-                        </button>
+                        <button class="btn btn-action btn-edit" onclick="usersModule.showUserDetail(${user.id})" title="Ver detalles"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-action btn-permissions" onclick="usersModule.showPermissions(${user.id})" title="Permisos"><i class="bi bi-shield-check"></i></button>
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `).join('') || `<tr><td colspan="20" class="text-center">No se encontraron usuarios del sistema</td></tr>`;
+    },
+
+    renderWorkers: function() {
+        const tableBody = document.getElementById('workersTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredWorkers.map(worker => `
+            <tr>
+                <td>${worker.name}</td>
+                <td>${worker.identification_type}</td>
+                <td>${worker.identification}</td>
+                <td>${worker.position}</td>
+                <td>${worker.email}</td>
+                <td>${worker.phone}</td>
+                <td><span class="status-badge status-${worker.status.toLowerCase()}">${worker.status}</span></td>
+                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+            </tr>
+        `).join('') || `<tr><td colspan="8" class="text-center">No se encontraron trabajadores.</td></tr>`;
+    },
+
+    renderClients: function() {
+        const tableBody = document.getElementById('clientsTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredClients.map(client => `
+            <tr>
+                <td>${client.name}</td>
+                <td>${client.identification_type}</td>
+                <td>${client.identification}</td>
+                <td>${client.client_type}</td>
+                <td>${client.email}</td>
+                <td>${client.phone}</td>
+                <td><span class="status-badge status-${client.status.toLowerCase()}">${client.status}</span></td>
+                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+            </tr>
+        `).join('') || `<tr><td colspan="8" class="text-center">No se encontraron clientes.</td></tr>`;
+    },
+
+    calculateAge: function(birthDate) {
+        if (!birthDate) return 'N/A';
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
     },
 
     updateStats: function() {
         // Total users
-        document.getElementById('totalUsers').textContent = this.users.length;
+        document.getElementById('totalUsers').textContent = this.users.length + this.clients.length + this.workers.length;
 
         // Active users
         const activeUsers = this.users.filter(u => u.status === 'Activo').length;
@@ -513,8 +473,11 @@ window.usersModule = {
     showNewUserModal: function() {
         const modal = document.getElementById('newUserModal');
         const form = document.getElementById('newUserForm');
-        
         form.reset();
+
+        // Clear dynamic fields and render for the default selection
+        document.getElementById('dynamic-fields-container').innerHTML = '';
+        this.renderDynamicFormFields(''); // Render empty initially
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
@@ -597,6 +560,115 @@ window.usersModule = {
         console.log('Modal de permisos cerrado');
     },
     
+    renderDynamicFormFields: function(profileType) {
+        const container = document.getElementById('dynamic-fields-container');
+        container.innerHTML = '';
+        let fieldsHtml = '';
+        const today = new Date().toISOString().split('T')[0];
+
+        switch (profileType) {
+            case 'system_user':
+                fieldsHtml = `
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Nombre</label><input type="text" class="form-control" name="name" required></div>
+                        <div class="col-md-6"><label class="form-label">Fecha Nacimiento</label><input type="date" class="form-control" name="birth_date"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Área</label><input type="text" class="form-control" name="area"></div>
+                        <div class="col-md-6"><label class="form-label">Puesto</label><input type="text" class="form-control" name="position"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Usuario</label><input type="text" class="form-control" name="username" required></div>
+                        <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email" required></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Contraseña</label><input type="password" class="form-control" name="password" required></div>
+                        <div class="col-md-6"><label class="form-label">Tipo de Usuario / Rol</label><select class="form-select" name="role"><option value="empleado">Empleado</option><option value="administrador">Administrador</option></select></div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label">Permisos</label>
+                        <div class="permission-group-form">
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="dashboard" checked><label class="form-check-label">Dashboard</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="orders"><label class="form-check-label">Pedidos</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="inventory"><label class="form-check-label">Inventario</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="suppliers"><label class="form-check-label">Proveedores</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="reports"><label class="form-check-label">Reportes</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="permissions" value="users"><label class="form-check-label">Usuarios</label></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                         <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}" readonly></div>
+                    </div>
+                `;
+                break;
+            case 'trabajador':
+                fieldsHtml = `
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Nombre Completo</label><input type="text" class="form-control" name="name" required></div>
+                        <div class="col-md-6"><label class="form-label">Tipo Persona</label><input type="text" class="form-control" name="person_type" value="Natural"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Tipo Identificación</label><select class="form-select" name="identification_type"><option>DNI</option><option>Pasaporte</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Nro. Identificación</label><input type="text" class="form-control" name="identification" required></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email"></div>
+                        <div class="col-md-6"><label class="form-label">Teléfono</label><input type="tel" class="form-control" name="phone"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Puesto</label><input type="text" class="form-control" name="position"></div>
+                        <div class="col-md-6"><label class="form-label">Fecha Nacimiento</label><input type="date" class="form-control" name="birth_date"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Distrito</label><input type="text" class="form-control" name="district"></div>
+                        <div class="col-md-6"><label class="form-label">Salario</label><input type="number" step="0.01" class="form-control" name="salary"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Inicio Contrato</label><input type="date" class="form-control" name="contract_start_date"></div>
+                        <div class="col-md-6"><label class="form-label">Fin Contrato</label><input type="date" class="form-control" name="contract_end_date"></div>
+                    </div>
+                     <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Tipo Contrato</label><input type="text" class="form-control" name="contract_type"></div>
+                        <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}"></div>
+                    </div>
+                `;
+                break;
+            case 'cliente':
+                fieldsHtml = `
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Nombre</label><input type="text" class="form-control" name="name" required></div>
+                        <div class="col-md-6"><label class="form-label">Tipo Persona</label><select class="form-select" name="person_type"><option>Natural</option><option>Jurídica</option></select></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Tipo Identificación</label><select class="form-select" name="identification_type"><option>DNI</option><option>RUC</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Nro. Identificación</label><input type="text" class="form-control" name="identification"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email"></div>
+                        <div class="col-md-6"><label class="form-label">Teléfono</label><input type="tel" class="form-control" name="phone"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Departamento</label><input type="text" class="form-control" name="department"></div>
+                        <div class="col-md-6"><label class="form-label">Provincia</label><input type="text" class="form-control" name="province"></div>
+                    </div>
+                     <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Distrito</label><input type="text" class="form-control" name="district"></div>
+                        <div class="col-md-6"><label class="form-label">Dirección</label><input type="text" class="form-control" name="address"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Referencia</label><input type="text" class="form-control" name="reference"></div>
+                        <div class="col-md-6"><label class="form-label">Tipo Cliente</label><input type="text" class="form-control" name="client_type"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}"></div>
+                    </div>
+                `;
+                break;
+        }
+        container.innerHTML = fieldsHtml;
+    },
+
     forceCloseModal: function(modalId) {
         const modal = document.getElementById(modalId);
         
@@ -621,39 +693,81 @@ window.usersModule = {
     createNewUser: function() {
         const form = document.getElementById('newUserForm');
         const formData = new FormData(form);
+        const profileType = formData.get('profile_type');
 
-        if (!this.validateUserForm(form)) {
+        if (!profileType) {
+            this.showAlert('danger', 'Por favor, selecciona un tipo de perfil.');
             return;
         }
 
-        const newUser = {
-            id: Math.max(...this.users.map(u => u.id), 0) + 1,
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            role: formData.get('role'),
-            status: 'Activo',
-            lastLogin: null,
-            address: formData.get('address'),
-            orders: 0,
-            notes: formData.get('notes'),
-            permissions: this.getDefaultPermissions(formData.get('role')),
-            createdAt: new Date().toISOString().split('T')[0],
-            avatar: null
-        };
+        const newId = Math.max(...[...this.users, ...this.workers, ...this.clients].map(p => p.id), 0) + 1;
+        let newProfile = { id: newId, status: 'Activo' };
 
-        this.users.push(newUser);
-        window.MobiliAriState.updateState('users', this.users);
-
-        const modal = bootstrap.Modal.getInstance(document.getElementById('newUserModal'));
-        modal.hide();
-
-        // Simulate sending welcome email
-        if (formData.get('sendWelcomeEmail')) {
-            this.showAlert('info', `Email de bienvenida enviado a ${newUser.email}`);
+        switch (profileType) {
+            case 'system_user':
+                const role = formData.get('role');
+                const permissions = formData.getAll('permissions');
+                Object.assign(newProfile, {
+                    name: formData.get('name'),
+                    birth_date: formData.get('birth_date'),
+                    area: formData.get('area'),
+                    position: formData.get('position'),
+                    username: formData.get('username'),
+                    email: formData.get('email'),
+                    createdAt: formData.get('createdAt'),
+                    role: role,
+                    permissions: permissions.length > 0 ? permissions : this.getDefaultPermissions(role),
+                    lastLogin: null,
+                    password_change_date: null,
+                    failed_login_attempts: 0
+                });
+                this.users.push(newProfile);
+                break;
+            case 'trabajador':
+                Object.assign(newProfile, {
+                    name: formData.get('name'),
+                    person_type: formData.get('person_type'),
+                    identification_type: formData.get('identification_type'),
+                    identification: formData.get('identification'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    position: formData.get('position'),
+                    birth_date: formData.get('birth_date'),
+                    district: formData.get('district'),
+                    salary: parseFloat(formData.get('salary') || 0),
+                    contract_start_date: formData.get('contract_start_date'),
+                    contract_end_date: formData.get('contract_end_date'),
+                    contract_type: formData.get('contract_type'),
+                    createdAt: formData.get('createdAt')
+                });
+                this.workers.push(newProfile);
+                break;
+            case 'cliente':
+                Object.assign(newProfile, {
+                    name: formData.get('name'),
+                    person_type: formData.get('person_type'),
+                    identification_type: formData.get('identification_type'),
+                    identification: formData.get('identification'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    department: formData.get('department'),
+                    province: formData.get('province'),
+                    district: formData.get('district'),
+                    address: formData.get('address'),
+                    reference: formData.get('reference'),
+                    client_type: formData.get('client_type'),
+                    createdAt: formData.get('createdAt'),
+                    role: 'cliente',
+                    orders: 0
+                });
+                this.clients.push(newProfile);
+                break;
         }
 
-        this.showAlert('success', `Usuario ${newUser.name} creado exitosamente`);
+        this.updateAndSaveState();
+        this.closeNewUserModal();
+        this.showAlert('success', `Perfil para ${newProfile.name} creado exitosamente`);
+        this.applyFilters();
     },
 
     validateUserForm: function(form) {

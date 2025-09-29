@@ -4,14 +4,16 @@
  */
 
 window.inventoryModule = {
-    inventory: [],
-    filteredInventory: [],
+    prefabricatedMaterials: [],
+    customMaterials: [],
+    filteredPrefabricatedMaterials: [],
+    filteredCustomMaterials: [],
     suppliers: [],
     stockHistory: [],
     
-    init: function(data) {
+    init: async function(data) {
         console.log('Inventory module initialized');
-        this.loadInventory();
+        await this.loadInventory();
         this.setupEventListeners();
         this.renderInventory();
         this.updateStats();
@@ -19,103 +21,40 @@ window.inventoryModule = {
         this.loadSupplierOptions();
     },
 
-    loadInventory: function() {
-        this.inventory = window.MobiliAriState.getState('inventory') || this.getDefaultInventory();
-        this.filteredInventory = [...this.inventory];
-        this.suppliers = window.MobiliAriState.getState('suppliers') || this.getDefaultSuppliers();
+    loadInventory: async function() {
+        let prefabricated = window.MobiliAriState.getState('prefabricatedMaterials');
+        let custom = window.MobiliAriState.getState('customMaterials');
+
+        if (!prefabricated || prefabricated.length === 0) {
+            try {
+                const response = await fetch('../data/prefabricated-materials.json');
+                prefabricated = await response.json();
+                window.MobiliAriState.updateState('prefabricatedMaterials', prefabricated);
+            } catch (error) {
+                console.error('Error loading prefabricated materials:', error);
+                prefabricated = [];
+            }
+        }
+
+        if (!custom || custom.length === 0) {
+            try {
+                const response = await fetch('../data/custom-materials.json');
+                custom = await response.json();
+                window.MobiliAriState.updateState('customMaterials', custom);
+            } catch (error) {
+                console.error('Error loading custom materials:', error);
+                custom = [];
+            }
+        }
+
+        this.prefabricatedMaterials = prefabricated;
+        this.customMaterials = custom;
+        this.filteredPrefabricatedMaterials = [...this.prefabricatedMaterials];
+        this.filteredCustomMaterials = [...this.customMaterials];
+        this.suppliers = window.MobiliAriState.getState('suppliers') || [];
         this.stockHistory = window.MobiliAriState.getState('stockHistory') || [];
-        
-        // Initialize with default data if empty
-        if (window.MobiliAriState.getState('inventory').length === 0) {
-            window.MobiliAriState.updateState('inventory', this.inventory);
-        }
-        if (window.MobiliAriState.getState('suppliers').length === 0) {
-            window.MobiliAriState.updateState('suppliers', this.suppliers);
-        }
     },
 
-    getDefaultInventory: function() {
-        return [
-            {
-                id: 1,
-                material: 'Roble',
-                currentQuantity: 45.5,
-                unit: 'm²',
-                minThreshold: 10,
-                pricePerUnit: 850,
-                status: 'Disponible',
-                supplier: 'Maderas Premium SA',
-                lastPurchase: '2025-01-10',
-                location: 'Almacén A-1',
-                notes: 'Madera de alta calidad para muebles premium'
-            },
-            {
-                id: 2,
-                material: 'Pino',
-                currentQuantity: 8.2,
-                unit: 'm²',
-                minThreshold: 15,
-                pricePerUnit: 450,
-                status: 'Bajo inventario',
-                supplier: 'Maderera del Norte',
-                lastPurchase: '2025-01-08',
-                location: 'Almacén A-2',
-                notes: 'Necesita reposición urgente'
-            },
-            {
-                id: 3,
-                material: 'MDF',
-                currentQuantity: 62.0,
-                unit: 'm²',
-                minThreshold: 20,
-                pricePerUnit: 320,
-                status: 'Disponible',
-                supplier: 'Tableros Industriales',
-                lastPurchase: '2025-01-12',
-                location: 'Almacén B-1',
-                notes: 'Stock suficiente para el mes'
-            },
-            {
-                id: 4,
-                material: 'Cedro',
-                currentQuantity: 0,
-                unit: 'm²',
-                minThreshold: 5,
-                pricePerUnit: 1200,
-                status: 'Agotado',
-                supplier: 'Maderas Finas',
-                lastPurchase: '2024-12-20',
-                location: 'Almacén A-3',
-                notes: 'Pedido pendiente con proveedor'
-            },
-            {
-                id: 5,
-                material: 'Tornillería',
-                currentQuantity: 850,
-                unit: 'pzas',
-                minThreshold: 200,
-                pricePerUnit: 3.5,
-                status: 'Disponible',
-                supplier: 'Ferretería Industrial',
-                lastPurchase: '2025-01-14',
-                location: 'Almacén C-1',
-                notes: 'Variedad completa de tornillos y herrajes'
-            },
-            {
-                id: 6,
-                material: 'Barniz',
-                currentQuantity: 12.5,
-                unit: 'lts',
-                minThreshold: 10,
-                pricePerUnit: 180,
-                status: 'Disponible',
-                supplier: 'Químicos y Pinturas',
-                lastPurchase: '2025-01-11',
-                location: 'Almacén D-1',
-                notes: 'Barniz mate y brillante disponible'
-            }
-        ];
-    },
 
     getDefaultSuppliers: function() {
         return [
@@ -285,6 +224,21 @@ window.inventoryModule = {
             sortBy.addEventListener('change', () => this.applyFilters());
         }
 
+        const materialTypeSelector = document.getElementById('materialTypeSelector');
+        if (materialTypeSelector) {
+            materialTypeSelector.addEventListener('change', (e) => {
+                const prefabricatedFields = document.getElementById('prefabricated-material-fields');
+                const customFields = document.getElementById('custom-material-fields');
+                if (e.target.value === 'prefabricated') {
+                    prefabricatedFields.style.display = 'block';
+                    customFields.style.display = 'none';
+                } else {
+                    prefabricatedFields.style.display = 'none';
+                    customFields.style.display = 'block';
+                }
+            });
+        }
+
         // Listen for state updates
         window.addEventListener('state-updated', (event) => {
             if (event.detail.key === 'inventory') {
@@ -312,116 +266,95 @@ window.inventoryModule = {
     },
 
     applyFilters: function() {
-        const statusFilter = document.getElementById('statusFilter')?.value || '';
-        const materialSearch = document.getElementById('materialSearch')?.value.toLowerCase() || '';
-        const supplierFilter = document.getElementById('supplierFilter')?.value || '';
-        const sortBy = document.getElementById('sortBy')?.value || 'material';
-
-        this.filteredInventory = this.inventory.filter(item => {
-            const matchesStatus = !statusFilter || item.status === statusFilter;
-            const matchesMaterial = !materialSearch || item.material.toLowerCase().includes(materialSearch);
-            const matchesSupplier = !supplierFilter || item.supplier === supplierFilter;
-
-            return matchesStatus && matchesMaterial && matchesSupplier;
-        });
-
-        // Sort inventory
-        this.filteredInventory.sort((a, b) => {
-            switch (sortBy) {
-                case 'quantity':
-                    return b.currentQuantity - a.currentQuantity;
-                case 'status':
-                    return a.status.localeCompare(b.status);
-                case 'value':
-                    return (b.currentQuantity * b.pricePerUnit) - (a.currentQuantity * a.pricePerUnit);
-                default:
-                    return a.material.localeCompare(b.material);
-            }
-        });
+        // For now, just copy the full lists to the filtered lists.
+        // Filtering logic can be added later.
+        this.filteredPrefabricatedMaterials = [...this.prefabricatedMaterials];
+        this.filteredCustomMaterials = [...this.customMaterials];
 
         this.renderInventory();
     },
 
     renderInventory: function() {
-        const tableBody = document.getElementById('inventoryTableBody');
+        this.renderPrefabricatedMaterials();
+        this.renderCustomMaterials();
+    },
+
+    renderPrefabricatedMaterials: function() {
+        const tableBody = document.getElementById('prefabricatedMaterialsTableBody');
         if (!tableBody) return;
-
-        if (this.filteredInventory.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center py-5">
-                        <div class="empty-state">
-                            <i class="bi bi-box-seam text-muted"></i>
-                            <p>No se encontraron materiales</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tableBody.innerHTML = this.filteredInventory.map(item => `
-            <tr class="fade-in">
-                <td>
-                    <strong>${item.material}</strong>
-                    <br><small class="text-muted">${item.location || 'Sin ubicación'}</small>
-                </td>
-                <td>
-                    <div class="quantity-indicator">
-                        <span class="fw-bold">${item.currentQuantity}</span>
-                        <div class="quantity-bar">
-                            <div class="quantity-fill ${this.getQuantityLevel(item)}" 
-                                 style="width: ${this.getQuantityPercentage(item)}%"></div>
-                        </div>
-                    </div>
-                </td>
-                <td>${item.unit}</td>
-                <td class="text-muted">${item.minThreshold}</td>
-                <td>$${item.pricePerUnit.toLocaleString()}</td>
-                <td class="fw-bold">$${(item.currentQuantity * item.pricePerUnit).toLocaleString()}</td>
-                <td>
-                    <span class="status-badge status-${this.getStatusClass(item.status)}">
-                        ${item.status}
-                    </span>
-                </td>
-                <td>${item.supplier}</td>
-                <td>${this.formatDate(item.lastPurchase)}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-action btn-edit" onclick="inventoryModule.showMaterialDetail(${item.id})" title="Ver detalles">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-action btn-add-stock" onclick="inventoryModule.quickAddStock(${item.id})" title="Agregar stock">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                        <button class="btn btn-action btn-delete" onclick="inventoryModule.deleteMaterial(${item.id})" title="Eliminar">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </td>
+        tableBody.innerHTML = this.filteredPrefabricatedMaterials.map(m => `
+            <tr>
+                <td>${m.materialName}</td>
+                <td>${m.currentStock}</td>
+                <td>${m.minStock}</td>
+                <td>${m.materialType}</td>
+                <td>${m.materialState}</td>
+                <td>${m.description}</td>
+                <td>${m.imagePath}</td>
+                <td>$${m.cost.toLocaleString()}</td>
+                <td>${m.unit}</td>
+                <td>${m.generalStock}</td>
+                <td>${m.supplierName}</td>
+                <td>${m.supplierState}</td>
+                <td>$${m.pricePerUnit.toLocaleString()}</td>
+                <td>${m.deliveryTime}</td>
+                <td>${m.supplierDescription}</td>
+                <td>${this.formatDate(m.registrationDate)}</td>
+                <td>${this.formatDate(m.updateDate)}</td>
+                <td>${m.ruc}</td>
+                <td>${m.phone}</td>
+                <td>${m.address}</td>
+                <td>${m.email}</td>
             </tr>
-        `).join('');
+        `).join('') || `<tr><td colspan="21" class="text-center">No hay materiales prefabricados.</td></tr>`;
+    },
+
+    renderCustomMaterials: function() {
+        const tableBody = document.getElementById('customMaterialsTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredCustomMaterials.map(m => `
+            <tr>
+                <td>${m.materialName}</td>
+                <td>${m.currentStock}</td>
+                <td>${m.minStock}</td>
+                <td>${m.materialType}</td>
+                <td>${m.materialState}</td>
+                <td>${m.description}</td>
+                <td>${m.imagePath}</td>
+                <td>$${m.cost.toLocaleString()}</td>
+                <td>${m.unit}</td>
+                <td>${m.generalStock}</td>
+                <td>${m.supplierName}</td>
+                <td>${m.supplierState}</td>
+                <td>$${m.pricePerUnit.toLocaleString()}</td>
+                <td>${m.deliveryTime}</td>
+                <td>${m.supplierDescription}</td>
+                <td>${this.formatDate(m.registrationDate)}</td>
+                <td>${this.formatDate(m.updateDate)}</td>
+                <td>${m.ruc}</td>
+                <td>${m.phone}</td>
+                <td>${m.address}</td>
+                <td>${m.email}</td>
+            </tr>
+        `).join('') || `<tr><td colspan="21" class="text-center">No hay materiales personalizados.</td></tr>`;
     },
 
     updateStats: function() {
-        // Total materials
-        document.getElementById('totalMaterials').textContent = this.inventory.length;
+        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials];
+        document.getElementById('totalMaterials').textContent = allMaterials.length;
 
-        // Low stock count
-        const lowStockCount = this.inventory.filter(item => 
-            item.currentQuantity <= item.minThreshold && item.currentQuantity > 0
+        const lowStockCount = allMaterials.filter(item => 
+            item.currentStock <= item.minStock && item.currentStock > 0
         ).length;
         document.getElementById('lowStockCount').textContent = lowStockCount;
 
-        // Out of stock count
-        const outOfStockCount = this.inventory.filter(item => 
-            item.currentQuantity === 0
+        const outOfStockCount = allMaterials.filter(item => 
+            item.currentStock === 0
         ).length;
         document.getElementById('outOfStockCount').textContent = outOfStockCount;
 
-        // Total value
-        const totalValue = this.inventory.reduce((total, item) => 
-            total + (item.currentQuantity * item.pricePerUnit), 0
+        const totalValue = allMaterials.reduce((total, item) => 
+            total + (item.currentStock * item.pricePerUnit), 0
         );
         document.getElementById('totalValue').textContent = `$${totalValue.toLocaleString()}`;
     },
@@ -552,15 +485,20 @@ window.inventoryModule = {
         const modal = document.getElementById('addStockModal');
         const form = document.getElementById('addStockForm');
         const materialSelect = form.querySelector('[name="materialId"]');
+        const materialStateInput = form.querySelector('[name="materialState"]');
         
-        // Reset form
         form.reset();
         
-        // Populate material options
+        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials];
         materialSelect.innerHTML = '<option value="">Seleccionar material...</option>' +
-            this.inventory.map(item => 
-                `<option value="${item.id}">${item.material} (${item.currentQuantity} ${item.unit})</option>`
+            allMaterials.map(item => 
+                `<option value="${item.id}" data-state="${item.materialState}">${item.materialName} (${item.currentStock} ${item.unit})</option>`
             ).join('');
+
+        materialSelect.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            materialStateInput.value = selectedOption.dataset.state || '';
+        });
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
@@ -674,39 +612,58 @@ window.inventoryModule = {
     createNewMaterial: function() {
         const form = document.getElementById('newMaterialForm');
         const formData = new FormData(form);
+        const materialType = document.getElementById('materialTypeSelector').value;
 
-        // Validate form
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
+        if (materialType === 'prefabricated') {
+            const newMaterial = {
+                id: Math.max(0, ...this.prefabricatedMaterials.map(m => m.id)) + 1,
+                materialName: formData.get('prefabricated_materialName'),
+                currentStock: parseFloat(formData.get('prefabricated_currentStock')),
+                minStock: parseFloat(formData.get('prefabricated_minStock')),
+                materialType: formData.get('prefabricated_materialType'),
+                materialState: formData.get('prefabricated_materialState'),
+                description: formData.get('prefabricated_description'),
+                imagePath: formData.get('prefabricated_imagePath'),
+                cost: parseFloat(formData.get('prefabricated_cost')),
+                unit: formData.get('prefabricated_unit'),
+                generalStock: parseFloat(formData.get('prefabricated_generalStock')),
+                supplierName: formData.get('prefabricated_supplierName'),
+                supplierState: formData.get('prefabricated_supplierState'),
+                pricePerUnit: parseFloat(formData.get('prefabricated_pricePerUnit')),
+                deliveryTime: parseInt(formData.get('prefabricated_deliveryTime')),
+                registrationDate: new Date().toISOString().split('T')[0],
+                updateDate: new Date().toISOString().split('T')[0],
+            };
+            this.prefabricatedMaterials.push(newMaterial);
+            window.MobiliAriState.updateState('prefabricatedMaterials', this.prefabricatedMaterials);
+        } else {
+            const newMaterial = {
+                id: Math.max(100, ...this.customMaterials.map(m => m.id)) + 1,
+                materialName: formData.get('custom_materialName'),
+                currentStock: parseFloat(formData.get('custom_currentStock')),
+                minStock: parseFloat(formData.get('custom_minStock')),
+                materialType: formData.get('custom_materialType'),
+                materialState: formData.get('custom_materialState'),
+                description: formData.get('custom_description'),
+                imagePath: formData.get('custom_imagePath'),
+                cost: parseFloat(formData.get('custom_cost')),
+                unit: formData.get('custom_unit'),
+                generalStock: parseFloat(formData.get('custom_generalStock')),
+                supplierName: formData.get('custom_supplierName'),
+                supplierState: formData.get('custom_supplierState'),
+                pricePerUnit: parseFloat(formData.get('custom_pricePerUnit')),
+                deliveryTime: parseInt(formData.get('custom_deliveryTime')),
+                registrationDate: new Date().toISOString().split('T')[0],
+                updateDate: new Date().toISOString().split('T')[0],
+            };
+            this.customMaterials.push(newMaterial);
+            window.MobiliAriState.updateState('customMaterials', this.customMaterials);
         }
 
-        const newMaterial = {
-            id: Math.max(...this.inventory.map(m => m.id), 0) + 1,
-            material: formData.get('material'),
-            currentQuantity: parseFloat(formData.get('currentQuantity')),
-            unit: formData.get('unit'),
-            minThreshold: parseFloat(formData.get('minThreshold')),
-            pricePerUnit: parseFloat(formData.get('pricePerUnit')),
-            status: this.calculateStatus(parseFloat(formData.get('currentQuantity')), parseFloat(formData.get('minThreshold'))),
-            supplier: formData.get('supplier'),
-            lastPurchase: new Date().toISOString().split('T')[0],
-            location: '',
-            notes: 'Material agregado al sistema'
-        };
-
-        // Add to inventory
-        this.inventory.push(newMaterial);
-        window.MobiliAriState.updateState('inventory', this.inventory);
-
-        // Add to stock history
-        this.addToStockHistory(newMaterial.id, 'Material creado', newMaterial.currentQuantity, newMaterial.unit, 'Inventario inicial');
-
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('newMaterialModal'));
-        modal.hide();
-
-        this.showAlert('success', `Material ${newMaterial.material} creado exitosamente`);
+        this.applyFilters();
+        this.updateStats();
+        this.closeNewMaterialModal();
+        this.showAlert('success', 'Material creado exitosamente');
     },
 
     addStock: function() {

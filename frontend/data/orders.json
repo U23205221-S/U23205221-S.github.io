@@ -1,0 +1,52 @@
+[
+    {
+        "id": "ORD-2025-001",
+        "clientName": "Constructora G&S",
+        "creationDate": "2025-09-15",
+        "deliveryDate": "2025-10-15",
+        "total": 7500.00,
+        "status": "En Progreso",
+        "assignedTo": "Carlos Rodriguez",
+        "priority": "Alta"
+    },
+    {
+        "id": "ORD-2025-002",
+        "clientName": "Diseño de Interiores Moderno",
+        "creationDate": "2025-09-18",
+        "deliveryDate": "2025-10-20",
+        "total": 12000.50,
+        "status": "Pendiente",
+        "assignedTo": "Luisa Fernandez",
+        "priority": "Media"
+    },
+    {
+        "id": "ORD-2025-003",
+        "clientName": "Hotel Gran Vía",
+        "creationDate": "2025-09-20",
+        "deliveryDate": "2025-11-05",
+        "total": 35000.00,
+        "status": "Completado",
+        "assignedTo": "Carlos Rodriguez",
+        "priority": "Alta"
+    },
+    {
+        "id": "ORD-2025-004",
+        "clientName": "Restaurante El Buen Sabor",
+        "creationDate": "2025-09-22",
+        "deliveryDate": "2025-10-10",
+        "total": 5000.00,
+        "status": "Completado",
+        "assignedTo": "Equipo de Taller",
+        "priority": "Baja"
+    },
+    {
+        "id": "ORD-2025-005",
+        "clientName": "Oficinas Corporativas Alfa",
+        "creationDate": "2025-09-25",
+        "deliveryDate": "2025-11-15",
+        "total": 25000.00,
+        "status": "Cancelado",
+        "assignedTo": "N/A",
+        "priority": "Media"
+    }
+]

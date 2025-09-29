@@ -173,8 +173,34 @@
                 </div>
             </div>
 
+            <!-- Suppliers Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre de la Empresa</th>
+                                    <th>Persona de Contacto</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>RUC</th>
+                                    <th>Dirección</th>
+                                    <th>Productos/Servicios</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suppliersTableBody">
+                                <!-- Suppliers will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Suppliers Grid -->
-            <div class="row" id="suppliersGrid">
+            <div class="row mt-4" id="suppliersGrid">
                 <!-- Supplier cards will be loaded here -->
             </div>
         </div>
@@ -234,25 +260,15 @@
                                 <input type="tel" class="form-control" name="phone" required>
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">RUC</label>
+                                <input type="text" class="form-control" name="ruc">
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Dirección</label>
                             <textarea class="form-control" rows="2" name="address" required></textarea>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Categoría Principal</label>
-                                <select class="form-select" name="category" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="Maderas">Maderas</option>
-                                    <option value="Herrajes">Herrajes</option>
-                                    <option value="Químicos">Químicos</option>
-                                    <option value="Herramientas">Herramientas</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Términos de Pago (días)</label>
-                                <input type="number" class="form-control" name="paymentTerms" min="0" value="30">
-                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Productos/Servicios</label>

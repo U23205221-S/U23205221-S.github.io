@@ -1,0 +1,144 @@
+window.usersModule = {
+    users: [],
+    workers: [],
+    clients: [],
+    filteredUsers: [],
+    filteredWorkers: [],
+    filteredClients: [],
+    
+    init: async function() {
+        console.log('Users module initialized');
+        await this.loadData();
+        this.setupEventListeners();
+        this.renderTables();
+        this.updateStats();
+        this.updateUserInfo();
+    },
+
+    loadData: async function() {
+        let allUsers = window.MobiliAriState.getState('users');
+
+        if (!allUsers || allUsers.length === 0) {
+            try {
+                const response = await fetch('../data/users.json');
+                allUsers = await response.json();
+                window.MobiliAriState.updateState('users', allUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                allUsers = [];
+            }
+        }
+
+        this.users = allUsers.filter(u => u.role === 'Administrador');
+        this.workers = allUsers.filter(u => ['Gerente de Taller', 'Carpintero Senior', 'Diseñador', 'Vendedor'].includes(u.role));
+        this.clients = allUsers.filter(u => u.role === 'Cliente');
+
+        this.filteredUsers = [...this.users];
+        this.filteredClients = [...this.clients];
+        this.filteredWorkers = [...this.workers];
+    },
+
+    setupEventListeners: function() {
+        // Setup all event listeners for the module
+    },
+
+    renderTables: function() {
+        this.renderSystemUsers();
+        this.renderWorkers();
+        this.renderClients();
+    },
+
+    renderSystemUsers: function() {
+        const tableBody = document.getElementById('usersTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredUsers.map(user => `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.role}</td>
+                <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+                <td>${this.formatDate(user.lastLogin)}</td>
+                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="6" class="text-center">No hay usuarios del sistema.</td></tr>';
+    },
+
+    renderWorkers: function() {
+        const tableBody = document.getElementById('workersTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredWorkers.map(user => `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.role}</td>
+                <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+                <td>${this.formatDate(user.lastLogin)}</td>
+                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="6" class="text-center">No hay trabajadores.</td></tr>';
+    },
+
+    renderClients: function() {
+        const tableBody = document.getElementById('clientsTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredClients.map(user => `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.role}</td>
+                <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+                <td>${this.formatDate(user.lastLogin)}</td>
+                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="6" class="text-center">No hay clientes.</td></tr>';
+    },
+
+    updateStats: function() {
+        document.getElementById('totalUsers').textContent = this.users.length + this.workers.length + this.clients.length;
+        document.getElementById('activeUsers').textContent = this.users.filter(u => u.status === 'Activo').length + this.workers.filter(u => u.status === 'Activo').length + this.clients.filter(u => u.status === 'Activo').length;
+        document.getElementById('adminUsers').textContent = this.users.filter(u => u.role === 'Administrador').length;
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('recentLogins').textContent = (this.users.filter(u => u.lastLogin && u.lastLogin.startsWith(today)).length) + (this.workers.filter(u => u.lastLogin && u.lastLogin.startsWith(today)).length);
+    },
+
+    formatDate: function(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+    },
+
+    navigateToModule: function(module) {
+        window.dispatchEvent(new CustomEvent('navigate-to-module', { detail: { module: module } }));
+    },
+
+    toggleSidebar: function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed');
+        }
+    },
+
+    updateUserInfo: function() {
+        const currentUser = window.MobiliAriState.currentUser;
+        if (currentUser) {
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role;
+        }
+    },
+
+    showAlert: function(type, message) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        alert.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.body.appendChild(alert);
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.usersModule.init();
+});

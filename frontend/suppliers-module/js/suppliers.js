@@ -8,113 +8,34 @@ window.suppliersModule = {
     filteredSuppliers: [],
     supplierOrders: [],
     
-    init: function(data) {
+    init: async function(data) {
         console.log('Suppliers module initialized');
-        this.loadSuppliers();
+        await this.loadSuppliers();
         this.setupEventListeners();
         this.renderSuppliers();
         this.updateStats();
         this.updateUserInfo();
     },
 
-    loadSuppliers: function() {
-        this.suppliers = window.MobiliAriState.getState('suppliers') || this.getDefaultSuppliers();
+    loadSuppliers: async function() {
+        let suppliers = window.MobiliAriState.getState('suppliers');
+
+        if (!suppliers || suppliers.length === 0) {
+            try {
+                const response = await fetch('../data/suppliers.json');
+                suppliers = await response.json();
+                window.MobiliAriState.updateState('suppliers', suppliers);
+            } catch (error) {
+                console.error('Error loading suppliers:', error);
+                suppliers = [];
+            }
+        }
+
+        this.suppliers = suppliers;
         this.filteredSuppliers = [...this.suppliers];
         this.supplierOrders = window.MobiliAriState.getState('supplierOrders') || [];
-        
-        if (window.MobiliAriState.getState('suppliers').length === 0) {
-            window.MobiliAriState.updateState('suppliers', this.suppliers);
-        }
     },
 
-    getDefaultSuppliers: function() {
-        return [
-            {
-                id: 1,
-                name: 'Maderas Premium SA',
-                contactPerson: 'Carlos Mendoza',
-                email: 'carlos@maderaspremium.com',
-                phone: '+52 55 1234-5678',
-                address: 'Av. Industrial 123, Ciudad de México',
-                category: 'Maderas',
-                status: 'Activo',
-                rating: 4.8,
-                totalOrders: 45,
-                paymentTerms: 30,
-                products: 'Roble, Cedro, Caoba, Pino premium',
-                notes: 'Proveedor confiable con excelente calidad',
-                lastOrder: '2025-01-10',
-                performance: {
-                    onTimeDelivery: 95,
-                    qualityScore: 4.8,
-                    responseTime: 2
-                }
-            },
-            {
-                id: 2,
-                name: 'Ferretería Industrial',
-                contactPerson: 'Ana López',
-                email: 'ana@ferreteriaind.com',
-                phone: '+52 55 2345-6789',
-                address: 'Calle Herrajes 456, Guadalajara',
-                category: 'Herrajes',
-                status: 'Activo',
-                rating: 4.5,
-                totalOrders: 32,
-                paymentTerms: 15,
-                products: 'Tornillería, bisagras, cerraduras, herrajes decorativos',
-                notes: 'Amplio catálogo de herrajes',
-                lastOrder: '2025-01-14',
-                performance: {
-                    onTimeDelivery: 88,
-                    qualityScore: 4.5,
-                    responseTime: 1
-                }
-            },
-            {
-                id: 3,
-                name: 'Químicos y Pinturas',
-                contactPerson: 'Roberto García',
-                email: 'roberto@quimicospinturas.com',
-                phone: '+52 55 3456-7890',
-                address: 'Zona Industrial 789, Monterrey',
-                category: 'Químicos',
-                status: 'Activo',
-                rating: 4.2,
-                totalOrders: 28,
-                paymentTerms: 45,
-                products: 'Barnices, lacas, tintes, selladores',
-                notes: 'Especialistas en acabados de madera',
-                lastOrder: '2025-01-11',
-                performance: {
-                    onTimeDelivery: 82,
-                    qualityScore: 4.2,
-                    responseTime: 3
-                }
-            },
-            {
-                id: 4,
-                name: 'Tableros Industriales',
-                contactPerson: 'María Rodríguez',
-                email: 'maria@tablerosindustriales.com',
-                phone: '+52 55 4567-8901',
-                address: 'Parque Industrial 321, Puebla',
-                category: 'Maderas',
-                status: 'Inactivo',
-                rating: 3.8,
-                totalOrders: 15,
-                paymentTerms: 30,
-                products: 'MDF, Melamina, Triplay, OSB',
-                notes: 'Proveedor temporal, evaluar reactivación',
-                lastOrder: '2024-12-15',
-                performance: {
-                    onTimeDelivery: 75,
-                    qualityScore: 3.8,
-                    responseTime: 4
-                }
-            }
-        ];
-    },
 
     setupEventListeners: function() {
         // Navigation
@@ -333,6 +254,11 @@ window.suppliersModule = {
     },
 
     renderSuppliers: function() {
+        this.renderSuppliersGrid();
+        this.renderSuppliersTable();
+    },
+
+    renderSuppliersGrid: function() {
         const suppliersGrid = document.getElementById('suppliersGrid');
         if (!suppliersGrid) return;
 
@@ -365,7 +291,7 @@ window.suppliersModule = {
                             </div>
                         </div>
                         <div class="text-end">
-                            <span class="supplier-category">${supplier.category}</span>
+                            ${supplier.category ? `<span class="supplier-category">${supplier.category}</span>` : ''}
                             <div class="mt-2">
                                 <span class="status-badge status-${this.getStatusClass(supplier.status)}">
                                     ${supplier.status}
@@ -396,6 +322,32 @@ window.suppliersModule = {
                     </div>
                 </div>
             </div>
+        `).join('');
+    },
+
+    renderSuppliersTable: function() {
+        const tableBody = document.getElementById('suppliersTableBody');
+        if (!tableBody) return;
+
+        if (this.filteredSuppliers.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="9" class="text-center">No se encontraron proveedores</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = this.filteredSuppliers.map(supplier => `
+            <tr>
+                <td>${supplier.name}</td>
+                <td>${supplier.contactPerson}</td>
+                <td>${supplier.email}</td>
+                <td>${supplier.phone}</td>
+                <td>${supplier.ruc || 'N/A'}</td>
+                <td>${supplier.address}</td>
+                <td>${supplier.products}</td>
+                <td>${supplier.notes}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="suppliersModule.showSupplierDetail(${supplier.id})">Ver</button>
+                </td>
+            </tr>
         `).join('');
     },
 
@@ -539,11 +491,12 @@ window.suppliersModule = {
             email: formData.get('email'),
             phone: formData.get('phone'),
             address: formData.get('address'),
-            category: formData.get('category'),
+            category: '',
             status: 'Activo',
             rating: 0,
             totalOrders: 0,
-            paymentTerms: parseInt(formData.get('paymentTerms')),
+            paymentTerms: null,
+            ruc: formData.get('ruc') || '',
             products: formData.get('products'),
             notes: formData.get('notes'),
             lastOrder: null,

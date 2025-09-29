@@ -181,13 +181,16 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>ID Pago</th>
                                     <th>Cliente</th>
                                     <th>Pedido</th>
-                                    <th>Monto</th>
-                                    <th>Método</th>
-                                    <th>Estado</th>
-                                    <th>Fecha</th>
+                                    <th>Monto Total</th>
+                                    <th>Divisa</th>
+                                    <th>Fecha de Pago</th>
+                                    <th>Fecha de Procesamiento</th>
+                                    <th>Fecha de Finalización</th>
+                                    <th>Estado de Pago</th>
+                                    <th>Método de Pago</th>
+                                    <th>Forma de Pago</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -240,80 +243,75 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Cliente</label>
-                                <select class="form-select" name="clientId" required>
+                                <select class="form-select" name="clientName" required>
                                     <option value="">Seleccionar cliente...</option>
-                                    <!-- Options will be loaded dynamically -->
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Pedido Relacionado</label>
+                                <label class="form-label">Pedido</label>
                                 <select class="form-select" name="orderId">
                                     <option value="">Sin pedido específico</option>
-                                    <!-- Options will be loaded dynamically -->
                                 </select>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Monto</label>
-                                <input type="number" class="form-control" name="amount" min="0" step="0.01" required>
+                                <label class="form-label">Monto Total</label>
+                                <input type="number" class="form-control" name="total" min="0" step="0.01" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Método de Pago</label>
-                                <select class="form-select" name="method" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="Efectivo">Efectivo</option>
-                                    <option value="Transferencia">Transferencia Bancaria</option>
-                                    <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-                                    <option value="Cheque">Cheque</option>
-                                </select>
+                                <label class="form-label">Divisa</label>
+                                <input type="text" class="form-control" name="currency" value="MXN" required>
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">Fecha de Pago</label>
                                 <input type="date" class="form-control" name="paymentDate" required>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Referencia/Folio</label>
-                                <input type="text" class="form-control" name="reference" placeholder="Número de referencia">
+                            <div class="col-md-4">
+                                <label class="form-label">Fecha de Procesamiento</label>
+                                <input type="date" class="form-control" name="processingDate">
                             </div>
-                        </div>
-                        <div class="mb-3" id="bankDetailsSection" style="display: none;">
-                            <label class="form-label">Detalles Bancarios</label>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" name="bankName" placeholder="Nombre del banco">
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" name="accountNumber" placeholder="Número de cuenta">
-                                </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Fecha de Finalización</label>
+                                <input type="date" class="form-control" name="completionDate">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Concepto</label>
-                            <textarea class="form-control" rows="2" name="concept" placeholder="Concepto del pago..." required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Notas Adicionales</label>
-                            <textarea class="form-control" rows="2" name="notes" placeholder="Notas adicionales..."></textarea>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="sendReceipt" id="sendReceipt" checked>
-                                    <label class="form-check-label" for="sendReceipt">
-                                        Enviar recibo por email
-                                    </label>
-                                </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Estado de Pago</label>
+                                <select class="form-select" name="paymentStatusName" required>
+                                    <option>Pendiente</option>
+                                    <option>Pagado</option>
+                                    <option>Vencido</option>
+                                    <option>Cancelado</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="autoConfirm" id="autoConfirm">
-                                    <label class="form-check-label" for="autoConfirm">
-                                        Confirmar automáticamente
-                                    </label>
-                                </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Método de Pago</label>
+                                <select class="form-select" name="paymentMethodName" required>
+                                    <option>Transferencia</option>
+                                    <option>Efectivo</option>
+                                    <option>Tarjeta</option>
+                                    <option>Cheque</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Forma de Pago</label>
+                                <select class="form-select" name="paymentFormName" required>
+                                    <option>Pago en una sola exhibición</option>
+                                    <option>Anticipo</option>
+                                    <option>Parcialidad</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="sendReceipt" id="sendReceipt" checked>
+                                <label class="form-check-label" for="sendReceipt">
+                                    Enviar recibo por email
+                                </label>
                             </div>
                         </div>
                     </form>

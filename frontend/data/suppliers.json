@@ -1,0 +1,107 @@
+[
+    {
+        "id": 1,
+        "name": "Maderas Premium SA",
+        "contactPerson": "Carlos Mendoza",
+        "email": "carlos@maderaspremium.com",
+        "phone": "+52 55 1234-5678",
+        "address": "Av. Industrial 123, Ciudad de México",
+        "category": "Maderas",
+        "status": "Activo",
+        "rating": 4.8,
+        "totalOrders": 45,
+        "paymentTerms": 30,
+        "products": "Roble, Cedro, Caoba, Pino premium",
+        "notes": "Proveedor confiable con excelente calidad",
+        "lastOrder": "2025-01-10",
+        "performance": {
+            "onTimeDelivery": 95,
+            "qualityScore": 4.8,
+            "responseTime": 2
+        }
+    },
+    {
+        "id": 2,
+        "name": "Ferretería Industrial",
+        "contactPerson": "Ana López",
+        "email": "ana@ferreteriaind.com",
+        "phone": "+52 55 2345-6789",
+        "address": "Calle Herrajes 456, Guadalajara",
+        "category": "Herrajes",
+        "status": "Activo",
+        "rating": 4.5,
+        "totalOrders": 32,
+        "paymentTerms": 15,
+        "products": "Tornillería, bisagras, cerraduras, herrajes decorativos",
+        "notes": "Amplio catálogo de herrajes",
+        "lastOrder": "2025-01-14",
+        "performance": {
+            "onTimeDelivery": 88,
+            "qualityScore": 4.5,
+            "responseTime": 1
+        }
+    },
+    {
+        "id": 3,
+        "name": "Químicos y Pinturas",
+        "contactPerson": "Roberto García",
+        "email": "roberto@quimicospinturas.com",
+        "phone": "+52 55 3456-7890",
+        "address": "Zona Industrial 789, Monterrey",
+        "category": "Químicos",
+        "status": "Activo",
+        "rating": 4.2,
+        "totalOrders": 28,
+        "paymentTerms": 45,
+        "products": "Barnices, lacas, tintes, selladores",
+        "notes": "Especialistas en acabados de madera",
+        "lastOrder": "2025-01-11",
+        "performance": {
+            "onTimeDelivery": 82,
+            "qualityScore": 4.2,
+            "responseTime": 3
+        }
+    },
+    {
+        "id": 4,
+        "name": "Tableros Industriales",
+        "contactPerson": "María Rodríguez",
+        "email": "maria@tablerosindustriales.com",
+        "phone": "+52 55 4567-8901",
+        "address": "Parque Industrial 321, Puebla",
+        "category": "Maderas",
+        "status": "Inactivo",
+        "rating": 3.8,
+        "totalOrders": 15,
+        "paymentTerms": 30,
+        "products": "MDF, Melamina, Triplay, OSB",
+        "notes": "Proveedor temporal, evaluar reactivación",
+        "lastOrder": "2024-12-15",
+        "performance": {
+            "onTimeDelivery": 75,
+            "qualityScore": 3.8,
+            "responseTime": 4
+        }
+    },
+    {
+        "id": 5,
+        "name": "Herramientas Eléctricas Pro",
+        "contactPerson": "Jorge Martínez",
+        "email": "jorge@herramientaspro.com",
+        "phone": "+52 55 5678-9012",
+        "address": "Calle de la Tecnología 101, Querétaro",
+        "category": "Herramientas",
+        "status": "Activo",
+        "rating": 4.9,
+        "totalOrders": 55,
+        "paymentTerms": 30,
+        "products": "Sierras, taladros, lijadoras, routers",
+        "notes": "Distribuidor oficial de marcas líderes",
+        "lastOrder": "2025-01-20",
+        "performance": {
+            "onTimeDelivery": 98,
+            "qualityScore": 4.9,
+            "responseTime": 1
+        }
+    }
+]

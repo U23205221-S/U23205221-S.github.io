@@ -8,10 +8,10 @@ window.paymentsModule = {
     filteredPayments: [],
     reconciliationData: [],
     
-    init: function(data) {
+    init: async function(data) {
         console.log('Payments module initialized');
         try {
-            this.loadPayments();
+            await this.loadPayments();
             this.setupEventListeners();
             this.renderPayments();
             this.updateStats();
@@ -27,90 +27,24 @@ window.paymentsModule = {
         }
     },
 
-    loadPayments: function() {
-        this.payments = window.MobiliAriState.getState('payments') || this.getDefaultPayments();
-        this.filteredPayments = [...this.payments];
-        
-        // Initialize with default data if empty
-        if (window.MobiliAriState.getState('payments').length === 0) {
-            window.MobiliAriState.updateState('payments', this.payments);
+    loadPayments: async function() {
+        let payments = window.MobiliAriState.getState('payments');
+
+        if (!payments || payments.length === 0) {
+            try {
+                const response = await fetch('../data/payments.json');
+                payments = await response.json();
+                window.MobiliAriState.updateState('payments', payments);
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                payments = [];
+            }
         }
+
+        this.payments = payments;
+        this.filteredPayments = [...this.payments];
     },
 
-    getDefaultPayments: function() {
-        return [
-            {
-                id: 1,
-                type: 'ingreso',
-                concept: 'Venta Mesa Comedor #001',
-                amount: 15000,
-                method: 'transferencia',
-                status: 'pagado',
-                date: '2024-01-15',
-                dueDate: '2024-01-15',
-                client: 'Juan Pérez',
-                reference: 'TRF-001-2024',
-                description: 'Pago por mesa de comedor rústica',
-                orderId: 'ORD-001'
-            },
-            {
-                id: 2,
-                type: 'egreso',
-                concept: 'Compra Madera Roble',
-                amount: 8500,
-                method: 'efectivo',
-                status: 'pagado',
-                date: '2024-01-10',
-                dueDate: '2024-01-10',
-                supplier: 'Maderas del Norte',
-                reference: 'EFE-002-2024',
-                description: 'Compra de madera para producción',
-                purchaseId: 'PUR-001'
-            },
-            {
-                id: 3,
-                type: 'ingreso',
-                concept: 'Anticipo Proyecto Oficina',
-                amount: 25000,
-                method: 'cheque',
-                status: 'pendiente',
-                date: '2024-01-20',
-                dueDate: '2024-01-25',
-                client: 'Empresa ABC',
-                reference: 'CHE-003-2024',
-                description: 'Anticipo 50% proyecto mobiliario oficina',
-                orderId: 'ORD-002'
-            },
-            {
-                id: 4,
-                type: 'egreso',
-                concept: 'Pago Servicios Enero',
-                amount: 3200,
-                method: 'transferencia',
-                status: 'vencido',
-                date: '2024-01-05',
-                dueDate: '2024-01-31',
-                supplier: 'Servicios Generales',
-                reference: 'TRF-004-2024',
-                description: 'Pago de servicios básicos del taller',
-                serviceId: 'SER-001'
-            },
-            {
-                id: 5,
-                type: 'ingreso',
-                concept: 'Venta Sillas Comedor',
-                amount: 14000,
-                method: 'tarjeta',
-                status: 'pagado',
-                date: '2024-01-18',
-                dueDate: '2024-01-18',
-                client: 'María González',
-                reference: 'TAR-005-2024',
-                description: 'Venta de 4 sillas tapizadas',
-                orderId: 'ORD-003'
-            }
-        ];
-    },
 
     setupEventListeners: function() {
         // Navigation
@@ -310,26 +244,17 @@ window.paymentsModule = {
 
     applyFilters: function() {
         const statusFilter = document.getElementById('statusFilter')?.value || '';
-        const typeFilter = document.getElementById('typeFilter')?.value || '';
         const methodFilter = document.getElementById('methodFilter')?.value || '';
-        const dateFrom = document.getElementById('dateFrom')?.value || '';
-        const dateTo = document.getElementById('dateTo')?.value || '';
-        const searchTerm = document.getElementById('searchPayments')?.value.toLowerCase() || '';
+        const clientSearch = document.getElementById('clientSearch')?.value.toLowerCase() || '';
+        const dateFilter = document.getElementById('dateFilter')?.value || '';
 
         this.filteredPayments = this.payments.filter(payment => {
-            const matchesStatus = !statusFilter || payment.status === statusFilter;
-            const matchesType = !typeFilter || payment.type === typeFilter;
-            const matchesMethod = !methodFilter || payment.method === methodFilter;
-            const matchesDateFrom = !dateFrom || payment.date >= dateFrom;
-            const matchesDateTo = !dateTo || payment.date <= dateTo;
-            const matchesSearch = !searchTerm || 
-                payment.concept.toLowerCase().includes(searchTerm) ||
-                payment.client?.toLowerCase().includes(searchTerm) ||
-                payment.supplier?.toLowerCase().includes(searchTerm) ||
-                payment.reference.toLowerCase().includes(searchTerm);
+            const matchesStatus = !statusFilter || payment.paymentStatusName === statusFilter;
+            const matchesMethod = !methodFilter || payment.paymentMethodName === methodFilter;
+            const matchesClient = !clientSearch || payment.clientName.toLowerCase().includes(clientSearch);
+            const matchesDate = !dateFilter || payment.paymentDate === dateFilter;
 
-            return matchesStatus && matchesType && matchesMethod && 
-                matchesDateFrom && matchesDateTo && matchesSearch;
+            return matchesStatus && matchesMethod && matchesClient && matchesDate;
         });
 
         this.renderPayments();
@@ -356,35 +281,16 @@ window.paymentsModule = {
 
         tableBody.innerHTML = this.filteredPayments.map(payment => `
             <tr>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-${payment.type === 'ingreso' ? 'arrow-down-circle text-success' : 'arrow-up-circle text-danger'} me-2"></i>
-                        <div>
-                            <strong>${payment.concept}</strong>
-                            <br>
-                            <small class="text-muted">${payment.reference}</small>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <span class="payment-amount ${payment.type === 'ingreso' ? 'positive' : 'negative'}">
-                        ${payment.type === 'ingreso' ? '+' : '-'}$${payment.amount.toLocaleString()}
-                    </span>
-                </td>
-                <td>
-                    <span class="payment-method method-${payment.method}">
-                        <i class="bi bi-${this.getMethodIcon(payment.method)} me-1"></i>
-                        ${this.getMethodName(payment.method)}
-                    </span>
-                </td>
-                <td>
-                    <span class="status-badge status-${payment.status}">
-                        ${payment.status}
-                    </span>
-                </td>
-                <td>${this.formatDate(payment.date)}</td>
-                <td>${this.formatDate(payment.dueDate)}</td>
-                <td>${payment.client || payment.supplier || '-'}</td>
+                <td>${payment.clientName || '-'}</td>
+                <td>${payment.orderId || '-'}</td>
+                <td>$${(payment.total || 0).toLocaleString()}</td>
+                <td>${payment.currency || 'N/A'}</td>
+                <td>${this.formatDate(payment.paymentDate)}</td>
+                <td>${this.formatDate(payment.processingDate)}</td>
+                <td>${this.formatDate(payment.completionDate)}</td>
+                <td><span class="status-badge status-${payment.paymentStatusName?.toLowerCase()}">${payment.paymentStatusName || '-'}</span></td>
+                <td>${payment.paymentMethodName || '-'}</td>
+                <td>${payment.paymentFormName || '-'}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="btn btn-action btn-view btn-view-payment" 
@@ -392,14 +298,14 @@ window.paymentsModule = {
                                 title="Ver detalles">
                             <i class="bi bi-eye"></i>
                         </button>
-                        ${payment.status === 'pendiente' ? `
+                        ${payment.paymentStatusName === 'Pendiente' ? `
                             <button class="btn btn-action btn-confirm btn-confirm-payment" 
                                     data-payment-id="${payment.id}" 
                                     title="Confirmar pago">
                                 <i class="bi bi-check"></i>
                             </button>
                         ` : ''}
-                        ${payment.status !== 'cancelado' && payment.status !== 'pagado' ? `
+                        ${payment.paymentStatusName !== 'Cancelado' && payment.paymentStatusName !== 'Pagado' ? `
                             <button class="btn btn-action btn-cancel btn-cancel-payment" 
                                     data-payment-id="${payment.id}" 
                                     title="Cancelar">
@@ -413,52 +319,44 @@ window.paymentsModule = {
     },
 
     updateStats: function() {
-        const totalIncome = this.payments
-            .filter(p => p.type === 'ingreso' && p.status === 'pagado')
-            .reduce((sum, p) => sum + p.amount, 0);
+        const totalRevenue = this.payments
+            .filter(p => p.paymentStatusName === 'Pagado')
+            .reduce((sum, p) => sum + p.total, 0);
 
-        const totalExpenses = this.payments
-            .filter(p => p.type === 'egreso' && p.status === 'pagado')
-            .reduce((sum, p) => sum + p.amount, 0);
+        const paidPayments = this.payments.filter(p => p.paymentStatusName === 'Pagado').length;
+        const pendingPayments = this.payments.filter(p => p.paymentStatusName === 'Pendiente').length;
+        const overduePayments = this.payments.filter(p => p.paymentStatusName === 'Vencido').length;
 
-        const pendingPayments = this.payments
-            .filter(p => p.status === 'pendiente').length;
-
-        const overduePayments = this.payments
-            .filter(p => p.status === 'vencido').length;
-
-        // Update stat cards
-        document.getElementById('totalIncome').textContent = `$${totalIncome.toLocaleString()}`;
-        document.getElementById('totalExpenses').textContent = `$${totalExpenses.toLocaleString()}`;
+        document.getElementById('totalRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+        document.getElementById('paidPayments').textContent = paidPayments;
         document.getElementById('pendingPayments').textContent = pendingPayments;
         document.getElementById('overduePayments').textContent = overduePayments;
-
-        // Update balance
-        const balance = totalIncome - totalExpenses;
-        const balanceElement = document.getElementById('currentBalance');
-        if (balanceElement) {
-            balanceElement.textContent = `$${balance.toLocaleString()}`;
-            balanceElement.className = `payment-amount ${balance >= 0 ? 'positive' : 'negative'}`;
-        }
     },
 
     showPaymentDetail: function(paymentId) {
         const payment = this.payments.find(p => p.id === paymentId);
         if (!payment) return;
 
-        // Populate modal with payment details
-        document.getElementById('detailConcept').textContent = payment.concept;
-        document.getElementById('detailAmount').textContent = `$${payment.amount.toLocaleString()}`;
-        document.getElementById('detailType').textContent = payment.type === 'ingreso' ? 'Ingreso' : 'Egreso';
-        document.getElementById('detailMethod').textContent = this.getMethodName(payment.method);
-        document.getElementById('detailStatus').textContent = payment.status;
-        document.getElementById('detailDate').textContent = this.formatDate(payment.date);
-        document.getElementById('detailDueDate').textContent = this.formatDate(payment.dueDate);
-        document.getElementById('detailClient').textContent = payment.client || payment.supplier || '-';
-        document.getElementById('detailReference').textContent = payment.reference;
-        document.getElementById('detailDescription').textContent = payment.description || '-';
+        let content = `
+            <p><strong>Cliente:</strong> ${payment.clientName}</p>
+            <p><strong>Pedido:</strong> ${payment.orderId}</p>
+            <p><strong>Total:</strong> $${payment.total.toLocaleString()} ${payment.currency}</p>
+            <hr>
+            <p><strong>Fecha de Pago:</strong> ${this.formatDate(payment.paymentDate)}</p>
+            <p><strong>Fecha de Procesamiento:</strong> ${this.formatDate(payment.processingDate)}</p>
+            <p><strong>Fecha de Finalización:</strong> ${this.formatDate(payment.completionDate)}</p>
+            <hr>
+            <p><strong>Estado:</strong> ${payment.paymentStatusName}</p>
+            <p><strong>Método:</strong> ${payment.paymentMethodName}</p>
+            <p><strong>Forma de Pago:</strong> ${payment.paymentFormName}</p>
+            <p><strong>Concepto:</strong> ${payment.concept}</p>
+            <p><strong>Referencia:</strong> ${payment.reference}</p>
+        `;
 
-        const modal = new bootstrap.Modal(document.getElementById('paymentDetailModal'));
+        document.getElementById('paymentModalTitle').textContent = `Detalle del Pago #${payment.id}`;
+        document.getElementById('paymentModalContent').innerHTML = content;
+
+        const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
         modal.show();
     },
 
@@ -490,39 +388,23 @@ window.paymentsModule = {
         
         if (paymentDateField) paymentDateField.value = today;
         
-        // Setup method change listener
-        this.setupPaymentMethodListener();
+        // Obsolete listener removed
 
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
     
     loadClientOptions: function() {
-        const clientSelect = document.querySelector('#newPaymentForm [name="clientId"]');
+        const clientSelect = document.querySelector('#newPaymentForm [name="clientName"]');
         if (!clientSelect) return;
         
-        // Get clients from orders module if available
-        const orders = window.MobiliAriState.getState('orders') || [];
-        const clients = [...new Set(orders.map(order => order.cliente).filter(Boolean))];
+        // Get clients from a predefined list or state
+        const clients = ['Juan Pérez', 'Empresa ABC', 'María González', 'Nuevo Cliente']; // Example list
         
         clientSelect.innerHTML = '<option value="">Seleccionar cliente...</option>' +
             clients.map(client => `<option value="${client}">${client}</option>`).join('');
     },
     
-    setupPaymentMethodListener: function() {
-        const methodSelect = document.querySelector('#newPaymentForm [name="method"]');
-        const bankDetailsSection = document.getElementById('bankDetailsSection');
-        
-        if (!methodSelect || !bankDetailsSection) return;
-        
-        methodSelect.addEventListener('change', function() {
-            if (this.value === 'Transferencia') {
-                bankDetailsSection.style.display = 'block';
-            } else {
-                bankDetailsSection.style.display = 'none';
-            }
-        });
-    },
 
     createNewPayment: function() {
         const form = document.getElementById('newPaymentForm');
@@ -535,19 +417,21 @@ window.paymentsModule = {
 
         const newPayment = {
             id: Math.max(...this.payments.map(p => p.id), 0) + 1,
-            type: 'Ingreso',
-            concept: formData.get('concept'),
-            amount: parseFloat(formData.get('amount')),
-            method: formData.get('method'),
-            status: formData.get('autoConfirm') ? 'Confirmado' : 'Pendiente',
-            date: formData.get('paymentDate'),
-            client: formData.get('clientId'),
+            clientName: formData.get('clientName'),
             orderId: formData.get('orderId'),
-            reference: formData.get('reference'),
-            notes: formData.get('notes'),
-            bankName: formData.get('bankName'),
-            accountNumber: formData.get('accountNumber'),
-            sendReceipt: formData.get('sendReceipt') === 'on'
+            total: parseFloat(formData.get('total')),
+            currency: formData.get('currency'),
+            paymentDate: formData.get('paymentDate'),
+            processingDate: formData.get('processingDate'),
+            completionDate: formData.get('completionDate'),
+            paymentStatusName: formData.get('paymentStatusName'),
+            paymentMethodName: formData.get('paymentMethodName'),
+            paymentFormName: formData.get('paymentFormName'),
+            sendReceipt: formData.get('sendReceipt') === 'on',
+            // Add default values for fields not in the new form
+            type: 'ingreso',
+            concept: `Pago de ${formData.get('clientName')} para pedido ${formData.get('orderId') || 'N/A'}`,
+            reference: `REF-${Date.now()}`
         };
 
         this.payments.push(newPayment);
@@ -566,8 +450,8 @@ window.paymentsModule = {
         if (!payment) return;
 
         if (confirm(`¿Confirmar el pago "${payment.concept}"?`)) {
-            payment.status = 'pagado';
-            payment.date = new Date().toISOString().split('T')[0];
+            payment.paymentStatusName = 'Pagado';
+            payment.completionDate = new Date().toISOString().split('T')[0];
             
             window.MobiliAriState.updateState('payments', this.payments);
             this.applyFilters();
@@ -581,7 +465,7 @@ window.paymentsModule = {
         if (!payment) return;
 
         if (confirm(`¿Cancelar el pago "${payment.concept}"?`)) {
-            payment.status = 'cancelado';
+            payment.paymentStatusName = 'Cancelado';
             
             window.MobiliAriState.updateState('payments', this.payments);
             this.applyFilters();

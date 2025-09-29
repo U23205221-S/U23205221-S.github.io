@@ -8,157 +8,33 @@ window.ordersModule = {
     filteredOrders: [],
     sortableInstances: {},
     
-    init: function(data) {
+    init: async function(data) {
         console.log('Orders module initialized');
-        this.loadOrders();
+        await this.loadOrders();
         this.setupEventListeners();
         this.setupKanbanBoard();
         this.renderOrders();
         this.updateUserInfo();
     },
 
-    loadOrders: function() {
-        this.orders = window.MobiliAriState.getState('orders') || this.getDefaultOrders();
-        this.filteredOrders = [...this.orders];
-        
-        // Initialize with default data if empty
-        if (window.MobiliAriState.getState('orders').length === 0) {
-            window.MobiliAriState.updateState('orders', this.orders);
+    loadOrders: async function() {
+        let orders = window.MobiliAriState.getState('orders');
+
+        if (!orders || orders.length === 0) {
+            try {
+                const response = await fetch('../data/orders.json');
+                orders = await response.json();
+                window.MobiliAriState.updateState('orders', orders);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                orders = [];
+            }
         }
+
+        this.orders = orders;
+        this.filteredOrders = [...this.orders];
     },
 
-    getDefaultOrders: function() {
-        return [
-            {
-                id: 'ORD-001',
-                client: 'Juan Pérez',
-                product: 'Mesa de Comedor Personalizada',
-                status: 'Emitido',
-                date: '2025-01-15',
-                deliveryDate: '2025-02-15',
-                amount: 16500,
-                paidAmount: 0,
-                customizations: 'Dimensiones: 180x90x75cm, Material: Roble, Acabado: Barniz mate',
-                assignedTo: '',
-                progress: 10,
-                notes: ['Cliente debe seleccionar acabado final', 'Pendiente primer pago 50%'],
-                priority: 'high',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-002',
-                client: 'María González',
-                product: 'Armario de Dormitorio Personalizado',
-                status: 'En Producción',
-                date: '2025-01-10',
-                deliveryDate: '2025-02-10',
-                amount: 28000,
-                paidAmount: 14000,
-                customizations: 'Dimensiones: 200x60x220cm, Material: MDF, Acabado: Pintura blanca',
-                assignedTo: 'Carlos Mendoza',
-                progress: 60,
-                notes: ['Corte completado', 'Ensamblaje en proceso', 'Pintura programada para mañana'],
-                priority: 'medium',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-003',
-                client: 'Roberto Silva',
-                product: 'Escritorio Ejecutivo',
-                status: 'Finalizado',
-                date: '2025-01-05',
-                deliveryDate: '2025-01-20',
-                amount: 13500,
-                paidAmount: 13500,
-                customizations: 'Dimensiones: 160x80x75cm, Material: Cedro, Acabado: Barniz brillante',
-                assignedTo: 'Luis Torres',
-                progress: 100,
-                notes: ['Entregado satisfactoriamente', 'Cliente muy satisfecho', 'Producto personalizado completado'],
-                priority: 'low',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-004',
-                client: 'Ana Martínez',
-                product: 'Sofá de Sala Personalizado',
-                status: 'Pendiente',
-                date: '2025-01-16',
-                deliveryDate: '2025-02-20',
-                amount: 24000,
-                paidAmount: 12000,
-                customizations: 'Dimensiones: 220x90x85cm, Material: Pino y Tela, Color: Azul marino',
-                assignedTo: 'María Rodriguez',
-                progress: 85,
-                notes: ['Producto construido', 'Esperando pago del 50% restante', 'Cliente confirmado para entrega'],
-                priority: 'medium',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-005',
-                client: 'Pedro Ramirez',
-                product: 'Mesa de Centro Prefabricada',
-                status: 'Pagado',
-                date: '2025-01-18',
-                deliveryDate: '2025-01-25',
-                amount: 8500,
-                paidAmount: 8500,
-                customizations: 'Producto en stock - Sin personalizaciones',
-                assignedTo: 'Equipo de Entrega',
-                progress: 100,
-                notes: ['Producto prefabricado', 'Pago completo recibido', 'Listo para entrega'],
-                priority: 'low',
-                type: 'prefabricado'
-            },
-            {
-                id: 'ORD-006',
-                client: 'Laura Vega',
-                product: 'Librero Modular',
-                status: 'Entregando',
-                date: '2025-01-12',
-                deliveryDate: '2025-01-22',
-                amount: 15000,
-                paidAmount: 15000,
-                customizations: 'Dimensiones: 180x30x200cm, Material: Melamina, Color: Blanco',
-                assignedTo: 'Equipo de Entrega',
-                progress: 100,
-                notes: ['Coordinando entrega para el sábado', 'Cliente disponible de 9am a 2pm'],
-                priority: 'high',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-007',
-                client: 'Diego Morales',
-                product: 'Cama King Size Personalizada',
-                status: 'Construido',
-                date: '2025-01-08',
-                deliveryDate: '2025-02-08',
-                amount: 32000,
-                paidAmount: 16000,
-                customizations: 'Dimensiones: 200x200x120cm, Material: Roble, Cabecera tapizada',
-                assignedTo: 'Ana Gutierrez',
-                progress: 90,
-                notes: ['Producto terminado', 'Pendiente pago final', 'Calidad verificada'],
-                priority: 'medium',
-                type: 'personalizado'
-            },
-            {
-                id: 'ORD-008',
-                client: 'Carmen Flores',
-                product: 'Juego de Comedor',
-                status: 'Cancelado',
-                date: '2025-01-20',
-                deliveryDate: '2025-02-25',
-                amount: 45000,
-                paidAmount: 0,
-                customizations: 'Mesa + 6 sillas, Material: Cedro, Acabado: Natural',
-                assignedTo: '',
-                progress: 5,
-                notes: ['Cliente canceló por cambio de domicilio', 'Dentro del periodo de cancelación'],
-                priority: 'low',
-                type: 'personalizado'
-            }
-        ];
-    },
 
     setupEventListeners: function() {
         // Sidebar navigation

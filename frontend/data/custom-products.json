@@ -1,0 +1,52 @@
+[
+    {
+        "id": 101,
+        "name": "Escritorio a Medida",
+        "specifications": "Diseño especial del cliente para oficina en casa",
+        "estimatedTime": 40,
+        "status": "En diseño",
+        "description": "Escritorio con cajoneras y espacio para dos monitores.",
+        "basePrice": 18000,
+        "imagePath": ""
+    },
+    {
+        "id": 102,
+        "name": "Biblioteca de Pared Completa",
+        "specifications": "Abarca toda la pared de la sala, con escalera",
+        "estimatedTime": 120,
+        "status": "En cotización",
+        "description": "Biblioteca de 4m de ancho por 3m de alto.",
+        "basePrice": 80000,
+        "imagePath": ""
+    },
+    {
+        "id": 103,
+        "name": "Mueble de TV Flotante",
+        "specifications": "Diseño minimalista con luces LED integradas",
+        "estimatedTime": 30,
+        "status": "En producción",
+        "description": "Mueble para TV de 75 pulgadas.",
+        "basePrice": 15000,
+        "imagePath": ""
+    },
+    {
+        "id": 104,
+        "name": "Cama Infantil con Temática de Castillo",
+        "specifications": "Diseño de castillo con tobogán y área de juegos",
+        "estimatedTime": 80,
+        "status": "Entregado",
+        "description": "Cama para niño con diseño personalizado.",
+        "basePrice": 35000,
+        "imagePath": ""
+    },
+    {
+        "id": 105,
+        "name": "Mesa de Centro de Resina Epóxica",
+        "specifications": "Diseño de río de resina azul sobre madera de parota",
+        "estimatedTime": 50,
+        "status": "En diseño",
+        "description": "Mesa de centro única con acabado brillante.",
+        "basePrice": 25000,
+        "imagePath": ""
+    }
+]

@@ -4,7 +4,7 @@ window.productsModule = {
     filteredPrefabricatedProducts: [],
     filteredCustomProducts: [],
 
-    init: async function(data) {
+    init: async function() {
         console.log('Products module initialized');
         try {
             await this.loadProducts();
@@ -12,13 +12,6 @@ window.productsModule = {
             this.renderProducts();
             this.updateStats();
             this.updateUserInfo();
-            
-            // Restore admin state if available
-            setTimeout(() => {
-                if (window.restoreAdminState) {
-                    window.restoreAdminState();
-                }
-            }, 100);
         } catch (error) {
             console.error('Error initializing products module:', error);
         }
@@ -56,126 +49,62 @@ window.productsModule = {
         this.filteredCustomProducts = [...this.customProducts];
     },
 
-
     setupEventListeners: function() {
-        // Navigation
         const navLinks = document.querySelectorAll('[data-module]');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const module = e.target.getAttribute('data-module') || 
-                            e.target.closest('[data-module]').getAttribute('data-module');
-                
+                const module = e.target.getAttribute('data-module') || e.target.closest('[data-module]').getAttribute('data-module');
                 if (module && module !== 'products') {
                     this.navigateToModule(module);
                 }
             });
         });
 
-        // Sidebar toggle
         const sidebarToggle = document.getElementById('sidebarToggle');
         if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                this.toggleSidebar();
-            });
+            sidebarToggle.addEventListener('click', () => this.toggleSidebar());
         }
 
-        // Logout
         const logoutBtn = document.getElementById('logoutBtnMgmt');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                window.dispatchEvent(new CustomEvent('user-logout'));
-            });
+            logoutBtn.addEventListener('click', () => window.dispatchEvent(new CustomEvent('user-logout')));
         }
 
-        // Product actions
         const newProductBtn = document.getElementById('newProductBtn');
-        const createProductBtn = document.getElementById('createProductBtn');
-        const exportBtn = document.getElementById('exportBtn');
-
         if (newProductBtn) {
-            newProductBtn.addEventListener('click', () => {
-                this.showNewProductModal();
-            });
+            newProductBtn.addEventListener('click', () => this.showNewProductModal());
         }
 
+        const createProductBtn = document.getElementById('createProductBtn');
         if (createProductBtn) {
-            createProductBtn.addEventListener('click', () => {
-                this.createNewProduct();
-            });
+            createProductBtn.addEventListener('click', () => this.createNewProduct());
         }
 
+        const exportBtn = document.getElementById('exportBtn');
         if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportProducts();
-            });
+            exportBtn.addEventListener('click', () => this.exportProducts());
         }
 
-        // Modal close buttons
         const closeNewProductModalBtn = document.getElementById('closeNewProductModalBtn');
-        const cancelNewProductBtn = document.getElementById('cancelNewProductBtn');
-        
         if (closeNewProductModalBtn) {
-            closeNewProductModalBtn.addEventListener('click', () => {
-                this.closeNewProductModal();
-            });
+            closeNewProductModalBtn.addEventListener('click', () => this.closeNewProductModal());
         }
-        
+
+        const cancelNewProductBtn = document.getElementById('cancelNewProductBtn');
         if (cancelNewProductBtn) {
-            cancelNewProductBtn.addEventListener('click', () => {
-                this.closeNewProductModal();
-            });
+            cancelNewProductBtn.addEventListener('click', () => this.closeNewProductModal());
         }
-        
-        // Modal backdrop clicks
+
         const newProductModal = document.getElementById('newProductModal');
-        
         if (newProductModal) {
             newProductModal.addEventListener('click', (e) => {
                 if (e.target === newProductModal) {
                     this.closeNewProductModal();
                 }
             });
-            
-            newProductModal.addEventListener('hidden.bs.modal', () => {
-                setTimeout(() => {
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) backdrop.remove();
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                }, 100);
-            });
         }
 
-        // Filters
-        const searchInput = document.getElementById('searchProducts');
-        const stockFilter = document.getElementById('stockFilter');
-        const sortBy = document.getElementById('sortBy');
-        const priceFilter = document.getElementById('priceFilter');
-        const applyFilters = document.getElementById('applyFilters');
-        const clearFilters = document.getElementById('clearFilters');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', () => this.applyFilters());
-        }
-        if (stockFilter) {
-            stockFilter.addEventListener('change', () => this.applyFilters());
-        }
-        if (sortBy) {
-            sortBy.addEventListener('change', () => this.applyFilters());
-        }
-        if (priceFilter) {
-            priceFilter.addEventListener('change', () => this.applyFilters());
-        }
-        if (applyFilters) {
-            applyFilters.addEventListener('click', () => this.applyFilters());
-        }
-        if (clearFilters) {
-            clearFilters.addEventListener('click', () => this.clearFilters());
-        }
-
-        // Product type selector
         const productTypeSelector = document.getElementById('productTypeSelector');
         if (productTypeSelector) {
             productTypeSelector.addEventListener('change', (e) => {
@@ -191,10 +120,7 @@ window.productsModule = {
             });
         }
 
-        // Event listener for view buttons
         const prefabricatedTable = document.getElementById('prefabricatedProductsTableBody');
-        const customTable = document.getElementById('customProductsTableBody');
-
         if (prefabricatedTable) {
             prefabricatedTable.addEventListener('click', (e) => {
                 if (e.target.classList.contains('view-product-btn')) {
@@ -204,6 +130,7 @@ window.productsModule = {
             });
         }
 
+        const customTable = document.getElementById('customProductsTableBody');
         if (customTable) {
             customTable.addEventListener('click', (e) => {
                 if (e.target.classList.contains('view-product-btn')) {
@@ -215,111 +142,23 @@ window.productsModule = {
     },
 
     showNewProductModal: function() {
-        console.log('Abriendo modal de nuevo producto...');
         const modal = document.getElementById('newProductModal');
         const form = document.getElementById('newProductForm');
-        
-        if (!modal) {
-            console.error('Modal newProductModal no encontrado');
-            return;
-        }
-        
-        if (!form) {
-            console.error('Formulario newProductForm no encontrado');
-            return;
-        }
-        
-        // Reset form
         form.reset();
         form.classList.remove('was-validated');
-        
-        // Hide image preview
         const imagePreview = document.getElementById('imagePreview');
         if (imagePreview) {
             imagePreview.style.display = 'none';
         }
-
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     },
 
     closeNewProductModal: function() {
         const modal = document.getElementById('newProductModal');
-        
-        try {
-            let bsModal = bootstrap.Modal.getInstance(modal);
-            
-            if (bsModal) {
-                bsModal.hide();
-            } else {
-                bsModal = new bootstrap.Modal(modal);
-                bsModal.hide();
-            }
-            
-            setTimeout(() => {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
-                
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-                
-                modal.style.display = 'none';
-                modal.classList.remove('show');
-                modal.setAttribute('aria-hidden', 'true');
-                modal.removeAttribute('aria-modal');
-            }, 150);
-            
-        } catch (error) {
-            console.error('Error closing new product modal:', error);
-            this.forceCloseModal('newProductModal');
-        }
-        
-        // Reset form
-        const form = document.getElementById('newProductForm');
-        if (form) {
-            form.reset();
-            form.classList.remove('was-validated');
-        }
-        
-        console.log('Modal de nuevo producto cerrado');
-    },
-
-    forceCloseModal: function(modalId) {
-        const modal = document.getElementById(modalId);
-        
-        // Force remove all modal-related elements and classes
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach(backdrop => backdrop.remove());
-        
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        
-        if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('show', 'fade');
-            modal.setAttribute('aria-hidden', 'true');
-            modal.removeAttribute('aria-modal');
-        }
-        
-        console.log('Modal forzado a cerrar:', modalId);
-    },
-
-    previewImage: function(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('imagePreview');
-        const img = preview.querySelector('img');
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.style.display = 'none';
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
         }
     },
 
@@ -348,7 +187,7 @@ window.productsModule = {
             window.MobiliAriState.updateState('prefabricatedProducts', this.prefabricatedProducts);
         } else {
             const newProduct = {
-                id: Math.max(100, ...this.customProducts.map(p => p.id)) + 1, // Start custom IDs from 101
+                id: Math.max(100, ...this.customProducts.map(p => p.id)) + 1,
                 name: formData.get('custom_name'),
                 specifications: formData.get('custom_spec'),
                 estimatedTime: parseInt(formData.get('custom_time')),
@@ -361,7 +200,7 @@ window.productsModule = {
             window.MobiliAriState.updateState('customProducts', this.customProducts);
         }
         
-        this.applyFilters();
+        this.renderProducts();
         this.updateStats();
         this.closeNewProductModal();
         this.showAlert('success', 'Producto creado exitosamente');
@@ -411,78 +250,6 @@ window.productsModule = {
         `).join('') || `<tr><td colspan="8" class="text-center">No hay productos personalizados.</td></tr>`;
     },
 
-    getStockStatus: function(product) {
-        if (product.stock === 0) return 'out-of-stock';
-        if (product.stock <= product.minStock) return 'low-stock';
-        return 'in-stock';
-    },
-
-    getStockLabel: function(product) {
-        if (product.stock === 0) return 'Agotado';
-        if (product.stock <= product.minStock) return 'Bajo';
-        return 'Normal';
-    },
-    
-    getStockBadgeClass: function(product) {
-        if (product.stock === 0) return 'bg-danger';
-        if (product.stock <= product.minStock) return 'bg-warning';
-        return 'bg-success';
-    },
-    
-    getStatusBadgeClass: function(status) {
-        switch (status) {
-            case 'active': return 'bg-success';
-            case 'inactive': return 'bg-secondary';
-            case 'discontinued': return 'bg-danger';
-            default: return 'bg-secondary';
-        }
-    },
-    
-    getStatusLabel: function(status) {
-        switch (status) {
-            case 'active': return 'Activo';
-            case 'inactive': return 'Inactivo';
-            case 'discontinued': return 'Descontinuado';
-            default: return 'Desconocido';
-        }
-    },
-    
-    formatDate: function(dateString) {
-        if (!dateString) return 'No registrada';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    },
-
-    applyFilters: function() {
-        this.filteredPrefabricatedProducts = [...this.prefabricatedProducts];
-        this.filteredCustomProducts = [...this.customProducts];
-        this.renderProducts();
-    },
-
-    clearFilters: function() {
-        document.getElementById('searchProducts').value = '';
-        document.getElementById('stockFilter').value = '';
-        document.getElementById('sortBy').value = 'name';
-        document.getElementById('priceFilter').value = '';
-        this.applyFilters();
-    },
-
-    updateStats: function() {
-        const totalProducts = this.prefabricatedProducts.length + this.customProducts.length;
-        const inStockProducts = this.prefabricatedProducts.filter(p => p.stock > p.minStock).length;
-        const lowStockProducts = this.prefabricatedProducts.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
-        const outOfStockProducts = this.prefabricatedProducts.filter(p => p.stock === 0).length;
-
-        document.getElementById('totalProducts').textContent = totalProducts;
-        document.getElementById('inStockProducts').textContent = inStockProducts;
-        document.getElementById('lowStockProducts').textContent = lowStockProducts;
-        document.getElementById('outOfStockProducts').textContent = outOfStockProducts;
-    },
-
     viewProduct: function(productId, type) {
         const product = type === 'prefabricated' 
             ? this.prefabricatedProducts.find(p => p.id === productId)
@@ -527,49 +294,26 @@ window.productsModule = {
         modal.show();
     },
 
-    editProduct: function(productId) {
-        console.log('Editing product:', productId);
-        this.showAlert('info', 'Funcionalidad de edición en desarrollo');
-    },
-    
-    deleteProduct: function(productId) {
-        console.log('Deleting product:', productId);
-        this.showAlert('info', 'Funcionalidad de eliminación en desarrollo');
-    },
+    updateStats: function() {
+        const totalProducts = this.prefabricatedProducts.length + this.customProducts.length;
+        const inStockProducts = this.prefabricatedProducts.filter(p => p.stock > p.minStock).length;
+        const lowStockProducts = this.prefabricatedProducts.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
+        const outOfStockProducts = this.prefabricatedProducts.filter(p => p.stock === 0).length;
 
-    exportProducts: function() {
-        const csvContent = this.generateCSV();
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productos_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        this.showAlert('success', 'Productos exportados exitosamente');
+        document.getElementById('totalProducts').textContent = totalProducts;
+        document.getElementById('inStockProducts').textContent = inStockProducts;
+        document.getElementById('lowStockProducts').textContent = lowStockProducts;
+        document.getElementById('outOfStockProducts').textContent = outOfStockProducts;
     },
 
-    generateCSV: function() {
-        const headers = ['ID', 'Nombre', 'Especificación', 'Categoría', 'Precio Base', 'Precio Venta', 'Stock', 'Stock Mínimo', 'Estado'];
-        const rows = this.prefabricatedProducts.map(p => [
-            p.id,
-            p.name,
-            p.specification,
-            p.category,
-            p.basePrice,
-            p.salePrice,
-            p.stock,
-            p.minStock,
-            p.status
-        ]);
-
-        return [headers, ...rows].map(row => 
-            row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')
-        ).join('\n');
+    formatDate: function(dateString) {
+        if (!dateString) return 'No registrada';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     },
 
     navigateToModule: function(module) {
@@ -613,58 +357,20 @@ window.productsModule = {
 
     showAlert: function(type, message) {
         const alert = document.createElement('div');
-        alert.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
         alert.innerHTML = `
-            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
         document.body.appendChild(alert);
-        
         setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
         }, 5000);
     }
 };
 
-// Initialize module when loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.productsModule.init();
-    });
-} else {
+document.addEventListener('DOMContentLoaded', () => {
     window.productsModule.init();
-}
-
-// Global emergency function for products modals
-window.emergencyCloseProductsModals = function() {
-    if (window.productsModule) {
-        console.log('🚨 Cerrando modales de productos de emergencia...');
-        
-        try {
-            window.productsModule.forceCloseModal('newProductModal');
-            window.productsModule.forceCloseModal('productDetailModal');
-        } catch (error) {
-            console.log('Error con funciones del módulo, usando fallback...');
-        }
-        
-        // Fallback emergency close
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            modal.style.display = 'none';
-            modal.classList.remove('show', 'fade');
-        });
-        
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach(backdrop => backdrop.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        
-        console.log('✅ Modales de productos cerrados');
-    }
-};
+});

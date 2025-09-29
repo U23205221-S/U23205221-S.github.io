@@ -172,26 +172,126 @@
                 </div>
             </div>
 
-            <!-- Users Table -->
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Estado</th>
-                                    <th>Último Acceso</th>
-                                    <th>Pedidos</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody">
-                                <!-- Users will be loaded here -->
-                            </tbody>
-                        </table>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="system-users-tab" data-bs-toggle="tab" data-bs-target="#system-users" type="button" role="tab" aria-controls="system-users" aria-selected="true">Usuarios del Sistema</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="workers-tab" data-bs-toggle="tab" data-bs-target="#workers" type="button" role="tab" aria-controls="workers" aria-selected="false">Trabajadores</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="clients-tab" data-bs-toggle="tab" data-bs-target="#clients" type="button" role="tab" aria-controls="clients" aria-selected="false">Clientes</button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="userTabsContent">
+                <!-- System Users Table -->
+                <div class="tab-pane fade show active" id="system-users" role="tabpanel" aria-labelledby="system-users-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Fecha Nacim.</th>
+                                            <th>Edad</th>
+                                            <th>Área</th>
+                                            <th>Puesto</th>
+                                            <th>Usuario</th>
+                                            <th>Email</th>
+                                            <th>Contraseña</th>
+                                            <th>Último Acceso</th>
+                                            <th>Fecha in. se.</th>
+                                            <th>Intentos Exitosos</th>
+                                            <th>Inten. err. in. se.</th>
+                                            <th>Dirección IP</th>
+                                            <th>Fecha Regis.</th>
+                                            <th>Fecha Camb. Contr.</th>
+                                            <th>Estado</th>
+                                            <th>Tipo de Usuario</th>
+                                            <th>Permisos</th>
+                                            <th>Rol</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- System users will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers Table -->
+                <div class="tab-pane fade" id="workers" role="tabpanel" aria-labelledby="workers-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo Persona</th>
+                                            <th>Tipo Doc.</th>
+                                            <th>Nro. Documento</th>
+                                            <th>Puesto</th>
+                                            <th>Email</th>
+                                            <th>Teléfono</th>
+                                            <th>Fecha Nac.</th>
+                                            <th>Distrito</th>
+                                            <th>Dirección</th>
+                                            <th>Contrato</th>
+                                            <th>Tipo Contrato</th>
+                                            <th>Salario</th>
+                                            <th>Fecha de Registro</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workersTableBody">
+                                        <!-- Workers will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients Table -->
+                <div class="tab-pane fade" id="clients" role="tabpanel" aria-labelledby="clients-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo Persona</th>
+                                            <th>Tipo Doc.</th>
+                                            <th>Nro. Documento</th>
+                                            <th>Tipo Cliente</th>
+                                            <th>Email</th>
+                                            <th>Teléfono</th>
+                                            <th>Departamento</th>
+                                            <th>Provincia</th>
+                                            <th>Distrito</th>
+                                            <th>Dirección</th>
+                                            <th>Referencia</th>
+                                            <th>Total Pedidos</th>
+                                            <th>Fecha de Registro</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clientsTableBody">
+                                        <!-- Clients will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -231,69 +331,22 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="newUserForm">
+                    <form id="newUserForm" novalidate>
+                        <!-- Role Selector -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Nombre Completo</label>
-                                <input type="text" class="form-control" name="name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" name="phone">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Rol</label>
-                                <select class="form-select" name="role" required>
+                                <label class="form-label">Tipo de Perfil / Rol</label>
+                                <select class="form-select" name="profile_type" id="profileTypeSelector" required>
                                     <option value="">Seleccionar...</option>
+                                    <option value="system_user">Usuario del Sistema</option>
+                                    <option value="trabajador">Trabajador</option>
                                     <option value="cliente">Cliente</option>
-                                    <option value="empleado">Empleado</option>
-                                    <option value="administrador">Administrador</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Contraseña Temporal</label>
-                                <input type="password" class="form-control" name="password" required>
-                                <small class="form-text text-muted">El usuario deberá cambiarla en su primer acceso</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Confirmar Contraseña</label>
-                                <input type="password" class="form-control" name="confirmPassword" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Dirección</label>
-                            <textarea class="form-control" rows="2" name="address"></textarea>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="sendWelcomeEmail" id="sendWelcomeEmail" checked>
-                                    <label class="form-check-label" for="sendWelcomeEmail">
-                                        Enviar email de bienvenida
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="requirePasswordChange" id="requirePasswordChange" checked>
-                                    <label class="form-check-label" for="requirePasswordChange">
-                                        Requerir cambio de contraseña
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Notas</label>
-                            <textarea class="form-control" rows="2" name="notes" placeholder="Notas adicionales sobre el usuario..."></textarea>
-                        </div>
+
+                        <!-- Dynamic Fields Container -->
+                        <div id="dynamic-fields-container"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
