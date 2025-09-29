@@ -34,6 +34,7 @@ window.customizationModule = {
         // Navigation
         const brandLink = document.getElementById('brandLink');
         const catalogNavLink = document.getElementById('catalogNavLink');
+        const myOrdersNavLink = document.getElementById('myOrdersNavLink');
         const logoutBtn = document.getElementById('logoutBtn');
         const cartBtn = document.getElementById('cartBtn');
 
@@ -51,6 +52,15 @@ window.customizationModule = {
                 e.preventDefault();
                 window.dispatchEvent(new CustomEvent('navigate-to-module', {
                     detail: { module: 'catalog' }
+                }));
+            });
+        }
+
+        if (myOrdersNavLink) {
+            myOrdersNavLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('navigate-to-module', {
+                    detail: { module: 'my-orders' }
                 }));
             });
         }

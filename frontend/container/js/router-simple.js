@@ -23,6 +23,27 @@ class MicroFrontendRouter {
                 jsFile: 'js/catalog.js',
                 title: 'Catálogo - MobiliAri'
             },
+            customization: {
+                path: '../customization-module/',
+                htmlFile: 'customization.html',
+                cssFile: 'css/customization.css',
+                jsFile: 'js/customization.js',
+                title: 'Personalización - MobiliAri'
+            },
+            'my-orders': {
+                path: '../my-orders-module/',
+                htmlFile: 'my-orders.html',
+                cssFile: 'css/my-orders.css',
+                jsFile: 'js/my-orders.js',
+                title: 'Mis Pedidos - MobiliAri'
+            },
+            cart: {
+                path: '../cart-module/',
+                htmlFile: 'cart.html',
+                cssFile: 'css/cart.css',
+                jsFile: 'js/cart.js',
+                title: 'Carrito - MobiliAri'
+            },
             dashboard: {
                 path: '../dashboard-module/',
                 htmlFile: 'dashboard.html',
@@ -232,13 +253,8 @@ class MicroFrontendRouter {
                 
                 // Restore admin state
                 setTimeout(() => {
-                    const wasAdmin = sessionStorage.getItem('isAdmin');
-                    if (wasAdmin === 'true') {
-                        document.body.classList.add('role-administrador');
-                        const adminElements = document.querySelectorAll('.admin-only');
-                        adminElements.forEach(el => {
-                            el.style.display = '';
-                        });
+                    if (window.restoreAdminState) {
+                        window.restoreAdminState();
                     }
                 }, 50);
             }, 100);
@@ -317,12 +333,24 @@ class MicroFrontendRouter {
 // Global utility function
 window.restoreAdminState = function() {
     const wasAdmin = sessionStorage.getItem('isAdmin');
-    if (wasAdmin === 'true') {
+    const currentUser = window.MobiliAriState?.currentUser;
+    
+    // Check if user is admin from current user or session
+    const isAdmin = wasAdmin === 'true' || 
+                   (currentUser && (currentUser.role === 'administrador' || currentUser.role === 'admin'));
+    
+    if (isAdmin) {
         document.body.classList.add('role-administrador');
-        const adminElements = document.querySelectorAll('.admin-only');
-        adminElements.forEach(el => {
-            el.style.display = '';
-        });
+        sessionStorage.setItem('isAdmin', 'true');
+        
+        // Show admin elements with a small delay to ensure DOM is ready
+        setTimeout(() => {
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = '';
+                el.classList.remove('d-none');
+            });
+        }, 10);
     }
 };
 

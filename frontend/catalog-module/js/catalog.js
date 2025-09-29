@@ -170,8 +170,9 @@ window.catalogModule = {
         // Cart functionality
         const cartBtn = document.getElementById('cartBtn');
         if (cartBtn) {
-            cartBtn.addEventListener('click', () => {
-                this.showCart();
+            cartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.navigateToModule('cart');
             });
         }
 
@@ -182,6 +183,16 @@ window.catalogModule = {
                 e.preventDefault();
                 window.dispatchEvent(new CustomEvent('navigate-to-module', {
                     detail: { module: 'customization' }
+                }));
+            });
+        }
+
+        const myOrdersNavLink = document.getElementById('myOrdersNavLink');
+        if (myOrdersNavLink) {
+            myOrdersNavLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('navigate-to-module', {
+                    detail: { module: 'my-orders' }
                 }));
             });
         }
@@ -462,13 +473,18 @@ window.catalogModule = {
         const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
         cartOffcanvas.show();
     },
-
     customizeProduct: function(productId) {
         window.dispatchEvent(new CustomEvent('navigate-to-module', {
             detail: { 
                 module: 'customization',
-                data: { productId: productId }
+                productId: productId
             }
+        }));
+    },
+
+    navigateToModule: function(module) {
+        window.dispatchEvent(new CustomEvent('navigate-to-module', {
+            detail: { module: module }
         }));
     },
 

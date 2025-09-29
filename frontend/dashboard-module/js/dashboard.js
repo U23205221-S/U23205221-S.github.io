@@ -19,11 +19,15 @@ window.dashboardModule = {
         this.loadCriticalInventory();
         this.updateUserInfo();
         
+        // Ensure admin state is properly set
+        this.ensureAdminState();
+        
         // Restore admin state if preserved in session
         setTimeout(() => {
             if (window.restoreAdminState) {
                 window.restoreAdminState();
             }
+            this.ensureAdminState();
         }, 100);
     },
 
@@ -384,7 +388,9 @@ window.dashboardModule = {
                 const shouldShow = !currentUser.role || currentUser.role === 'administrador' || currentUser.role === 'admin';
                 if (shouldShow) {
                     el.style.display = '';
+                    el.classList.remove('d-none');
                     document.body.classList.add('role-administrador');
+                    sessionStorage.setItem('isAdmin', 'true');
                 } else {
                     el.style.display = 'none';
                     document.body.classList.remove('role-administrador');
@@ -395,8 +401,10 @@ window.dashboardModule = {
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
                 el.style.display = '';
+                el.classList.remove('d-none');
             });
             document.body.classList.add('role-administrador');
+            sessionStorage.setItem('isAdmin', 'true');
         }
     },
 
@@ -418,6 +426,23 @@ window.dashboardModule = {
         return statusMap[status] || 'disponible';
     },
     
+    ensureAdminState: function() {
+        const currentUser = window.MobiliAriState?.currentUser;
+        const isAdmin = currentUser && (currentUser.role === 'administrador' || currentUser.role === 'admin');
+        
+        if (isAdmin) {
+            document.body.classList.add('role-administrador');
+            sessionStorage.setItem('isAdmin', 'true');
+            
+            // Show all admin elements
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = '';
+                el.classList.remove('d-none');
+            });
+        }
+    },
+
     restoreAdminState: function() {
         // Check if admin state was preserved in session
         const wasAdmin = sessionStorage.getItem('isAdmin');
@@ -426,6 +451,7 @@ window.dashboardModule = {
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
                 el.style.display = '';
+                el.classList.remove('d-none');
             });
         }
     },
