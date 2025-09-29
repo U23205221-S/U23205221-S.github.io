@@ -16,6 +16,13 @@ class MicroFrontendRouter {
                 jsFile: 'js/login.js',
                 title: 'Iniciar Sesión - MobiliAri'
             },
+            catalog: {
+                path: '../catalog-module/',
+                htmlFile: 'catalog.html',
+                cssFile: 'css/catalog.css',
+                jsFile: 'js/catalog.js',
+                title: 'Catálogo - MobiliAri'
+            },
             dashboard: {
                 path: '../dashboard-module/',
                 htmlFile: 'dashboard.html',
@@ -75,7 +82,9 @@ class MicroFrontendRouter {
         };
         
         this.setupEventListeners();
-        this.setupGlobalState();
+        this.setupGlobalState().then(() => {
+            console.log('Router initialized successfully');
+        });
     }
 
     static init() {
@@ -90,13 +99,19 @@ class MicroFrontendRouter {
             this.loadMicroFrontend(event.detail.module, event.detail.data);
         });
 
+        window.addEventListener('user-authenticated', (event) => {
+            this.currentUser = event.detail.user;
+            this.handleAuthentication(event.detail.user);
+        });
+
         window.addEventListener('user-logout', () => {
             this.currentUser = null;
+            localStorage.removeItem('mobiliariCurrentUser');
             this.loadMicroFrontend('login');
         });
     }
 
-    setupGlobalState() {
+    async setupGlobalState() {
         if (!window.MobiliAriState) {
             window.MobiliAriState = {
                 currentUser: null,
@@ -104,15 +119,60 @@ class MicroFrontendRouter {
                 
                 updateState: function(key, value) {
                     this.data[key] = value;
+                    localStorage.setItem(`mobiliari${key.charAt(0).toUpperCase() + key.slice(1)}`, JSON.stringify(value));
                     window.dispatchEvent(new CustomEvent('state-updated', { 
                         detail: { key, value } 
                     }));
                 },
 
                 getState: function(key) {
-                    return this.data[key] || [];
+                    // Try to get from memory first, then from localStorage
+                    if (this.data[key] && this.data[key].length > 0) {
+                        return this.data[key];
+                    }
+                    const stored = localStorage.getItem(`mobiliari${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (stored) {
+                        this.data[key] = JSON.parse(stored);
+                        return this.data[key];
+                    }
+                    return [];
                 }
             };
+        }
+        
+        // Load users data if not already loaded
+        if (!window.MobiliAriState.getState('users').length) {
+            await this.loadUsersData();
+        }
+    }
+
+    async loadUsersData() {
+        try {
+            const response = await fetch('../data/users.json');
+            if (response.ok) {
+                const users = await response.json();
+                window.MobiliAriState.updateState('users', users);
+                console.log('Users data loaded successfully');
+            } else {
+                console.error('Failed to load users data');
+            }
+        } catch (error) {
+            console.error('Error loading users data:', error);
+        }
+    }
+
+    handleAuthentication(user) {
+        localStorage.setItem('mobiliariCurrentUser', JSON.stringify(user));
+        window.MobiliAriState.currentUser = user;
+        
+        // Route based on user role
+        if (user.role === 'cliente') {
+            this.loadMicroFrontend('catalog');
+        } else if (user.role === 'administrador') {
+            this.loadMicroFrontend('dashboard');
+        } else {
+            // Default to dashboard for other roles
+            this.loadMicroFrontend('dashboard');
         }
     }
 
@@ -127,7 +187,7 @@ class MicroFrontendRouter {
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
             window.MobiliAriState.currentUser = this.currentUser;
-            this.loadMicroFrontend('dashboard');
+            this.handleAuthentication(this.currentUser);
         } else {
             this.loadMicroFrontend('login');
         }

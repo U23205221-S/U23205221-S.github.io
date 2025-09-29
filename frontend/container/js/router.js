@@ -116,7 +116,9 @@ class MicroFrontendRouter {
         };
         
         this.setupEventListeners();
-        this.setupGlobalState();
+        this.setupGlobalState().then(() => {
+            console.log('Global state setup completed');
+        });
     }
 
     static init() {
@@ -150,7 +152,7 @@ class MicroFrontendRouter {
         });
     }
 
-    setupGlobalState() {
+    async setupGlobalState() {
         // Create global state management
         window.MobiliAriState = {
             currentUser: null,
@@ -180,6 +182,11 @@ class MicroFrontendRouter {
         // Initialize default data if empty
         if (window.MobiliAriState.products.length === 0) {
             this.initializeDefaultData();
+        }
+        
+        // Load users data if empty
+        if (window.MobiliAriState.users.length === 0) {
+            await this.loadUsersData();
         }
     }
 
@@ -217,6 +224,21 @@ class MicroFrontendRouter {
         ];
 
         window.MobiliAriState.updateState('products', defaultProducts);
+    }
+
+    async loadUsersData() {
+        try {
+            const response = await fetch('../data/users.json');
+            if (response.ok) {
+                const users = await response.json();
+                window.MobiliAriState.updateState('users', users);
+                console.log('Users data loaded successfully');
+            } else {
+                console.error('Failed to load users data');
+            }
+        } catch (error) {
+            console.error('Error loading users data:', error);
+        }
     }
 
     async init() {

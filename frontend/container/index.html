@@ -35,22 +35,8 @@
     
     <!-- Initialize App -->
     <script>
-        // Global state initialization
-        window.MobiliAriState = {
-            data: {},
-            currentUser: null,
-            
-            getState: function(key) {
-                return this.data[key] || [];
-            },
-            
-            updateState: function(key, value) {
-                this.data[key] = value;
-                window.dispatchEvent(new CustomEvent('state-updated', {
-                    detail: { key, value }
-                }));
-            }
-        };
+        // MobiliAriState will be initialized by the router
+        console.log('MobiliAri Application Starting...');
     </script>
 </body>
 </html>

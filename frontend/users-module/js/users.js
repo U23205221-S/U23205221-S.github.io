@@ -16,7 +16,6 @@ window.usersModule = {
         await this.loadData();
         this.setupEventListeners();
         this.renderTables();
-        this.renderWorkers();
         this.updateStats();
         this.updateUserInfo();
         
@@ -41,6 +40,16 @@ window.usersModule = {
         }
 
         this.users = allUsers.filter(u => u.profileType === 'system_user');
+        this.workers = allUsers.filter(u => u.profileType === 'worker');
+        this.clients = allUsers.filter(u => u.profileType === 'client');
+        
+        // Initialize filtered arrays
+        this.filteredUsers = [...this.users];
+        this.filteredWorkers = [...this.workers];
+        this.filteredClients = [...this.clients];
+    },
+
+    setupEventListeners: function() {
         // Navigation
         const navLinks = document.querySelectorAll('[data-module]');
         navLinks.forEach(link => {
@@ -987,6 +996,25 @@ window.usersModule = {
         if (feedback) {
             feedback.remove();
         }
+    },
+
+    formatDate: function(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    },
+
+    getStatusClass: function(status) {
+        const statusMap = {
+            'Activo': 'activo',
+            'Inactivo': 'inactivo',
+            'Suspendido': 'suspendido'
+        };
+        return statusMap[status] || 'inactivo';
     },
 
     showAlert: function(type, message) {

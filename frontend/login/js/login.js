@@ -66,19 +66,22 @@ window.loginModule = {
     },
 
     authenticateUser: function(email, password) {
-        // Fixed credentials for demo
-        if (email === 'admin@mobiliari.mx' && password === 'admin123') {
-            return { id: 1, email: email, role: 'administrador', name: 'Administrador Principal' };
-        }
-        if (email === 'cliente@mobiliari.mx' && password === 'cliente123') {
-            return { id: 2, email: email, role: 'cliente', name: 'Cliente Usuario' };
-        }
-        // Check registered users from global state
+        // Check registered users from global state first
         const users = window.MobiliAriState.getState('users') || [];
         const user = users.find(u => u.email === email);
-        if (user) {
+        
+        if (user && user.password === password) {
             return { id: user.id, email: user.email, role: user.role || 'cliente', name: user.name };
         }
+        
+        // Fixed credentials for demo (fallback)
+        if (email === 'admin@mobiliaria.mx' && password === 'admin123') {
+            return { id: 1, email: email, role: 'administrador', name: 'Administrador Principal' };
+        }
+        if (email === 'cliente@mobiliaria.mx' && password === 'cliente123') {
+            return { id: 2, email: email, role: 'cliente', name: 'Cliente Principal' };
+        }
+        
         return null;
     },
 
