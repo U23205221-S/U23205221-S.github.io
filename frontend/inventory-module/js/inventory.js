@@ -6,8 +6,10 @@
 window.inventoryModule = {
     prefabricatedMaterials: [],
     customMaterials: [],
+    baseMaterials: [],
     filteredPrefabricatedMaterials: [],
     filteredCustomMaterials: [],
+    filteredBaseMaterials: [],
     suppliers: [],
     stockHistory: [],
     
@@ -24,6 +26,7 @@ window.inventoryModule = {
     loadInventory: async function() {
         let prefabricated = window.MobiliAriState.getState('prefabricatedMaterials');
         let custom = window.MobiliAriState.getState('customMaterials');
+        let base = window.MobiliAriState.getState('baseMaterials');
 
         if (!prefabricated || prefabricated.length === 0) {
             try {
@@ -47,10 +50,23 @@ window.inventoryModule = {
             }
         }
 
+        if (!base || base.length === 0) {
+            try {
+                const response = await fetch('../data/base-materials.json');
+                base = await response.json();
+                window.MobiliAriState.updateState('baseMaterials', base);
+            } catch (error) {
+                console.error('Error loading base materials:', error);
+                base = [];
+            }
+        }
+
         this.prefabricatedMaterials = prefabricated;
         this.customMaterials = custom;
+        this.baseMaterials = base;
         this.filteredPrefabricatedMaterials = [...this.prefabricatedMaterials];
         this.filteredCustomMaterials = [...this.customMaterials];
+        this.filteredBaseMaterials = [...this.baseMaterials];
         this.suppliers = window.MobiliAriState.getState('suppliers') || [];
         this.stockHistory = window.MobiliAriState.getState('stockHistory') || [];
     },
@@ -132,6 +148,14 @@ window.inventoryModule = {
         if (saveMaterialBtn) {
             saveMaterialBtn.addEventListener('click', () => {
                 this.saveMaterialChanges();
+            });
+        }
+
+        // Delete confirmation modal
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                this.confirmDeleteMaterial();
             });
         }
         
@@ -229,12 +253,20 @@ window.inventoryModule = {
             materialTypeSelector.addEventListener('change', (e) => {
                 const prefabricatedFields = document.getElementById('prefabricated-material-fields');
                 const customFields = document.getElementById('custom-material-fields');
+                const baseFields = document.getElementById('base-material-fields');
+                
+                // Hide all fields first
+                prefabricatedFields.style.display = 'none';
+                customFields.style.display = 'none';
+                baseFields.style.display = 'none';
+                
+                // Show the selected field
                 if (e.target.value === 'prefabricated') {
                     prefabricatedFields.style.display = 'block';
-                    customFields.style.display = 'none';
-                } else {
-                    prefabricatedFields.style.display = 'none';
+                } else if (e.target.value === 'custom') {
                     customFields.style.display = 'block';
+                } else if (e.target.value === 'base') {
+                    baseFields.style.display = 'block';
                 }
             });
         }
@@ -270,6 +302,7 @@ window.inventoryModule = {
         // Filtering logic can be added later.
         this.filteredPrefabricatedMaterials = [...this.prefabricatedMaterials];
         this.filteredCustomMaterials = [...this.customMaterials];
+        this.filteredBaseMaterials = [...this.baseMaterials];
 
         this.renderInventory();
     },
@@ -277,6 +310,7 @@ window.inventoryModule = {
     renderInventory: function() {
         this.renderPrefabricatedMaterials();
         this.renderCustomMaterials();
+        this.renderBaseMaterials();
     },
 
     renderPrefabricatedMaterials: function() {
@@ -294,19 +328,18 @@ window.inventoryModule = {
                 <td>$${m.cost.toLocaleString()}</td>
                 <td>${m.unit}</td>
                 <td>${m.generalStock}</td>
-                <td>${m.supplierName}</td>
-                <td>${m.supplierState}</td>
-                <td>$${m.pricePerUnit.toLocaleString()}</td>
-                <td>${m.deliveryTime}</td>
-                <td>${m.supplierDescription}</td>
                 <td>${this.formatDate(m.registrationDate)}</td>
                 <td>${this.formatDate(m.updateDate)}</td>
-                <td>${m.ruc}</td>
-                <td>${m.phone}</td>
-                <td>${m.address}</td>
-                <td>${m.email}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="inventoryModule.editMaterial('prefabricated', ${m.id})" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="inventoryModule.showDeleteConfirmation('prefabricated', ${m.id}, '${m.materialName}')" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="21" class="text-center">No hay materiales prefabricados.</td></tr>`;
+        `).join('') || `<tr><td colspan="13" class="text-center">No hay materiales prefabricados.</td></tr>`;
     },
 
     renderCustomMaterials: function() {
@@ -324,23 +357,43 @@ window.inventoryModule = {
                 <td>$${m.cost.toLocaleString()}</td>
                 <td>${m.unit}</td>
                 <td>${m.generalStock}</td>
-                <td>${m.supplierName}</td>
-                <td>${m.supplierState}</td>
-                <td>$${m.pricePerUnit.toLocaleString()}</td>
-                <td>${m.deliveryTime}</td>
-                <td>${m.supplierDescription}</td>
                 <td>${this.formatDate(m.registrationDate)}</td>
                 <td>${this.formatDate(m.updateDate)}</td>
-                <td>${m.ruc}</td>
-                <td>${m.phone}</td>
-                <td>${m.address}</td>
-                <td>${m.email}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="inventoryModule.editMaterial('custom', ${m.id})" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="inventoryModule.showDeleteConfirmation('custom', ${m.id}, '${m.materialName}')" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="21" class="text-center">No hay materiales personalizados.</td></tr>`;
+        `).join('') || `<tr><td colspan="13" class="text-center">No hay materiales personalizados.</td></tr>`;
+    },
+
+    renderBaseMaterials: function() {
+        const tableBody = document.getElementById('baseMaterialsTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = this.filteredBaseMaterials.map(m => `
+            <tr>
+                <td>${m.materialName}</td>
+                <td>${m.currentStock}</td>
+                <td>${m.minStock}</td>
+                <td>${m.materialType}</td>
+                <td>${m.materialState}</td>
+                <td>${m.description}</td>
+                <td>${m.imagePath}</td>
+                <td>$${m.cost.toLocaleString()}</td>
+                <td>${m.unit}</td>
+                <td>${m.generalStock}</td>
+                <td>${this.formatDate(m.registrationDate)}</td>
+                <td>${this.formatDate(m.updateDate)}</td>
+            </tr>
+        `).join('') || `<tr><td colspan="12" class="text-center">No hay materiales base.</td></tr>`;
     },
 
     updateStats: function() {
-        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials];
+        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials, ...this.baseMaterials];
         document.getElementById('totalMaterials').textContent = allMaterials.length;
 
         const lowStockCount = allMaterials.filter(item => 
@@ -354,7 +407,7 @@ window.inventoryModule = {
         document.getElementById('outOfStockCount').textContent = outOfStockCount;
 
         const totalValue = allMaterials.reduce((total, item) => 
-            total + (item.currentStock * item.pricePerUnit), 0
+            total + (item.currentStock * item.cost), 0
         );
         document.getElementById('totalValue').textContent = `$${totalValue.toLocaleString()}`;
     },
@@ -489,7 +542,7 @@ window.inventoryModule = {
         
         form.reset();
         
-        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials];
+        const allMaterials = [...this.prefabricatedMaterials, ...this.customMaterials, ...this.baseMaterials];
         materialSelect.innerHTML = '<option value="">Seleccionar material...</option>' +
             allMaterials.map(item => 
                 `<option value="${item.id}" data-state="${item.materialState}">${item.materialName} (${item.currentStock} ${item.unit})</option>`
@@ -627,16 +680,12 @@ window.inventoryModule = {
                 cost: parseFloat(formData.get('prefabricated_cost')),
                 unit: formData.get('prefabricated_unit'),
                 generalStock: parseFloat(formData.get('prefabricated_generalStock')),
-                supplierName: formData.get('prefabricated_supplierName'),
-                supplierState: formData.get('prefabricated_supplierState'),
-                pricePerUnit: parseFloat(formData.get('prefabricated_pricePerUnit')),
-                deliveryTime: parseInt(formData.get('prefabricated_deliveryTime')),
                 registrationDate: new Date().toISOString().split('T')[0],
                 updateDate: new Date().toISOString().split('T')[0],
             };
             this.prefabricatedMaterials.push(newMaterial);
             window.MobiliAriState.updateState('prefabricatedMaterials', this.prefabricatedMaterials);
-        } else {
+        } else if (materialType === 'custom') {
             const newMaterial = {
                 id: Math.max(100, ...this.customMaterials.map(m => m.id)) + 1,
                 materialName: formData.get('custom_materialName'),
@@ -649,15 +698,29 @@ window.inventoryModule = {
                 cost: parseFloat(formData.get('custom_cost')),
                 unit: formData.get('custom_unit'),
                 generalStock: parseFloat(formData.get('custom_generalStock')),
-                supplierName: formData.get('custom_supplierName'),
-                supplierState: formData.get('custom_supplierState'),
-                pricePerUnit: parseFloat(formData.get('custom_pricePerUnit')),
-                deliveryTime: parseInt(formData.get('custom_deliveryTime')),
                 registrationDate: new Date().toISOString().split('T')[0],
                 updateDate: new Date().toISOString().split('T')[0],
             };
             this.customMaterials.push(newMaterial);
             window.MobiliAriState.updateState('customMaterials', this.customMaterials);
+        } else if (materialType === 'base') {
+            const newMaterial = {
+                id: Math.max(200, ...this.baseMaterials.map(m => m.id)) + 1,
+                materialName: formData.get('base_materialName'),
+                currentStock: parseFloat(formData.get('base_currentStock')),
+                minStock: parseFloat(formData.get('base_minStock')),
+                materialType: formData.get('base_materialType'),
+                materialState: formData.get('base_materialState'),
+                description: formData.get('base_description'),
+                imagePath: formData.get('base_imagePath'),
+                cost: parseFloat(formData.get('base_cost')),
+                unit: formData.get('base_unit'),
+                generalStock: parseFloat(formData.get('base_generalStock')),
+                registrationDate: new Date().toISOString().split('T')[0],
+                updateDate: new Date().toISOString().split('T')[0],
+            };
+            this.baseMaterials.push(newMaterial);
+            window.MobiliAriState.updateState('baseMaterials', this.baseMaterials);
         }
 
         this.applyFilters();
@@ -864,6 +927,147 @@ window.inventoryModule = {
             month: 'short',
             day: 'numeric'
         });
+    },
+
+    showDeleteConfirmation: function(type, id, materialName) {
+        this.materialToDelete = { type, id };
+        document.getElementById('materialToDeleteName').textContent = materialName;
+        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        modal.show();
+    },
+
+    confirmDeleteMaterial: function() {
+        if (!this.materialToDelete) return;
+
+        const { type, id } = this.materialToDelete;
+        
+        if (type === 'prefabricated') {
+            this.prefabricatedMaterials = this.prefabricatedMaterials.filter(m => m.id !== id);
+            window.MobiliAriState.updateState('prefabricatedMaterials', this.prefabricatedMaterials);
+        } else if (type === 'custom') {
+            this.customMaterials = this.customMaterials.filter(m => m.id !== id);
+            window.MobiliAriState.updateState('customMaterials', this.customMaterials);
+        }
+
+        this.applyFilters();
+        this.updateStats();
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+        modal.hide();
+        
+        this.showAlert('success', 'Material eliminado exitosamente');
+        this.materialToDelete = null;
+    },
+
+    editMaterial: function(type, id) {
+        let material;
+        
+        if (type === 'prefabricated') {
+            material = this.prefabricatedMaterials.find(m => m.id === id);
+        } else if (type === 'custom') {
+            material = this.customMaterials.find(m => m.id === id);
+        }
+        
+        if (!material) return;
+
+        // Store current editing material
+        this.currentEditingMaterial = { ...material, type };
+        
+        // Show new material modal in edit mode
+        this.showEditMaterialModal(material, type);
+    },
+
+    showEditMaterialModal: function(material, type) {
+        const modal = document.getElementById('newMaterialModal');
+        const form = document.getElementById('newMaterialForm');
+        const modalTitle = modal.querySelector('.modal-title');
+        const createBtn = document.getElementById('createMaterialBtn');
+        const typeSelector = document.getElementById('materialTypeSelector');
+        
+        // Change modal title and button text
+        modalTitle.textContent = 'Editar Material';
+        createBtn.textContent = 'Actualizar Material';
+        createBtn.onclick = () => this.updateMaterial();
+        
+        // Set the type selector
+        typeSelector.value = type;
+        typeSelector.dispatchEvent(new Event('change'));
+        
+        // Fill form with material data
+        const prefix = type;
+        setTimeout(() => {
+            form.querySelector(`[name="${prefix}_materialName"]`).value = material.materialName || '';
+            form.querySelector(`[name="${prefix}_currentStock"]`).value = material.currentStock || '';
+            form.querySelector(`[name="${prefix}_minStock"]`).value = material.minStock || '';
+            form.querySelector(`[name="${prefix}_materialType"]`).value = material.materialType || '';
+            form.querySelector(`[name="${prefix}_materialState"]`).value = material.materialState || '';
+            form.querySelector(`[name="${prefix}_description"]`).value = material.description || '';
+            form.querySelector(`[name="${prefix}_imagePath"]`).value = material.imagePath || '';
+            form.querySelector(`[name="${prefix}_cost"]`).value = material.cost || '';
+            form.querySelector(`[name="${prefix}_unit"]`).value = material.unit || '';
+            form.querySelector(`[name="${prefix}_generalStock"]`).value = material.generalStock || '';
+        }, 100);
+
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    },
+
+    updateMaterial: function() {
+        if (!this.currentEditingMaterial) return;
+
+        const form = document.getElementById('newMaterialForm');
+        const formData = new FormData(form);
+        const { type, id } = this.currentEditingMaterial;
+
+        const updatedMaterial = {
+            id: id,
+            materialName: formData.get(`${type}_materialName`),
+            currentStock: parseFloat(formData.get(`${type}_currentStock`)),
+            minStock: parseFloat(formData.get(`${type}_minStock`)),
+            materialType: formData.get(`${type}_materialType`),
+            materialState: formData.get(`${type}_materialState`),
+            description: formData.get(`${type}_description`),
+            imagePath: formData.get(`${type}_imagePath`),
+            cost: parseFloat(formData.get(`${type}_cost`)),
+            unit: formData.get(`${type}_unit`),
+            generalStock: parseFloat(formData.get(`${type}_generalStock`)),
+            registrationDate: this.currentEditingMaterial.registrationDate,
+            updateDate: new Date().toISOString().split('T')[0],
+        };
+
+        if (type === 'prefabricated') {
+            const index = this.prefabricatedMaterials.findIndex(m => m.id === id);
+            if (index !== -1) {
+                this.prefabricatedMaterials[index] = updatedMaterial;
+                window.MobiliAriState.updateState('prefabricatedMaterials', this.prefabricatedMaterials);
+            }
+        } else if (type === 'custom') {
+            const index = this.customMaterials.findIndex(m => m.id === id);
+            if (index !== -1) {
+                this.customMaterials[index] = updatedMaterial;
+                window.MobiliAriState.updateState('customMaterials', this.customMaterials);
+            }
+        }
+
+        this.applyFilters();
+        this.updateStats();
+        this.closeNewMaterialModal();
+        this.showAlert('success', 'Material actualizado exitosamente');
+        
+        // Reset modal to create mode
+        this.resetModalToCreateMode();
+        this.currentEditingMaterial = null;
+    },
+
+    resetModalToCreateMode: function() {
+        const modal = document.getElementById('newMaterialModal');
+        const modalTitle = modal.querySelector('.modal-title');
+        const createBtn = document.getElementById('createMaterialBtn');
+        
+        modalTitle.textContent = 'Nuevo Material';
+        createBtn.textContent = 'Crear Material';
+        createBtn.onclick = () => this.createNewMaterial();
     },
 
     showAlert: function(type, message) {

@@ -183,6 +183,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom-materials" type="button" role="tab">Materia Prima Personalizada</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="base-tab" data-bs-toggle="tab" data-bs-target="#base-materials" type="button" role="tab">Materia Prima Base</button>
+                </li>
             </ul>
 
             <!-- Tab Content -->
@@ -205,17 +208,9 @@
                                             <th>Costo</th>
                                             <th>Unidad</th>
                                             <th>Stock General</th>
-                                            <th>Proveedor</th>
-                                            <th>Estado Proveedor</th>
-                                            <th>Precio por Unidad</th>
-                                            <th>Tiempo de Entrega (días)</th>
-                                            <th>Descripción Proveedor</th>
                                             <th>Fecha de Registro</th>
                                             <th>Fecha de Actualización</th>
-                                            <th>RUC</th>
-                                            <th>Teléfono</th>
-                                            <th>Dirección</th>
-                                            <th>Email</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="prefabricatedMaterialsTableBody">
@@ -245,21 +240,44 @@
                                             <th>Costo</th>
                                             <th>Unidad</th>
                                             <th>Stock General</th>
-                                            <th>Proveedor</th>
-                                            <th>Estado Proveedor</th>
-                                            <th>Precio por Unidad</th>
-                                            <th>Tiempo de Entrega (días)</th>
-                                            <th>Descripción Proveedor</th>
                                             <th>Fecha de Registro</th>
                                             <th>Fecha de Actualización</th>
-                                            <th>RUC</th>
-                                            <th>Teléfono</th>
-                                            <th>Dirección</th>
-                                            <th>Email</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="customMaterialsTableBody">
                                         <!-- Custom materials will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Base Materials Table -->
+                <div class="tab-pane fade" id="base-materials" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre Materia</th>
+                                            <th>Stock Actual</th>
+                                            <th>Mínimo de Stock</th>
+                                            <th>Tipo de Materia</th>
+                                            <th>Estado Materia</th>
+                                            <th>Descripción</th>
+                                            <th>Imagen</th>
+                                            <th>Costo</th>
+                                            <th>Unidad</th>
+                                            <th>Stock General</th>
+                                            <th>Fecha de Registro</th>
+                                            <th>Fecha de Actualización</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="baseMaterialsTableBody">
+                                        <!-- Base materials will be loaded here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -349,6 +367,7 @@
                             <select class="form-select" id="materialTypeSelector">
                                 <option value="prefabricated">Materia Prima Prefabricada</option>
                                 <option value="custom">Materia Prima Personalizada</option>
+                                <option value="base">Materia Prima Base</option>
                             </select>
                         </div>
 
@@ -368,10 +387,6 @@
                                     <div class="mb-3"><label class="form-label">Costo</label><input type="number" class="form-control" name="prefabricated_cost"></div>
                                     <div class="mb-3"><label class="form-label">Unidad</label><input type="text" class="form-control" name="prefabricated_unit"></div>
                                     <div class="mb-3"><label class="form-label">Stock General</label><input type="number" class="form-control" name="prefabricated_generalStock"></div>
-                                    <div class="mb-3"><label class="form-label">Proveedor</label><input type="text" class="form-control" name="prefabricated_supplierName"></div>
-                                    <div class="mb-3"><label class="form-label">Estado Proveedor</label><input type="text" class="form-control" name="prefabricated_supplierState"></div>
-                                    <div class="mb-3"><label class="form-label">Precio por Unidad</label><input type="number" class="form-control" name="prefabricated_pricePerUnit"></div>
-                                    <div class="mb-3"><label class="form-label">Tiempo de Entrega (días)</label><input type="number" class="form-control" name="prefabricated_deliveryTime"></div>
                                 </div>
                             </div>
                         </div>
@@ -392,10 +407,26 @@
                                     <div class="mb-3"><label class="form-label">Costo</label><input type="number" class="form-control" name="custom_cost"></div>
                                     <div class="mb-3"><label class="form-label">Unidad</label><input type="text" class="form-control" name="custom_unit"></div>
                                     <div class="mb-3"><label class="form-label">Stock General</label><input type="number" class="form-control" name="custom_generalStock"></div>
-                                    <div class="mb-3"><label class="form-label">Proveedor</label><input type="text" class="form-control" name="custom_supplierName"></div>
-                                    <div class="mb-3"><label class="form-label">Estado Proveedor</label><input type="text" class="form-control" name="custom_supplierState"></div>
-                                    <div class="mb-3"><label class="form-label">Precio por Unidad</label><input type="number" class="form-control" name="custom_pricePerUnit"></div>
-                                    <div class="mb-3"><label class="form-label">Tiempo de Entrega (días)</label><input type="number" class="form-control" name="custom_deliveryTime"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Base Fields -->
+                        <div id="base-material-fields" style="display: none;">
+                           <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3"><label class="form-label">Nombre Materia</label><input type="text" class="form-control" name="base_materialName"></div>
+                                    <div class="mb-3"><label class="form-label">Stock Actual</label><input type="number" class="form-control" name="base_currentStock"></div>
+                                    <div class="mb-3"><label class="form-label">Mínimo de Stock</label><input type="number" class="form-control" name="base_minStock"></div>
+                                    <div class="mb-3"><label class="form-label">Tipo de Materia</label><input type="text" class="form-control" name="base_materialType"></div>
+                                    <div class="mb-3"><label class="form-label">Estado Materia</label><input type="text" class="form-control" name="base_materialState"></div>
+                                    <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" name="base_description"></textarea></div>
+                                    <div class="mb-3"><label class="form-label">Ruta de Imagen</label><input type="text" class="form-control" name="base_imagePath"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3"><label class="form-label">Costo</label><input type="number" class="form-control" name="base_cost"></div>
+                                    <div class="mb-3"><label class="form-label">Unidad</label><input type="text" class="form-control" name="base_unit"></div>
+                                    <div class="mb-3"><label class="form-label">Stock General</label><input type="number" class="form-control" name="base_generalStock"></div>
                                 </div>
                             </div>
                         </div>
@@ -404,6 +435,27 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelNewMaterialBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createMaterialBtn">Crear Material</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea eliminar este material?</p>
+                    <p><strong id="materialToDeleteName"></strong></p>
+                    <p class="text-muted">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
                 </div>
             </div>
         </div>

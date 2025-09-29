@@ -1,0 +1,47 @@
+[
+    {
+        "id": 201,
+        "materialName": "Madera Base Pino",
+        "currentStock": 150,
+        "minStock": 20,
+        "materialType": "Madera Natural",
+        "materialState": "Disponible",
+        "description": "Madera de pino base para trabajos generales",
+        "imagePath": "/images/materials/pino-base.jpg",
+        "cost": 25.50,
+        "unit": "m²",
+        "generalStock": 150,
+        "registrationDate": "2024-01-15",
+        "updateDate": "2024-01-15"
+    },
+    {
+        "id": 202,
+        "materialName": "MDF Base 18mm",
+        "currentStock": 80,
+        "minStock": 15,
+        "materialType": "Tablero Manufacturado",
+        "materialState": "Disponible",
+        "description": "Tablero MDF de 18mm para uso base",
+        "imagePath": "/images/materials/mdf-base.jpg",
+        "cost": 35.75,
+        "unit": "m²",
+        "generalStock": 80,
+        "registrationDate": "2024-01-15",
+        "updateDate": "2024-01-15"
+    },
+    {
+        "id": 203,
+        "materialName": "Tornillos Base 4x40",
+        "currentStock": 500,
+        "minStock": 100,
+        "materialType": "Ferretería",
+        "materialState": "Disponible",
+        "description": "Tornillos base para ensamblaje general",
+        "imagePath": "/images/materials/tornillos-base.jpg",
+        "cost": 0.15,
+        "unit": "unidad",
+        "generalStock": 500,
+        "registrationDate": "2024-01-15",
+        "updateDate": "2024-01-15"
+    }
+]
