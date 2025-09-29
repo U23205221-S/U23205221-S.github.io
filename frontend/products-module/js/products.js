@@ -1,6 +1,13 @@
+/**
+ * Products Module with Submodules
+ * Handles base products, prefabricated products, and custom products
+ */
+
 window.productsModule = {
+    baseProducts: [],
     prefabricatedProducts: [],
     customProducts: [],
+    filteredBaseProducts: [],
     filteredPrefabricatedProducts: [],
     filteredCustomProducts: [],
 
@@ -25,646 +32,279 @@ window.productsModule = {
     },
 
     loadProducts: async function() {
+        let base = window.MobiliAriState.getState('baseProducts');
         let prefabricated = window.MobiliAriState.getState('prefabricatedProducts');
         let custom = window.MobiliAriState.getState('customProducts');
-
-        if (!prefabricated || prefabricated.length === 0) {
-            try {
-                const response = await fetch('../data/prefabricated-products.json');
-                prefabricated = await response.json();
-                window.MobiliAriState.updateState('prefabricatedProducts', prefabricated);
-            } catch (error) {
-                console.error('Error loading prefabricated products:', error);
-                prefabricated = [];
-            }
+        
+        if (!base || base.length === 0) {
+            this.baseProducts = this.getDefaultBaseProducts();
+            window.MobiliAriState.updateState('baseProducts', this.baseProducts);
+        } else {
+            this.baseProducts = base;
         }
+        this.filteredBaseProducts = [...this.baseProducts];
 
-        if (!custom || custom.length === 0) {
-            try {
-                const response = await fetch('../data/custom-products.json');
-                custom = await response.json();
-                window.MobiliAriState.updateState('customProducts', custom);
-            } catch (error) {
-                console.error('Error loading custom products:', error);
-                custom = [];
-            }
-        }
-
-        this.prefabricatedProducts = prefabricated;
-        this.customProducts = custom;
+        this.prefabricatedProducts = prefabricated || [];
         this.filteredPrefabricatedProducts = [...this.prefabricatedProducts];
+
+        this.customProducts = custom || [];
         this.filteredCustomProducts = [...this.customProducts];
     },
 
+    getDefaultBaseProducts: function() {
+        return [
+            { id: 1, name: "Mesa de Comedor", description: "Mesa básica para comedor familiar", basePrice: 12000, registrationDate: "2024-01-15", status: "active" },
+            { id: 2, name: "Silla Estándar", description: "Silla básica con respaldo ergonómico", basePrice: 2500, registrationDate: "2024-01-16", status: "active" },
+            { id: 3, name: "Armario Básico", description: "Armario de dos puertas con estantes", basePrice: 18000, registrationDate: "2024-01-17", status: "active" }
+        ];
+    },
 
     setupEventListeners: function() {
-        // Navigation
-        const navLinks = document.querySelectorAll('[data-module]');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const module = e.target.getAttribute('data-module') || 
-                            e.target.closest('[data-module]').getAttribute('data-module');
-                
-                if (module && module !== 'products') {
-                    this.navigateToModule(module);
-                }
-            });
+        // General Navigation
+        document.querySelectorAll('[data-module]').forEach(link => {
+            if (!link.closest('#productsSubmenu')) { // Exclude submenu links from module navigation
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const module = e.target.closest('[data-module]').getAttribute('data-module');
+                    if (module && module !== 'products') {
+                        this.navigateToModule(module);
+                    }
+                });
+            }
         });
 
-        // Sidebar toggle
+        // Submenu and Tabs
+        this.setupSubmenuToggle();
+        this.setupTabSwitching();
+
+        // UI Elements
         const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                this.toggleSidebar();
-            });
-        }
+        if (sidebarToggle) sidebarToggle.addEventListener('click', () => this.toggleSidebar());
 
-        // Logout
         const logoutBtn = document.getElementById('logoutBtnMgmt');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                window.dispatchEvent(new CustomEvent('user-logout'));
-            });
-        }
+        if (logoutBtn) logoutBtn.addEventListener('click', () => window.dispatchEvent(new CustomEvent('user-logout')));
 
-        // Product actions
-        const newProductBtn = document.getElementById('newProductBtn');
-        const createProductBtn = document.getElementById('createProductBtn');
-        const exportBtn = document.getElementById('exportBtn');
-
-        if (newProductBtn) {
-            newProductBtn.addEventListener('click', () => {
-                this.showNewProductModal();
-            });
-        }
-
-        if (createProductBtn) {
-            createProductBtn.addEventListener('click', () => {
-                this.createNewProduct();
-            });
-        }
-
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportProducts();
-            });
-        }
-
-        // Modal close buttons
-        const closeNewProductModalBtn = document.getElementById('closeNewProductModalBtn');
-        const cancelNewProductBtn = document.getElementById('cancelNewProductBtn');
-        
-        if (closeNewProductModalBtn) {
-            closeNewProductModalBtn.addEventListener('click', () => {
-                this.closeNewProductModal();
-            });
-        }
-        
-        if (cancelNewProductBtn) {
-            cancelNewProductBtn.addEventListener('click', () => {
-                this.closeNewProductModal();
-            });
-        }
-        
-        // Modal backdrop clicks
-        const newProductModal = document.getElementById('newProductModal');
-        
-        if (newProductModal) {
-            newProductModal.addEventListener('click', (e) => {
-                if (e.target === newProductModal) {
-                    this.closeNewProductModal();
-                }
-            });
-            
-            newProductModal.addEventListener('hidden.bs.modal', () => {
-                setTimeout(() => {
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) backdrop.remove();
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                }, 100);
-            });
-        }
-
-        // Filters
-        const searchInput = document.getElementById('searchProducts');
-        const stockFilter = document.getElementById('stockFilter');
-        const sortBy = document.getElementById('sortBy');
-        const priceFilter = document.getElementById('priceFilter');
-        const applyFilters = document.getElementById('applyFilters');
-        const clearFilters = document.getElementById('clearFilters');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', () => this.applyFilters());
-        }
-        if (stockFilter) {
-            stockFilter.addEventListener('change', () => this.applyFilters());
-        }
-        if (sortBy) {
-            sortBy.addEventListener('change', () => this.applyFilters());
-        }
-        if (priceFilter) {
-            priceFilter.addEventListener('change', () => this.applyFilters());
-        }
-        if (applyFilters) {
-            applyFilters.addEventListener('click', () => this.applyFilters());
-        }
-        if (clearFilters) {
-            clearFilters.addEventListener('click', () => this.clearFilters());
-        }
-
-        // Product type selector
-        const productTypeSelector = document.getElementById('productTypeSelector');
-        if (productTypeSelector) {
-            productTypeSelector.addEventListener('change', (e) => {
-                const prefabricatedFields = document.getElementById('prefabricated-fields');
-                const customFields = document.getElementById('custom-fields');
-                if (e.target.value === 'prefabricated') {
-                    prefabricatedFields.style.display = 'block';
-                    customFields.style.display = 'none';
-                } else {
-                    prefabricatedFields.style.display = 'none';
-                    customFields.style.display = 'block';
-                }
-            });
-        }
-
-        // Event listener for view buttons
-        const prefabricatedTable = document.getElementById('prefabricatedProductsTableBody');
-        const customTable = document.getElementById('customProductsTableBody');
-
-        if (prefabricatedTable) {
-            prefabricatedTable.addEventListener('click', (e) => {
-                if (e.target.classList.contains('view-product-btn')) {
-                    const id = parseInt(e.target.getAttribute('data-id'));
-                    this.viewProduct(id, 'prefabricated');
-                }
-            });
-        }
-
-        if (customTable) {
-            customTable.addEventListener('click', (e) => {
-                if (e.target.classList.contains('view-product-btn')) {
-                    const id = parseInt(e.target.getAttribute('data-id'));
-                    this.viewProduct(id, 'custom');
-                }
-            });
-        }
+        // Product action buttons
+        this.setupProductButtons();
     },
 
-    showNewProductModal: function() {
-        console.log('Abriendo modal de nuevo producto...');
-        const modal = document.getElementById('newProductModal');
-        const form = document.getElementById('newProductForm');
+    setupSubmenuToggle: function() {
+        const productsMainLink = document.getElementById('productsMainLink');
+        const productsSubmenu = document.getElementById('productsSubmenu');
+        const productsChevron = document.getElementById('productsChevron');
         
-        if (!modal) {
-            console.error('Modal newProductModal no encontrado');
-            return;
-        }
-        
-        if (!form) {
-            console.error('Formulario newProductForm no encontrado');
-            return;
-        }
-        
-        // Reset form
-        form.reset();
-        form.classList.remove('was-validated');
-        
-        // Hide image preview
-        const imagePreview = document.getElementById('imagePreview');
-        if (imagePreview) {
-            imagePreview.style.display = 'none';
-        }
-
-        const bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
-    },
-
-    closeNewProductModal: function() {
-        const modal = document.getElementById('newProductModal');
-        
-        try {
-            let bsModal = bootstrap.Modal.getInstance(modal);
-            
-            if (bsModal) {
-                bsModal.hide();
-            } else {
-                bsModal = new bootstrap.Modal(modal);
-                bsModal.hide();
-            }
-            
-            setTimeout(() => {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
+        if (productsMainLink && productsSubmenu && productsChevron) {
+            productsMainLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
+                const isExpanded = productsSubmenu.classList.toggle('show');
+                productsChevron.classList.toggle('bi-chevron-down', isExpanded);
+                productsChevron.classList.toggle('bi-chevron-right', !isExpanded);
+            });
+        }
+    },
+
+    setupTabSwitching: function() {
+        const submenuLinks = document.querySelectorAll('.submenu-link');
+        submenuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetTab = e.target.closest('[data-tab]').getAttribute('data-tab');
                 
-                modal.style.display = 'none';
-                modal.classList.remove('show');
-                modal.setAttribute('aria-hidden', 'true');
-                modal.removeAttribute('aria-modal');
-            }, 150);
-            
-        } catch (error) {
-            console.error('Error closing new product modal:', error);
-            this.forceCloseModal('newProductModal');
-        }
-        
-        // Reset form
-        const form = document.getElementById('newProductForm');
-        if (form) {
-            form.reset();
-            form.classList.remove('was-validated');
-        }
-        
-        console.log('Modal de nuevo producto cerrado');
+                submenuLinks.forEach(l => l.classList.remove('active'));
+                e.target.closest('.submenu-link').classList.add('active');
+                
+                this.switchToTab(targetTab);
+            });
+        });
     },
 
-    forceCloseModal: function(modalId) {
-        const modal = document.getElementById(modalId);
+    switchToTab: function(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+        const targetPane = document.getElementById(tabId);
+        if (targetPane) targetPane.classList.add('show', 'active');
         
-        // Force remove all modal-related elements and classes
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach(backdrop => backdrop.remove());
-        
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        
-        if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('show', 'fade');
-            modal.setAttribute('aria-hidden', 'true');
-            modal.removeAttribute('aria-modal');
-        }
-        
-        console.log('Modal forzado a cerrar:', modalId);
+        document.querySelectorAll('#productTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+        const targetButton = document.querySelector(`#productTabs [data-bs-target="#${tabId}"]`);
+        if (targetButton) targetButton.classList.add('active');
     },
 
-    previewImage: function(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('imagePreview');
-        const img = preview.querySelector('img');
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.style.display = 'none';
-        }
-    },
-
-    createNewProduct: function() {
-        const form = document.getElementById('newProductForm');
-        const formData = new FormData(form);
-        const productType = document.getElementById('productTypeSelector').value;
-
-        if (productType === 'prefabricated') {
-            const newProduct = {
-                id: Math.max(0, ...this.prefabricatedProducts.map(p => p.id)) + 1,
-                name: formData.get('prefabricated_name'),
-                specification: formData.get('prefabricated_spec'),
-                category: formData.get('prefabricated_category'),
-                registrationDate: new Date().toISOString().split('T')[0],
-                basePrice: parseFloat(formData.get('prefabricated_base_price')),
-                imagePath: formData.get('prefabricated_img_path'),
-                salePrice: parseFloat(formData.get('prefabricated_sale_price')),
-                stock: parseInt(formData.get('prefabricated_stock')),
-                minStock: parseInt(formData.get('prefabricated_min_stock')),
-                lastProductionDate: formData.get('prefabricated_last_prod'),
-                status: formData.get('prefabricated_status'),
-                description: formData.get('prefabricated_desc'),
-            };
-            this.prefabricatedProducts.push(newProduct);
-            window.MobiliAriState.updateState('prefabricatedProducts', this.prefabricatedProducts);
-        } else {
-            const newProduct = {
-                id: Math.max(100, ...this.customProducts.map(p => p.id)) + 1, // Start custom IDs from 101
-                name: formData.get('custom_name'),
-                specifications: formData.get('custom_spec'),
-                estimatedTime: parseInt(formData.get('custom_time')),
-                status: formData.get('custom_status'),
-                description: formData.get('custom_desc'),
-                basePrice: parseFloat(formData.get('custom_base_price')),
-                imagePath: formData.get('custom_img_path'),
-            };
-            this.customProducts.push(newProduct);
-            window.MobiliAriState.updateState('customProducts', this.customProducts);
-        }
-        
-        this.applyFilters();
-        this.updateStats();
-        this.closeNewProductModal();
-        this.showAlert('success', 'Producto creado exitosamente');
+    setupProductButtons: function() {
+        document.getElementById('newProductBtn')?.addEventListener('click', () => this.showNewBaseProductModal());
+        document.getElementById('newBaseProductBtn')?.addEventListener('click', () => this.showNewBaseProductModal());
+        document.getElementById('newPrefabricatedProductBtn')?.addEventListener('click', () => this.showNewPrefabricatedProductModal());
+        document.getElementById('newCustomProductBtn')?.addEventListener('click', () => this.showNewCustomProductModal());
+        document.getElementById('exportBtn')?.addEventListener('click', () => this.exportProducts());
     },
 
     renderProducts: function() {
+        this.renderBaseProducts();
         this.renderPrefabricatedProducts();
         this.renderCustomProducts();
+    },
+
+    renderBaseProducts: function() {
+        const tableBody = document.getElementById('baseProductsTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.filteredBaseProducts.map(p => `
+            <tr>
+                <td><strong>${p.id}</strong></td>
+                <td>${p.name}</td>
+                <td>${p.description}</td>
+                <td><strong>$${p.basePrice.toLocaleString()}</strong></td>
+                <td>${this.formatDate(p.registrationDate)}</td>
+                <td><span class="badge ${p.status === 'active' ? 'bg-success' : 'bg-secondary'}">${p.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="productsModule.viewBaseProduct(${p.id})"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-outline-warning" onclick="productsModule.editBaseProduct(${p.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-outline-danger" onclick="productsModule.deleteBaseProduct(${p.id})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
     },
 
     renderPrefabricatedProducts: function() {
         const tableBody = document.getElementById('prefabricatedProductsTableBody');
         if (!tableBody) return;
+        
         tableBody.innerHTML = this.filteredPrefabricatedProducts.map(p => `
             <tr>
-                <td>${p.name}</td>
-                <td>${p.specification}</td>
-                <td>${p.category}</td>
-                <td>${this.formatDate(p.registrationDate)}</td>
-                <td>$${p.basePrice.toLocaleString()}</td>
-                <td>${p.imagePath}</td>
-                <td>$${p.salePrice.toLocaleString()}</td>
-                <td>${p.stock}</td>
-                <td>${p.minStock}</td>
-                <td>${this.formatDate(p.lastProductionDate)}</td>
-                <td>${p.status}</td>
-                <td>${p.description}</td>
-                <td><button class="btn btn-sm btn-outline-primary view-product-btn" data-id="${p.id}">Ver</button></td>
+                <td><strong>${p.id}</strong></td>
+                <td><span class="badge bg-info">${p.baseProductName}</span></td>
+                <td>${p.code}</td>
+                <td>${p.stock} / ${p.minStock}</td>
+                <td><strong>$${p.salePrice.toLocaleString()}</strong></td>
+                <td><span class="badge ${p.status === 'active' ? 'bg-success' : 'bg-secondary'}">${p.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="productsModule.viewPrefabricatedProduct(${p.id})"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-outline-warning" onclick="productsModule.editPrefabricatedProduct(${p.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-outline-danger" onclick="productsModule.deletePrefabricatedProduct(${p.id})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="13" class="text-center">No hay productos prefabricados.</td></tr>`;
+        `).join('');
     },
 
     renderCustomProducts: function() {
         const tableBody = document.getElementById('customProductsTableBody');
         if (!tableBody) return;
+        
         tableBody.innerHTML = this.filteredCustomProducts.map(p => `
             <tr>
-                <td>${p.name}</td>
-                <td>${p.specifications}</td>
-                <td>${p.estimatedTime}</td>
-                <td>${p.status}</td>
-                <td>${p.description}</td>
-                <td>$${p.basePrice.toLocaleString()}</td>
-                <td>${p.imagePath}</td>
-                <td><button class="btn btn-sm btn-outline-primary view-product-btn" data-id="${p.id}">Ver</button></td>
+                <td><strong>${p.id}</strong></td>
+                <td><span class="badge bg-warning">${p.baseProductName}</span></td>
+                <td>${p.customName}</td>
+                <td><strong>$${p.customPrice.toLocaleString()}</strong></td>
+                <td><span class="badge ${this.getCustomStatusClass(p.status)}">${this.getCustomStatusText(p.status)}</span></td>
+                <td>${this.formatDate(p.creationDate)}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="productsModule.viewCustomProduct(${p.id})"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-outline-warning" onclick="productsModule.editCustomProduct(${p.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-outline-danger" onclick="productsModule.deleteCustomProduct(${p.id})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="8" class="text-center">No hay productos personalizados.</td></tr>`;
+        `).join('');
     },
 
-    getStockStatus: function(product) {
-        if (product.stock === 0) return 'out-of-stock';
-        if (product.stock <= product.minStock) return 'low-stock';
-        return 'in-stock';
-    },
+    // CRUD and Modal functions (simplified with prompts)
+    showNewBaseProductModal: function() {
+        const name = prompt('Nombre del producto base:');
+        if (!name) return;
+        const description = prompt('Descripción:');
+        if (!description) return;
+        const basePrice = parseFloat(prompt('Precio Base:'));
+        if (isNaN(basePrice)) return;
 
-    getStockLabel: function(product) {
-        if (product.stock === 0) return 'Agotado';
-        if (product.stock <= product.minStock) return 'Bajo';
-        return 'Normal';
+        const newId = (Math.max(0, ...this.baseProducts.map(p => p.id))) + 1;
+        const newProduct = { id: newId, name, description, basePrice, registrationDate: new Date().toISOString().split('T')[0], status: 'active' };
+        
+        this.baseProducts.push(newProduct);
+        this.filteredBaseProducts.push(newProduct);
+        window.MobiliAriState.updateState('baseProducts', this.baseProducts);
+        this.renderBaseProducts();
+        this.updateStats();
+        this.showAlert('success', 'Producto base creado.');
     },
     
-    getStockBadgeClass: function(product) {
-        if (product.stock === 0) return 'bg-danger';
-        if (product.stock <= product.minStock) return 'bg-warning';
-        return 'bg-success';
-    },
-    
-    getStatusBadgeClass: function(status) {
-        switch (status) {
-            case 'active': return 'bg-success';
-            case 'inactive': return 'bg-secondary';
-            case 'discontinued': return 'bg-danger';
-            default: return 'bg-secondary';
+    // Placeholder CRUD functions
+    viewBaseProduct: function(id) { alert(`Viendo producto base ${id}`); },
+    editBaseProduct: function(id) { alert(`Editando producto base ${id}`); },
+    deleteBaseProduct: function(id) {
+        if (confirm('¿Eliminar producto base?')) {
+            this.baseProducts = this.baseProducts.filter(p => p.id !== id);
+            this.filteredBaseProducts = this.filteredBaseProducts.filter(p => p.id !== id);
+            window.MobiliAriState.updateState('baseProducts', this.baseProducts);
+            this.renderBaseProducts();
+            this.updateStats();
+            this.showAlert('success', 'Producto base eliminado.');
         }
     },
     
-    getStatusLabel: function(status) {
-        switch (status) {
-            case 'active': return 'Activo';
-            case 'inactive': return 'Inactivo';
-            case 'discontinued': return 'Descontinuado';
-            default: return 'Desconocido';
-        }
+    showNewPrefabricatedProductModal: function() { alert('Funcionalidad para crear prefabricado no implementada.'); },
+    viewPrefabricatedProduct: function(id) { alert(`Viendo prefabricado ${id}`); },
+    editPrefabricatedProduct: function(id) { alert(`Editando prefabricado ${id}`); },
+    deletePrefabricatedProduct: function(id) { alert(`Eliminando prefabricado ${id}`); },
+
+    showNewCustomProductModal: function() { alert('Funcionalidad para crear personalizado no implementada.'); },
+    viewCustomProduct: function(id) { alert(`Viendo personalizado ${id}`); },
+    editCustomProduct: function(id) { alert(`Editando personalizado ${id}`); },
+    deleteCustomProduct: function(id) { alert(`Eliminando personalizado ${id}`); },
+
+    // Utility functions
+    getCustomStatusClass: function(status) {
+        const classes = { pending: 'bg-warning', in_progress: 'bg-info', completed: 'bg-success', cancelled: 'bg-danger' };
+        return classes[status] || 'bg-secondary';
     },
-    
+
+    getCustomStatusText: function(status) {
+        const texts = { pending: 'Pendiente', in_progress: 'En Progreso', completed: 'Completado', cancelled: 'Cancelado' };
+        return texts[status] || 'Desconocido';
+    },
+
     formatDate: function(dateString) {
-        if (!dateString) return 'No registrada';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    },
-
-    applyFilters: function() {
-        this.filteredPrefabricatedProducts = [...this.prefabricatedProducts];
-        this.filteredCustomProducts = [...this.customProducts];
-        this.renderProducts();
-    },
-
-    clearFilters: function() {
-        document.getElementById('searchProducts').value = '';
-        document.getElementById('stockFilter').value = '';
-        document.getElementById('sortBy').value = 'name';
-        document.getElementById('priceFilter').value = '';
-        this.applyFilters();
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('es-ES');
     },
 
     updateStats: function() {
-        const totalProducts = this.prefabricatedProducts.length + this.customProducts.length;
-        const inStockProducts = this.prefabricatedProducts.filter(p => p.stock > p.minStock).length;
-        const lowStockProducts = this.prefabricatedProducts.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
-        const outOfStockProducts = this.prefabricatedProducts.filter(p => p.stock === 0).length;
-
-        document.getElementById('totalProducts').textContent = totalProducts;
-        document.getElementById('inStockProducts').textContent = inStockProducts;
-        document.getElementById('lowStockProducts').textContent = lowStockProducts;
-        document.getElementById('outOfStockProducts').textContent = outOfStockProducts;
-    },
-
-    viewProduct: function(productId, type) {
-        const product = type === 'prefabricated' 
-            ? this.prefabricatedProducts.find(p => p.id === productId)
-            : this.customProducts.find(p => p.id === productId);
-
-        if (!product) return;
-
-        const modalTitle = document.getElementById('productDetailTitle');
-        const modalBody = document.getElementById('productDetailBody');
-        
-        modalTitle.textContent = `Detalle de: ${product.name}`;
-
-        let content = '';
-        if (type === 'prefabricated') {
-            content = `
-                <p><strong>ID:</strong> ${product.id}</p>
-                <p><strong>Especificación:</strong> ${product.specification}</p>
-                <p><strong>Categoría:</strong> ${product.category}</p>
-                <p><strong>Fecha de Registro:</strong> ${this.formatDate(product.registrationDate)}</p>
-                <p><strong>Precio Base:</strong> $${product.basePrice.toLocaleString()}</p>
-                <p><strong>Precio Venta:</strong> $${product.salePrice.toLocaleString()}</p>
-                <p><strong>Stock:</strong> ${product.stock}</p>
-                <p><strong>Stock Mínimo:</strong> ${product.minStock}</p>
-                <p><strong>Última Producción:</strong> ${this.formatDate(product.lastProductionDate)}</p>
-                <p><strong>Estado:</strong> ${product.status}</p>
-                <p><strong>Descripción:</strong> ${product.description}</p>
-            `;
-        } else {
-            content = `
-                <p><strong>ID:</strong> ${product.id}</p>
-                <p><strong>Especificaciones:</strong> ${product.specifications}</p>
-                <p><strong>Tiempo Estimado:</strong> ${product.estimatedTime} horas</p>
-                <p><strong>Estado:</strong> ${product.status}</p>
-                <p><strong>Descripción:</strong> ${product.description}</p>
-                <p><strong>Precio Base:</strong> $${product.basePrice.toLocaleString()}</p>
-            `;
-        }
-
-        modalBody.innerHTML = content;
-
-        const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
-        modal.show();
-    },
-
-    editProduct: function(productId) {
-        console.log('Editing product:', productId);
-        this.showAlert('info', 'Funcionalidad de edición en desarrollo');
-    },
-    
-    deleteProduct: function(productId) {
-        console.log('Deleting product:', productId);
-        this.showAlert('info', 'Funcionalidad de eliminación en desarrollo');
-    },
-
-    exportProducts: function() {
-        const csvContent = this.generateCSV();
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productos_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        this.showAlert('success', 'Productos exportados exitosamente');
-    },
-
-    generateCSV: function() {
-        const headers = ['ID', 'Nombre', 'Especificación', 'Categoría', 'Precio Base', 'Precio Venta', 'Stock', 'Stock Mínimo', 'Estado'];
-        const rows = this.prefabricatedProducts.map(p => [
-            p.id,
-            p.name,
-            p.specification,
-            p.category,
-            p.basePrice,
-            p.salePrice,
-            p.stock,
-            p.minStock,
-            p.status
-        ]);
-
-        return [headers, ...rows].map(row => 
-            row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')
-        ).join('\n');
-    },
-
-    navigateToModule: function(module) {
-        if (document.body.classList.contains('role-administrador')) {
-            sessionStorage.setItem('isAdmin', 'true');
-        }
-        window.dispatchEvent(new CustomEvent('navigate-to-module', {
-            detail: { module: module }
-        }));
-    },
-
-    toggleSidebar: function() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-        }
+        const total = this.baseProducts.length + this.prefabricatedProducts.length + this.customProducts.length;
+        document.getElementById('totalProducts').textContent = total;
+        // Add more stats logic here if needed
     },
 
     updateUserInfo: function() {
-        const currentUser = window.MobiliAriState.currentUser;
-        
-        if (currentUser) {
-            const userName = document.getElementById('userName');
-            const userRole = document.getElementById('userRole');
-            
-            if (userName) userName.textContent = currentUser.name;
-            if (userRole) userRole.textContent = currentUser.role;
-
-            const adminElements = document.querySelectorAll('.admin-only');
-            adminElements.forEach(el => {
-                const shouldShow = !currentUser.role || currentUser.role === 'administrador' || currentUser.role === 'admin';
-                el.style.display = shouldShow ? 'block' : 'none';
-            });
-        } else {
-            const adminElements = document.querySelectorAll('.admin-only');
-            adminElements.forEach(el => {
-                el.style.display = 'block';
-            });
+        const user = window.MobiliAriState.currentUser;
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userRole').textContent = user.role;
         }
     },
 
+    exportProducts: function() { alert('Función de exportación en desarrollo'); },
+
     showAlert: function(type, message) {
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        alert.innerHTML = `
-            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>
+        const alertContainer = document.createElement('div');
+        alertContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        document.body.appendChild(alert);
-        
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
-        }, 5000);
-    }
-};
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        document.body.appendChild(alertContainer);
+        setTimeout(() => alertContainer.remove(), 5000);
+    },
 
-// Initialize module when loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.productsModule.init();
-    });
-} else {
-    window.productsModule.init();
-}
+    navigateToModule: function(module) {
+        window.dispatchEvent(new CustomEvent('navigate-to-module', { detail: { module } }));
+    },
 
-// Global emergency function for products modals
-window.emergencyCloseProductsModals = function() {
-    if (window.productsModule) {
-        console.log('🚨 Cerrando modales de productos de emergencia...');
-        
-        try {
-            window.productsModule.forceCloseModal('newProductModal');
-            window.productsModule.forceCloseModal('productDetailModal');
-        } catch (error) {
-            console.log('Error con funciones del módulo, usando fallback...');
-        }
-        
-        // Fallback emergency close
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            modal.style.display = 'none';
-            modal.classList.remove('show', 'fade');
-        });
-        
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach(backdrop => backdrop.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        
-        console.log('✅ Modales de productos cerrados');
+    toggleSidebar: function() {
+        document.getElementById('sidebar')?.classList.toggle('collapsed');
     }
 };

@@ -598,7 +598,7 @@ window.usersModule = {
                         </div>
                     </div>
                     <div class="row mb-3">
-                         <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}" readonly></div>
+                        <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}" readonly></div>
                     </div>
                 `;
                 break;
@@ -628,9 +628,9 @@ window.usersModule = {
                         <div class="col-md-6"><label class="form-label">Inicio Contrato</label><input type="date" class="form-control" name="contract_start_date"></div>
                         <div class="col-md-6"><label class="form-label">Fin Contrato</label><input type="date" class="form-control" name="contract_end_date"></div>
                     </div>
-                     <div class="row mb-3">
-                        <div class="col-md-6"><label class="form-label">Tipo Contrato</label><input type="text" class="form-control" name="contract_type"></div>
-                        <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6"><label class="form-label">Tipo Contrato</label><input type="text" class="form-control" name="contract_type"></div>
+                            <div class="col-md-6"><label class="form-label">Fecha de Registro</label><input type="date" class="form-control" name="createdAt" value="${today}"></div>
                     </div>
                 `;
                 break;

@@ -32,9 +32,29 @@
                     </a>
                 </li>
                 <li class="nav-item admin-only">
-                    <a class="nav-link text-white active" href="#" data-module="products">
-                        <i class="bi bi-box-seam me-2"></i>Productos
+                    <a class="nav-link text-white active d-flex justify-content-between align-items-center" href="#" data-module="products" id="productsMainLink">
+                        <span><i class="bi bi-box-seam me-2"></i>Productos</span>
+                        <i class="bi bi-chevron-down" id="productsChevron"></i>
                     </a>
+                    <div class="collapse show" id="productsSubmenu">
+                        <ul class="nav nav-pills flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link active" href="#" data-tab="base-products">
+                                    <i class="bi bi-box me-2"></i>Productos Base
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-tab="prefabricated-products">
+                                    <i class="bi bi-box-seam me-2"></i>Prefabricados
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-tab="custom-products">
+                                    <i class="bi bi-gear me-2"></i>Personalizados
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item admin-only">
                     <a class="nav-link text-white" href="#" data-module="reports">
@@ -82,7 +102,7 @@
                         <i class="bi bi-download me-2"></i>Exportar
                     </button>
                     <button class="btn btn-wood" id="newProductBtn">
-                        <i class="bi bi-plus-circle me-2"></i>Nuevo Producto
+                        <i class="bi bi-plus-circle me-2"></i>Nuevo Producto Base
                     </button>
                 </div>
             </div>
@@ -142,35 +162,81 @@
         <!-- Tab Navigation -->
         <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="prefabricated-tab" data-bs-toggle="tab" data-bs-target="#prefabricated-products" type="button" role="tab">Productos Prefabricados</button>
+                <button class="nav-link active" id="base-tab" data-bs-toggle="tab" data-bs-target="#base-products" type="button" role="tab">
+                    <i class="bi bi-box me-2"></i>Productos Base
+                </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom-products" type="button" role="tab">Productos Personalizados</button>
+                <button class="nav-link" id="prefabricated-tab" data-bs-toggle="tab" data-bs-target="#prefabricated-products" type="button" role="tab">
+                    <i class="bi bi-box-seam me-2"></i>Productos Prefabricados
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom-products" type="button" role="tab">
+                    <i class="bi bi-gear me-2"></i>Productos Personalizados
+                </button>
             </li>
         </ul>
 
         <!-- Tab Content -->
         <div class="tab-content" id="productTabsContent">
-            <!-- Prefabricated Products Table -->
-            <div class="tab-pane fade show active" id="prefabricated-products" role="tabpanel">
+            <!-- Base Products Table -->
+            <div class="tab-pane fade show active" id="base-products" role="tabpanel">
                 <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="bi bi-box me-2"></i>Productos Base</h6>
+                        <button class="btn btn-sm btn-wood" id="newBaseProductBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Producto Base
+                        </button>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
+                                        <th>ID</th>
                                         <th>Nombre</th>
-                                        <th>Especificación</th>
-                                        <th>Categoría</th>
-                                        <th>Fecha de Registro</th>
+                                        <th>Descripción</th>
                                         <th>Precio Base</th>
-                                        <th>Imagen</th>
-                                        <th>Precio de Venta</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="baseProductsTableBody">
+                                    <!-- Base products will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prefabricated Products Table -->
+            <div class="tab-pane fade" id="prefabricated-products" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>Productos Prefabricados</h6>
+                        <button class="btn btn-sm btn-wood" id="newPrefabricatedProductBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Prefabricado
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Producto Base</th>
+                                        <th>Código</th>
+                                        <th>Especificaciones</th>
+                                        <th>Categoría</th>
+                                        <th>Material</th>
                                         <th>Stock</th>
                                         <th>Stock Mínimo</th>
+                                        <th>Precio Venta</th>
                                         <th>Última Producción</th>
                                         <th>Estado</th>
-                                        <th>Descripción</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -186,18 +252,25 @@
             <!-- Custom Products Table -->
             <div class="tab-pane fade" id="custom-products" role="tabpanel">
                 <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Productos Personalizados</h6>
+                        <button class="btn btn-sm btn-wood" id="newCustomProductBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Personalizado
+                        </button>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>Especificaciones</th>
+                                        <th>ID</th>
+                                        <th>Producto Base</th>
+                                        <th>Nombre Personalizado</th>
+                                        <th>Especificaciones Personalizadas</th>
                                         <th>Tiempo Estimado (Horas)</th>
+                                        <th>Precio Personalizado</th>
                                         <th>Estado</th>
-                                        <th>Descripción</th>
-                                        <th>Precio Base</th>
-                                        <th>Imagen</th>
+                                        <th>Fecha Creación</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>

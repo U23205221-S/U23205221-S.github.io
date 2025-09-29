@@ -383,3 +383,32 @@ body.role-administrador .products-module .admin-only {
 body.role-administrador .products-module .admin-only {
     display: block;
 }
+
+/* Submenu styles */
+.submenu-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.submenu-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submenu-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white !important;
+}
+
+#productsChevron {
+    transition: transform 0.2s ease;
+}
+
+#productsSubmenu {
+    transition: all 0.3s ease;
+}
+
+#productsSubmenu.show {
+    display: block !important;
+}
