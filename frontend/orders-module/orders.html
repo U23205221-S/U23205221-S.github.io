@@ -17,9 +17,24 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white active" href="#" data-module="orders">
+                    <a class="nav-link text-white active" href="#" data-bs-toggle="collapse" data-bs-target="#ordersSubmenu" aria-expanded="true">
                         <i class="bi bi-clipboard-check me-2"></i>Pedidos y Tareas
+                        <i class="bi bi-chevron-down ms-auto"></i>
                     </a>
+                    <div class="collapse show" id="ordersSubmenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 active" href="#" data-section="orders-main">
+                                    <i class="bi bi-clipboard-data me-2"></i>Gestión de Pedidos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" href="#" data-section="complaints">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Reclamos
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" href="#" data-module="inventory">
@@ -85,8 +100,10 @@
 
         <!-- Content Area -->
         <div class="content-area p-4">
-            <!-- Filters -->
-            <div class="row mb-4">
+            <!-- Orders Main Section -->
+            <div id="ordersMainSection">
+                <!-- Filters -->
+                <div class="row mb-4">
                 <div class="col-md-3">
                     <select class="form-select" id="statusFilter">
                         <option value="">Todos los estados</option>
@@ -197,6 +214,137 @@
                     </div>
                 </div>
             </div>
+            </div>
+
+            <!-- Complaints Section -->
+            <div id="complaintsSection" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="text-dark-wood mb-1">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Gestión de Reclamos
+                        </h4>
+                        <p class="text-muted mb-0">Administra los reclamos de clientes por pedidos no entregados o incorrectos</p>
+                    </div>
+                    <button class="btn btn-wood" id="newComplaintBtn">
+                        <i class="bi bi-plus-circle me-2"></i>Registrar Reclamo
+                    </button>
+                </div>
+
+                <!-- Complaints Filters -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="complaintStatusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Revisión">En Revisión</option>
+                            <option value="Resuelto">Resuelto</option>
+                            <option value="Cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="complaintTypeFilter">
+                            <option value="">Todos los tipos</option>
+                            <option value="Pedido no entregado">Pedido no entregado</option>
+                            <option value="Pedido incorrecto">Pedido incorrecto</option>
+                            <option value="Producto dañado">Producto dañado</option>
+                            <option value="Retraso en entrega">Retraso en entrega</option>
+                            <option value="Calidad deficiente">Calidad deficiente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Buscar cliente..." id="complaintClientSearch">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="complaintDateFilter">
+                    </div>
+                </div>
+
+                <!-- Complaints Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card bg-warning bg-opacity-10">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon text-warning me-3">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <div>
+                                    <h3 class="stat-number text-warning" id="pendingComplaints">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-info bg-opacity-10">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon text-info me-3">
+                                    <i class="bi bi-eye-fill"></i>
+                                </div>
+                                <div>
+                                    <h3 class="stat-number text-info" id="reviewingComplaints">0</h3>
+                                    <p class="stat-label">En Revisión</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-success bg-opacity-10">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon text-success me-3">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <h3 class="stat-number text-success" id="resolvedComplaints">0</h3>
+                                    <p class="stat-label">Resueltos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-secondary bg-opacity-10">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon text-secondary me-3">
+                                    <i class="bi bi-archive-fill"></i>
+                                </div>
+                                <div>
+                                    <h3 class="stat-number text-secondary" id="totalComplaints">0</h3>
+                                    <p class="stat-label">Total</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complaints Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul me-2"></i>Lista de Reclamos
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID Reclamo</th>
+                                        <th>Cliente</th>
+                                        <th>Pedido Relacionado</th>
+                                        <th>Tipo de Reclamo</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Prioridad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="complaintsTableBody">
+                                    <!-- Complaints will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -270,6 +418,101 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelOrderBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="createOrderBtn">Crear Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Complaint Modal -->
+    <div class="modal fade" id="newComplaintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Registrar Nuevo Reclamo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newComplaintForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Cliente *</label>
+                                <input type="text" class="form-control" name="clientName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email del Cliente</label>
+                                <input type="email" class="form-control" name="clientEmail">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Pedido Relacionado</label>
+                                <select class="form-select" name="relatedOrder">
+                                    <option value="">Seleccionar pedido...</option>
+                                    <!-- Options will be loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Reclamo *</label>
+                                <select class="form-select" name="complaintType" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option value="Pedido no entregado">Pedido no entregado</option>
+                                    <option value="Pedido incorrecto">Pedido incorrecto</option>
+                                    <option value="Producto dañado">Producto dañado</option>
+                                    <option value="Retraso en entrega">Retraso en entrega</option>
+                                    <option value="Calidad deficiente">Calidad deficiente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Prioridad</label>
+                                <select class="form-select" name="priority">
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta</option>
+                                    <option value="Crítica">Crítica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha del Reclamo</label>
+                                <input type="date" class="form-control" name="complaintDate" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción del Reclamo *</label>
+                            <textarea class="form-control" rows="4" name="description" placeholder="Describe detalladamente el problema reportado por el cliente..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Evidencias/Archivos</label>
+                            <input type="file" class="form-control" name="evidence" multiple accept="image/*,.pdf,.doc,.docx">
+                            <small class="text-muted">Puedes subir imágenes, PDFs o documentos como evidencia</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="createComplaintBtn">Registrar Reclamo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Detail Modal -->
+    <div class="modal fade" id="complaintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="complaintModalTitle">Detalle del Reclamo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="complaintModalContent">
+                    <!-- Complaint details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-wood" id="saveComplaintBtn">Guardar Cambios</button>
                 </div>
             </div>
         </div>

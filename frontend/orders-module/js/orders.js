@@ -6,11 +6,15 @@
 window.ordersModule = {
     orders: [],
     filteredOrders: [],
+    complaints: [],
+    filteredComplaints: [],
     sortableInstances: {},
+    currentSection: 'orders-main',
     
     init: async function(data) {
         console.log('Orders module initialized');
         await this.loadOrders();
+        await this.loadComplaints();
         this.setupEventListeners();
         this.setupKanbanBoard();
         this.renderOrders();
@@ -33,6 +37,66 @@ window.ordersModule = {
 
         this.orders = orders;
         this.filteredOrders = [...this.orders];
+    },
+
+    loadComplaints: async function() {
+        let complaints = window.MobiliAriState.getState('complaints');
+
+        if (!complaints || complaints.length === 0) {
+            // Create sample complaints data
+            complaints = this.getDefaultComplaints();
+            window.MobiliAriState.updateState('complaints', complaints);
+        }
+
+        this.complaints = complaints;
+        this.filteredComplaints = [...this.complaints];
+    },
+
+    getDefaultComplaints: function() {
+        return [
+            {
+                id: 'REC-001',
+                clientName: 'María González',
+                clientEmail: 'maria.gonzalez@email.com',
+                relatedOrder: 'ORD-002',
+                complaintType: 'Pedido no entregado',
+                description: 'El pedido fue programado para entrega el 15 de enero pero no ha llegado. El cliente ha intentado contactar sin respuesta.',
+                date: '2025-01-18',
+                status: 'Pendiente',
+                priority: 'Alta',
+                assignedTo: '',
+                resolution: '',
+                evidence: []
+            },
+            {
+                id: 'REC-002',
+                clientName: 'Carlos Ruiz',
+                clientEmail: 'carlos.ruiz@email.com',
+                relatedOrder: 'ORD-005',
+                complaintType: 'Pedido incorrecto',
+                description: 'Se entregó una mesa de roble cuando el pedido especificaba cedro. Las dimensiones también son incorrectas.',
+                date: '2025-01-16',
+                status: 'En Revisión',
+                priority: 'Media',
+                assignedTo: 'Admin',
+                resolution: 'Se está verificando el error en producción y se programará reemplazo.',
+                evidence: ['foto_mesa_incorrecta.jpg']
+            },
+            {
+                id: 'REC-003',
+                clientName: 'Ana López',
+                clientEmail: 'ana.lopez@email.com',
+                relatedOrder: 'ORD-001',
+                complaintType: 'Producto dañado',
+                description: 'La mesa llegó con rayones profundos en la superficie y una pata suelta.',
+                date: '2025-01-14',
+                status: 'Resuelto',
+                priority: 'Media',
+                assignedTo: 'Admin',
+                resolution: 'Se envió técnico para reparación in situ. Cliente satisfecho con la solución.',
+                evidence: ['danos_mesa.jpg', 'reparacion_completada.jpg']
+            }
+        ];
     },
 
 
@@ -150,11 +214,70 @@ window.ordersModule = {
             assignedFilter.addEventListener('change', () => this.applyFilters());
         }
 
+        // Section navigation
+        const sectionLinks = document.querySelectorAll('[data-section]');
+        sectionLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = e.target.getAttribute('data-section') || 
+                              e.target.closest('[data-section]').getAttribute('data-section');
+                
+                if (section) {
+                    this.switchSection(section);
+                }
+            });
+        });
+
+        // Complaints event listeners
+        const newComplaintBtn = document.getElementById('newComplaintBtn');
+        if (newComplaintBtn) {
+            newComplaintBtn.addEventListener('click', () => {
+                this.showNewComplaintModal();
+            });
+        }
+
+        const createComplaintBtn = document.getElementById('createComplaintBtn');
+        if (createComplaintBtn) {
+            createComplaintBtn.addEventListener('click', () => {
+                this.createNewComplaint();
+            });
+        }
+
+        const saveComplaintBtn = document.getElementById('saveComplaintBtn');
+        if (saveComplaintBtn) {
+            saveComplaintBtn.addEventListener('click', () => {
+                this.saveComplaintChanges();
+            });
+        }
+
+        // Complaint filters
+        const complaintStatusFilter = document.getElementById('complaintStatusFilter');
+        const complaintTypeFilter = document.getElementById('complaintTypeFilter');
+        const complaintClientSearch = document.getElementById('complaintClientSearch');
+        const complaintDateFilter = document.getElementById('complaintDateFilter');
+
+        if (complaintStatusFilter) {
+            complaintStatusFilter.addEventListener('change', () => this.applyComplaintFilters());
+        }
+        if (complaintTypeFilter) {
+            complaintTypeFilter.addEventListener('change', () => this.applyComplaintFilters());
+        }
+        if (complaintClientSearch) {
+            complaintClientSearch.addEventListener('input', () => this.applyComplaintFilters());
+        }
+        if (complaintDateFilter) {
+            complaintDateFilter.addEventListener('change', () => this.applyComplaintFilters());
+        }
+
         // Listen for state updates
         window.addEventListener('state-updated', (event) => {
             if (event.detail.key === 'orders') {
                 this.orders = event.detail.value;
                 this.applyFilters();
+            } else if (event.detail.key === 'complaints') {
+                this.complaints = event.detail.value;
+                this.applyComplaintFilters();
+                this.updateComplaintStats();
             }
         });
     },
@@ -954,6 +1077,322 @@ window.ordersModule = {
             month: 'short',
             day: 'numeric'
         });
+    },
+
+    // Complaints Management Functions
+    switchSection: function(section) {
+        this.currentSection = section;
+        
+        // Update active states in sidebar
+        const sectionLinks = document.querySelectorAll('[data-section]');
+        sectionLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === section) {
+                link.classList.add('active');
+            }
+        });
+
+        // Show/hide sections
+        const ordersSection = document.getElementById('ordersMainSection');
+        const complaintsSection = document.getElementById('complaintsSection');
+
+        if (section === 'orders-main') {
+            ordersSection.style.display = 'block';
+            complaintsSection.style.display = 'none';
+        } else if (section === 'complaints') {
+            ordersSection.style.display = 'none';
+            complaintsSection.style.display = 'block';
+            this.renderComplaints();
+            this.updateComplaintStats();
+        }
+    },
+
+    showNewComplaintModal: function() {
+        const modal = new bootstrap.Modal(document.getElementById('newComplaintModal'));
+        
+        // Set today's date as default
+        const dateInput = document.querySelector('[name="complaintDate"]');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        // Load related orders
+        this.loadRelatedOrdersOptions();
+        
+        modal.show();
+    },
+
+    loadRelatedOrdersOptions: function() {
+        const select = document.querySelector('[name="relatedOrder"]');
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Seleccionar pedido...</option>';
+        
+        this.orders.forEach(order => {
+            const option = document.createElement('option');
+            option.value = order.id;
+            option.textContent = `${order.id} - ${order.client} - ${order.product}`;
+            select.appendChild(option);
+        });
+    },
+
+    createNewComplaint: function() {
+        const form = document.getElementById('newComplaintForm');
+        const formData = new FormData(form);
+        
+        const complaint = {
+            id: 'REC-' + String(this.complaints.length + 1).padStart(3, '0'),
+            clientName: formData.get('clientName'),
+            clientEmail: formData.get('clientEmail'),
+            relatedOrder: formData.get('relatedOrder'),
+            complaintType: formData.get('complaintType'),
+            description: formData.get('description'),
+            date: formData.get('complaintDate'),
+            status: 'Pendiente',
+            priority: formData.get('priority'),
+            assignedTo: '',
+            resolution: '',
+            evidence: []
+        };
+
+        this.complaints.push(complaint);
+        window.MobiliAriState.updateState('complaints', this.complaints);
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('newComplaintModal'));
+        modal.hide();
+        
+        // Refresh complaints view
+        this.applyComplaintFilters();
+        this.updateComplaintStats();
+        
+        this.showAlert('success', 'Reclamo registrado exitosamente');
+    },
+
+    applyComplaintFilters: function() {
+        const statusFilter = document.getElementById('complaintStatusFilter')?.value || '';
+        const typeFilter = document.getElementById('complaintTypeFilter')?.value || '';
+        const clientSearch = document.getElementById('complaintClientSearch')?.value.toLowerCase() || '';
+        const dateFilter = document.getElementById('complaintDateFilter')?.value || '';
+
+        this.filteredComplaints = this.complaints.filter(complaint => {
+            const matchesStatus = !statusFilter || complaint.status === statusFilter;
+            const matchesType = !typeFilter || complaint.complaintType === typeFilter;
+            const matchesClient = !clientSearch || 
+                complaint.clientName.toLowerCase().includes(clientSearch) ||
+                complaint.clientEmail.toLowerCase().includes(clientSearch);
+            
+            let matchesDate = true;
+            if (dateFilter) {
+                const complaintDate = new Date(complaint.date);
+                const filterDate = new Date(dateFilter);
+                matchesDate = complaintDate.toDateString() === filterDate.toDateString();
+            }
+
+            return matchesStatus && matchesType && matchesClient && matchesDate;
+        });
+
+        this.renderComplaints();
+    },
+
+    renderComplaints: function() {
+        const tableBody = document.getElementById('complaintsTableBody');
+        if (!tableBody) return;
+
+        if (this.filteredComplaints.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-4">
+                        <i class="bi bi-inbox text-muted display-4 d-block mb-2"></i>
+                        No se encontraron reclamos
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = this.filteredComplaints.map(complaint => `
+            <tr>
+                <td><strong>${complaint.id}</strong></td>
+                <td>
+                    <div>
+                        <strong>${complaint.clientName}</strong>
+                        ${complaint.clientEmail ? `<br><small class="text-muted">${complaint.clientEmail}</small>` : ''}
+                    </div>
+                </td>
+                <td>
+                    ${complaint.relatedOrder ? `<span class="badge bg-light text-dark">${complaint.relatedOrder}</span>` : '<span class="text-muted">N/A</span>'}
+                </td>
+                <td>
+                    <span class="badge bg-${this.getComplaintTypeColor(complaint.complaintType)}">
+                        ${complaint.complaintType}
+                    </span>
+                </td>
+                <td>${this.formatDate(complaint.date)}</td>
+                <td>
+                    <span class="badge bg-${this.getComplaintStatusColor(complaint.status)}">
+                        ${complaint.status}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-${this.getPriorityColor(complaint.priority.toLowerCase())}">
+                        <i class="bi bi-${this.getPriorityIcon(complaint.priority.toLowerCase())} me-1"></i>
+                        ${complaint.priority}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="ordersModule.showComplaintDetail('${complaint.id}')" title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="ordersModule.updateComplaintStatus('${complaint.id}', 'En Revisión')" title="Marcar en revisión">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="ordersModule.updateComplaintStatus('${complaint.id}', 'Resuelto')" title="Marcar como resuelto">
+                            <i class="bi bi-check-circle"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    },
+
+    updateComplaintStats: function() {
+        const pending = this.complaints.filter(c => c.status === 'Pendiente').length;
+        const reviewing = this.complaints.filter(c => c.status === 'En Revisión').length;
+        const resolved = this.complaints.filter(c => c.status === 'Resuelto').length;
+        const total = this.complaints.length;
+
+        document.getElementById('pendingComplaints').textContent = pending;
+        document.getElementById('reviewingComplaints').textContent = reviewing;
+        document.getElementById('resolvedComplaints').textContent = resolved;
+        document.getElementById('totalComplaints').textContent = total;
+    },
+
+    showComplaintDetail: function(complaintId) {
+        const complaint = this.complaints.find(c => c.id === complaintId);
+        if (!complaint) return;
+
+        const modalContent = document.getElementById('complaintModalContent');
+        modalContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-dark-wood mb-3">Información del Reclamo</h6>
+                    <div class="mb-2"><strong>ID:</strong> ${complaint.id}</div>
+                    <div class="mb-2"><strong>Cliente:</strong> ${complaint.clientName}</div>
+                    <div class="mb-2"><strong>Email:</strong> ${complaint.clientEmail || 'N/A'}</div>
+                    <div class="mb-2"><strong>Pedido Relacionado:</strong> ${complaint.relatedOrder || 'N/A'}</div>
+                    <div class="mb-2"><strong>Tipo:</strong> 
+                        <span class="badge bg-${this.getComplaintTypeColor(complaint.complaintType)}">${complaint.complaintType}</span>
+                    </div>
+                    <div class="mb-2"><strong>Fecha:</strong> ${this.formatDate(complaint.date)}</div>
+                    <div class="mb-2"><strong>Estado:</strong> 
+                        <span class="badge bg-${this.getComplaintStatusColor(complaint.status)}">${complaint.status}</span>
+                    </div>
+                    <div class="mb-2"><strong>Prioridad:</strong> 
+                        <span class="badge bg-${this.getPriorityColor(complaint.priority.toLowerCase())}">${complaint.priority}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-dark-wood mb-3">Gestión</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="complaintStatusUpdate">
+                            <option value="Pendiente" ${complaint.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="En Revisión" ${complaint.status === 'En Revisión' ? 'selected' : ''}>En Revisión</option>
+                            <option value="Resuelto" ${complaint.status === 'Resuelto' ? 'selected' : ''}>Resuelto</option>
+                            <option value="Cerrado" ${complaint.status === 'Cerrado' ? 'selected' : ''}>Cerrado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Asignado a</label>
+                        <input type="text" class="form-control" id="complaintAssignedTo" value="${complaint.assignedTo || ''}" placeholder="Nombre del responsable">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6 class="text-dark-wood mb-3">Descripción del Problema</h6>
+                    <p class="bg-light p-3 rounded">${complaint.description}</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6 class="text-dark-wood mb-3">Resolución</h6>
+                    <textarea class="form-control" id="complaintResolution" rows="4" placeholder="Describe la resolución del reclamo...">${complaint.resolution || ''}</textarea>
+                </div>
+            </div>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('complaintModal'));
+        modal.show();
+
+        // Store current complaint for saving
+        this.currentComplaint = complaint;
+    },
+
+    updateComplaintStatus: function(complaintId, newStatus) {
+        const complaint = this.complaints.find(c => c.id === complaintId);
+        if (!complaint) return;
+
+        complaint.status = newStatus;
+        if (newStatus === 'En Revisión' && !complaint.assignedTo) {
+            complaint.assignedTo = 'Admin';
+        }
+
+        window.MobiliAriState.updateState('complaints', this.complaints);
+        this.applyComplaintFilters();
+        this.updateComplaintStats();
+        
+        this.showAlert('success', `Reclamo ${complaintId} actualizado a: ${newStatus}`);
+    },
+
+    getComplaintTypeColor: function(type) {
+        const colorMap = {
+            'Pedido no entregado': 'danger',
+            'Pedido incorrecto': 'warning',
+            'Producto dañado': 'danger',
+            'Retraso en entrega': 'warning',
+            'Calidad deficiente': 'info'
+        };
+        return colorMap[type] || 'secondary';
+    },
+
+    getComplaintStatusColor: function(status) {
+        const colorMap = {
+            'Pendiente': 'warning',
+            'En Revisión': 'info',
+            'Resuelto': 'success',
+            'Cerrado': 'secondary'
+        };
+        return colorMap[status] || 'secondary';
+    },
+
+    saveComplaintChanges: function() {
+        if (!this.currentComplaint) return;
+
+        const newStatus = document.getElementById('complaintStatusUpdate')?.value;
+        const assignedTo = document.getElementById('complaintAssignedTo')?.value;
+        const resolution = document.getElementById('complaintResolution')?.value;
+
+        // Update complaint
+        this.currentComplaint.status = newStatus || this.currentComplaint.status;
+        this.currentComplaint.assignedTo = assignedTo || this.currentComplaint.assignedTo;
+        this.currentComplaint.resolution = resolution || this.currentComplaint.resolution;
+
+        // Save to state
+        window.MobiliAriState.updateState('complaints', this.complaints);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('complaintModal'));
+        modal.hide();
+
+        // Refresh view
+        this.applyComplaintFilters();
+        this.updateComplaintStats();
+
+        this.showAlert('success', `Reclamo ${this.currentComplaint.id} actualizado exitosamente`);
+        this.currentComplaint = null;
     },
 
     showAlert: function(type, message) {
