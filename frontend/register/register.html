@@ -28,9 +28,14 @@
                             <label class="form-label">Confirmar Contraseña</label>
                             <input type="password" class="form-control" id="registerConfirmPassword" required>
                         </div>
+                        <button type="button" id="google-signin-btn" class="btn btn-light w-100 mb-3 border">
+                            <i class="bi bi-google"></i> Iniciar sesión con Google
+                        </button>
                         <button type="submit" class="btn btn-wood w-100 mb-3">Crear Cuenta</button>
+                        <!-- Google Sign-In container (rendered by GIS) -->
+                        <div id="google-signin-btn-register" class="w-100 mb-3 d-flex justify-content-center"></div>
                         <div class="text-center">
-                            <small class="text-muted">¿Ya tienes cuenta? <a href="#/login" class="text-wood">Inicia sesión aquí</a></small>
+                            <small class="text-muted">¿Ya tienes cuenta? <a href="../login/login.html" class="text-wood">Inicia sesión aquí</a></small>
                         </div>
                     </form>
                 </div>

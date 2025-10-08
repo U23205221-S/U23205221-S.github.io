@@ -6,6 +6,7 @@ window.loginModule = {
         console.log('Login module initialized');
         this.setupEventListeners();
         this.setupFormValidation();
+        this.initGoogleSignIn();
     },
 
     setupEventListeners: function() {
@@ -16,6 +17,89 @@ window.loginModule = {
                 this.handleLogin();
             });
         }
+    },
+
+    initGoogleSignIn: function() {
+        try {
+            const clientId = document.querySelector('meta[name="google-client-id"]').content;
+            if (!clientId || clientId.startsWith('YOUR_GOOGLE_CLIENT_ID')) {
+                console.warn('Google Client ID is not configured. Disabling Google Sign-In.');
+                const googleBtn = document.getElementById('google-signin-btn');
+                if (googleBtn) {
+                    googleBtn.disabled = true;
+                    googleBtn.title = 'Google Sign-In no está configurado';
+                }
+                return;
+            }
+
+            if (typeof google === 'undefined' || typeof google.accounts === 'undefined') {
+                console.error('Google Identity Services script not loaded.');
+                return;
+            }
+
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: this.handleGoogleCredentialResponse.bind(this)
+            });
+
+            const googleBtn = document.getElementById('google-signin-btn');
+            if (googleBtn) {
+                google.accounts.id.renderButton(
+                    googleBtn, 
+                    { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: '300' }
+                );
+            }
+            // google.accounts.id.prompt(); // Optional: Show One Tap prompt
+
+            const tryInit = (attempt = 0) => {
+                const maxAttempts = 20; // ~4s total
+                if (window.google && google.accounts && google.accounts.id) {
+                    google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: this.handleGoogleCredentialResponse.bind(this)
+                    });
+                    const googleBtn = document.getElementById('google-signin-btn');
+                    if (googleBtn) {
+                        google.accounts.id.renderButton(
+                            googleBtn,
+                            { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: '300' }
+                        );
+                    }
+                    return;
+                }
+                if (attempt < maxAttempts) {
+                    setTimeout(() => tryInit(attempt + 1), 200);
+                } else {
+                    console.error('Google Identity Services script not loaded after waiting.');
+                }
+            };
+
+            tryInit();
+        } catch (error) {
+            console.error('Error initializing Google Sign-In:', error);
+        }
+    },
+
+    handleGoogleCredentialResponse: function(response) {
+        console.log("Google Sign-In response received.");
+        // For demo purposes, we decode the token on the client side.
+        // In a real application, send `response.credential` to your backend for verification.
+        const decodedToken = JSON.parse(atob(response.credential.split('.')[1]));
+
+        const user = {
+            id: decodedToken.sub, // Google's unique user ID
+            email: decodedToken.email,
+            role: 'cliente', // Default role for Google users
+            name: decodedToken.given_name || decodedToken.name,
+            picture: decodedToken.picture
+        };
+
+        // Dispatch event to notify the container app of successful authentication
+        window.dispatchEvent(new CustomEvent('user-authenticated', {
+            detail: { user }
+        }));
+
+        this.showAlert('success', `¡Bienvenido, ${user.name}!`);
     },
 
     setupFormValidation: function() {

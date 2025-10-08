@@ -16,6 +16,13 @@ class MicroFrontendRouter {
                 jsFile: 'js/login.js',
                 title: 'Iniciar Sesión - MobiliAri'
             },
+            register: {
+                path: '../register/',
+                htmlFile: 'register.html',
+                cssFile: 'css/register.css',
+                jsFile: 'js/register.js',
+                title: 'Crear Cuenta - MobiliAri'
+            },
             catalog: {
                 path: '../catalog-module/',
                 htmlFile: 'catalog.html',

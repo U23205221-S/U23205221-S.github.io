@@ -6,6 +6,7 @@ window.registerModule = {
         console.log('Register module initialized');
         this.setupEventListeners();
         this.setupFormValidation();
+        this.initGoogleSignIn();
     },
 
     setupEventListeners: function() {
@@ -169,7 +170,7 @@ window.registerModule = {
     showAlert: function(type, message) {
         const alert = document.createElement('div');
         alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px';
         alert.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i> ${message} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
         document.body.appendChild(alert);
         setTimeout(() => {
@@ -177,5 +178,66 @@ window.registerModule = {
                 alert.remove();
             }
         }, 5000);
+    },
+
+    initGoogleSignIn: function() {
+        try {
+            const clientId = document.querySelector('meta[name="google-client-id"]').content;
+            const containerId = 'google-signin-btn-register';
+            const container = document.getElementById(containerId);
+            if (!container) return; // Nothing to render into
+
+            if (!clientId || clientId.startsWith('YOUR_GOOGLE_CLIENT_ID')) {
+                console.warn('Google Client ID is not configured. Disabling Google Sign-In on register.');
+                container.title = 'Google Sign-In no está configurado';
+                return;
+            }
+
+            const tryInit = (attempt = 0) => {
+                const maxAttempts = 20;
+                if (window.google && google.accounts && google.accounts.id) {
+                    google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: this.handleGoogleCredentialResponse.bind(this)
+                    });
+                    google.accounts.id.renderButton(
+                        container,
+                        { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with', width: '300' }
+                    );
+                    return;
+                }
+                if (attempt < maxAttempts) {
+                    setTimeout(() => tryInit(attempt + 1), 200);
+                } else {
+                    console.error('Google Identity Services script not loaded on register after waiting.');
+                }
+            };
+
+            tryInit();
+        } catch (error) {
+            console.error('Error initializing Google Sign-In on register:', error);
+        }
+    },
+
+    handleGoogleCredentialResponse: function(response) {
+        try {
+            const decodedToken = JSON.parse(atob(response.credential.split('.')[1]));
+            const user = {
+                id: decodedToken.sub,
+                email: decodedToken.email,
+                role: 'cliente',
+                name: decodedToken.given_name || decodedToken.name,
+                picture: decodedToken.picture
+            };
+
+            window.dispatchEvent(new CustomEvent('user-authenticated', {
+                detail: { user }
+            }));
+
+            this.showAlert('success', `¡Bienvenido, ${user.name}!`);
+        } catch (e) {
+            console.error('Failed to process Google credential on register:', e);
+            this.showAlert('error', 'No se pudo iniciar sesión con Google.');
+        }
     }
 };
