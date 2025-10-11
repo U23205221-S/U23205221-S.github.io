@@ -62,9 +62,39 @@
                     </a>
                 </li>
                 <li class="nav-item admin-only">
-                    <a class="nav-link text-white active" href="#" data-module="users">
-                        <i class="bi bi-people me-2"></i>Usuarios
+                    <a class="nav-link text-white active d-flex justify-content-between align-items-center" href="#" data-module="users" id="usersMainLink">
+                        <span><i class="bi bi-people me-2"></i>Usuarios</span>
+                        <i class="bi bi-chevron-down" id="usersChevron"></i>
                     </a>
+                    <div class="collapse show" id="usersSubmenu">
+                        <ul class="nav nav-pills flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link active" href="#" data-module="users" data-section="system-users">
+                                    <i class="bi bi-person-gear me-2"></i>Usuarios del Sistema
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-module="users" data-section="workers">
+                                    <i class="bi bi-person-workspace me-2"></i>Trabajadores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-module="users" data-section="clients">
+                                    <i class="bi bi-person-heart me-2"></i>Clientes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-module="users" data-section="user-config">
+                                    <i class="bi bi-gear-fill me-2"></i>Configuración de Usuarios
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 submenu-link" href="#" data-module="users" data-section="worker-config">
+                                    <i class="bi bi-tools me-2"></i>Configuración de Trabajadores
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item admin-only">
                     <a class="nav-link text-white" href="#" data-module="payments">
@@ -96,7 +126,7 @@
                 <button class="btn btn-outline-secondary" id="sidebarToggle">
                     <i class="bi bi-list"></i>
                 </button>
-                <h5 class="mb-0">Gestión de Usuarios</h5>
+                <h5 class="mb-0" id="sectionTitle">Usuarios del Sistema</h5>
                 <button class="btn btn-wood" id="newUserBtn">
                     <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
                 </button>
@@ -192,23 +222,164 @@
                 </div>
             </div>
 
-            <!-- Tab Navigation -->
-            <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="system-users-tab" data-bs-toggle="tab" data-bs-target="#system-users" type="button" role="tab" aria-controls="system-users" aria-selected="true">Usuarios del Sistema</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="workers-tab" data-bs-toggle="tab" data-bs-target="#workers" type="button" role="tab" aria-controls="workers" aria-selected="false">Trabajadores</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="clients-tab" data-bs-toggle="tab" data-bs-target="#clients" type="button" role="tab" aria-controls="clients" aria-selected="false">Clientes</button>
-                </li>
-            </ul>
+            <!-- System Users Section -->
+            <div id="systemUsersSection" class="section-content">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Fecha Nacim.</th>
+                                        <th>Edad</th>
+                                        <th>Área</th>
+                                        <th>Puesto</th>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Contraseña</th>
+                                        <th>Último Acceso</th>
+                                        <th>Fecha in. se.</th>
+                                        <th>Intentos Exitosos</th>
+                                        <th>Inten. err. in. se.</th>
+                                        <th>Dirección IP</th>
+                                        <th>Fecha Regis.</th>
+                                        <th>Fecha Camb. Contr.</th>
+                                        <th>Estado</th>
+                                        <th>Tipo de Usuario</th>
+                                        <th>Permisos</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- System users will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Tab Content -->
-            <div class="tab-content" id="userTabsContent">
-                <!-- System Users Table -->
-                <div class="tab-pane fade show active" id="system-users" role="tabpanel" aria-labelledby="system-users-tab">
+            <!-- Workers Section -->
+            <div id="workersSection" class="section-content" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo Persona</th>
+                                        <th>Tipo Doc.</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Puesto</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Fecha Nac.</th>
+                                        <th>Distrito</th>
+                                        <th>Dirección</th>
+                                        <th>Contrato</th>
+                                        <th>Tipo Contrato</th>
+                                        <th>Salario</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workersTableBody">
+                                    <!-- Workers will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Section -->
+            <div id="clientsSection" class="section-content" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo Persona</th>
+                                        <th>Tipo Doc.</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Tipo Cliente</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Departamento</th>
+                                        <th>Provincia</th>
+                                        <th>Distrito</th>
+                                        <th>Dirección</th>
+                                        <th>Referencia</th>
+                                        <th>Total Pedidos</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientsTableBody">
+                                    <!-- Clients will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Configuration Section -->
+            <div id="userConfigSection" class="section-content" style="display: none;">
+                <!-- Configuration Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="config-card" onclick="usersModule.showRolesTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-primary">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Roles</h5>
+                                    <p class="text-muted mb-0">Gestionar roles de usuario</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalRoles">0</span>
+                                <span class="config-stat-label">Roles Activos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="config-card" onclick="usersModule.showPermissionsTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-success">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Permisos de Roles</h5>
+                                    <p class="text-muted mb-0">Configurar permisos por rol</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalPermissions">0</span>
+                                <span class="config-stat-label">Permisos Configurados</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roles Table -->
+                <div id="rolesTableContainer" class="config-table-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-person-badge me-2"></i>Gestión de Roles
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newRoleBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Rol
+                        </button>
+                    </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
@@ -216,29 +387,15 @@
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
-                                            <th>Fecha Nacim.</th>
-                                            <th>Edad</th>
-                                            <th>Área</th>
-                                            <th>Puesto</th>
-                                            <th>Usuario</th>
-                                            <th>Email</th>
-                                            <th>Contraseña</th>
-                                            <th>Último Acceso</th>
-                                            <th>Fecha in. se.</th>
-                                            <th>Intentos Exitosos</th>
-                                            <th>Inten. err. in. se.</th>
-                                            <th>Dirección IP</th>
-                                            <th>Fecha Regis.</th>
-                                            <th>Fecha Camb. Contr.</th>
+                                            <th>Descripción</th>
                                             <th>Estado</th>
-                                            <th>Tipo de Usuario</th>
-                                            <th>Permisos</th>
-                                            <th>Rol</th>
+                                            <th>Fecha de Creación</th>
+                                            <th>Fecha de Actualización</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="usersTableBody">
-                                        <!-- System users will be loaded here -->
+                                    <tbody id="rolesTableBody">
+                                        <!-- Roles will be loaded here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -246,8 +403,16 @@
                     </div>
                 </div>
 
-                <!-- Workers Table -->
-                <div class="tab-pane fade" id="workers" role="tabpanel" aria-labelledby="workers-tab">
+                <!-- Permissions Table -->
+                <div id="permissionsTableContainer" class="config-table-container" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-shield-check me-2"></i>Permisos de Roles
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newPermissionBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Permiso
+                        </button>
+                    </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
@@ -255,25 +420,232 @@
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
-                                            <th>Tipo Persona</th>
-                                            <th>Tipo Doc.</th>
-                                            <th>Nro. Documento</th>
-                                            <th>Puesto</th>
-                                            <th>Email</th>
-                                            <th>Teléfono</th>
-                                            <th>Fecha Nac.</th>
-                                            <th>Distrito</th>
-                                            <th>Dirección</th>
-                                            <th>Contrato</th>
-                                            <th>Tipo Contrato</th>
+                                            <th>Descripción</th>
+                                            <th>Estado</th>
+                                            <th>Fecha de Creación</th>
+                                            <th>Fecha de Actualización</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="permissionsTableBody">
+                                        <!-- Permissions will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worker Configuration Section -->
+            <div id="workerConfigSection" class="section-content" style="display: none;">
+                <!-- Configuration Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="config-card" onclick="usersModule.showPositionsTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-info">
+                                    <i class="bi bi-briefcase"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Puestos</h5>
+                                    <p class="text-muted mb-0">Gestionar puestos de trabajo</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalPositions">0</span>
+                                <span class="config-stat-label">Puestos Activos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="config-card" onclick="usersModule.showIdTypesTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-warning">
+                                    <i class="bi bi-card-text"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Tipo de Identificación</h5>
+                                    <p class="text-muted mb-0">Tipos de documentos</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalIdTypes">0</span>
+                                <span class="config-stat-label">Tipos Disponibles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="config-card" onclick="usersModule.showPersonTypesTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-secondary">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Tipo de Persona</h5>
+                                    <p class="text-muted mb-0">Natural o Jurídica</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalPersonTypes">0</span>
+                                <span class="config-stat-label">Tipos Activos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="config-card" onclick="usersModule.showContractsTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-danger">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Contratos</h5>
+                                    <p class="text-muted mb-0">Gestionar contratos</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalContracts">0</span>
+                                <span class="config-stat-label">Contratos Activos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="config-card" onclick="usersModule.showContractTypesTable()">
+                            <div class="config-card-header">
+                                <div class="config-card-icon bg-dark">
+                                    <i class="bi bi-clipboard-check"></i>
+                                </div>
+                                <div class="config-card-info">
+                                    <h5 class="mb-1">Tipo de Contrato</h5>
+                                    <p class="text-muted mb-0">Modalidades contractuales</p>
+                                </div>
+                            </div>
+                            <div class="config-card-stats">
+                                <span class="config-stat-number" id="totalContractTypes">0</span>
+                                <span class="config-stat-label">Tipos Disponibles</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Positions Table -->
+                <div id="positionsTableContainer" class="config-table-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-briefcase me-2"></i>Gestión de Puestos
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newPositionBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Puesto
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre del Puesto</th>
+                                            <th>Descripción</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="positionsTableBody">
+                                        <!-- Positions will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ID Types Table -->
+                <div id="idTypesTableContainer" class="config-table-container" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-card-text me-2"></i>Tipos de Identificación
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newIdTypeBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Tipo
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="idTypesTableBody">
+                                        <!-- ID Types will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Person Types Table -->
+                <div id="personTypesTableContainer" class="config-table-container" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-people me-2"></i>Tipos de Persona
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newPersonTypeBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Tipo
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="personTypesTableBody">
+                                        <!-- Person Types will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contracts Table -->
+                <div id="contractsTableContainer" class="config-table-container" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-file-earmark-text me-2"></i>Gestión de Contratos
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newContractBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre del Contrato</th>
+                                            <th>Fecha de Inicio</th>
+                                            <th>Fecha de Fin</th>
+                                            <th>Tipo de Contrato</th>
                                             <th>Salario</th>
-                                            <th>Fecha de Registro</th>
                                             <th>Estado</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="workersTableBody">
-                                        <!-- Workers will be loaded here -->
+                                    <tbody id="contractsTableBody">
+                                        <!-- Contracts will be loaded here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -281,33 +653,29 @@
                     </div>
                 </div>
 
-                <!-- Clients Table -->
-                <div class="tab-pane fade" id="clients" role="tabpanel" aria-labelledby="clients-tab">
+                <!-- Contract Types Table -->
+                <div id="contractTypesTableContainer" class="config-table-container" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-clipboard-check me-2"></i>Tipos de Contrato
+                        </h6>
+                        <button class="btn btn-wood btn-sm" id="newContractTypeBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Tipo
+                        </button>
+                    </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Nombre</th>
-                                            <th>Tipo Persona</th>
-                                            <th>Tipo Doc.</th>
-                                            <th>Nro. Documento</th>
-                                            <th>Tipo Cliente</th>
-                                            <th>Email</th>
-                                            <th>Teléfono</th>
-                                            <th>Departamento</th>
-                                            <th>Provincia</th>
-                                            <th>Distrito</th>
-                                            <th>Dirección</th>
-                                            <th>Referencia</th>
-                                            <th>Total Pedidos</th>
-                                            <th>Fecha de Registro</th>
+                                            <th>Nombre del Tipo</th>
+                                            <th>Estado</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="clientsTableBody">
-                                        <!-- Clients will be loaded here -->
+                                    <tbody id="contractTypesTableBody">
+                                        <!-- Contract Types will be loaded here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -436,6 +804,290 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelPermissionsBtn">Cancelar</button>
                     <button type="button" class="btn btn-wood" id="savePermissionsBtn">Guardar Permisos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Modal -->
+    <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roleModalTitle">Nuevo Rol</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="roleForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Rol</label>
+                            <input type="text" class="form-control" name="name" id="roleName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del rol</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="description" id="roleDescription" rows="3" required></textarea>
+                            <div class="invalid-feedback">Por favor ingrese la descripción del rol</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="roleStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="saveRoleBtn">Guardar Rol</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Modal -->
+    <div class="modal fade" id="permissionModal" tabindex="-1" aria-labelledby="permissionModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permissionModalTitle">Nuevo Permiso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="permissionForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Permiso</label>
+                            <input type="text" class="form-control" name="name" id="permissionName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del permiso</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="description" id="permissionDescription" rows="3" required></textarea>
+                            <div class="invalid-feedback">Por favor ingrese la descripción del permiso</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="permissionStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="savePermissionBtn">Guardar Permiso</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Position Modal -->
+    <div class="modal fade" id="positionModal" tabindex="-1" aria-labelledby="positionModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="positionModalTitle">Nuevo Puesto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="positionForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Puesto</label>
+                            <input type="text" class="form-control" name="name" id="positionName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del puesto</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="description" id="positionDescription" rows="3" required></textarea>
+                            <div class="invalid-feedback">Por favor ingrese la descripción del puesto</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="positionStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="savePositionBtn">Guardar Puesto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID Type Modal -->
+    <div class="modal fade" id="idTypeModal" tabindex="-1" aria-labelledby="idTypeModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="idTypeModalTitle">Nuevo Tipo de Identificación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="idTypeForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Tipo</label>
+                            <input type="text" class="form-control" name="name" id="idTypeName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del tipo</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="idTypeStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="saveIdTypeBtn">Guardar Tipo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Person Type Modal -->
+    <div class="modal fade" id="personTypeModal" tabindex="-1" aria-labelledby="personTypeModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personTypeModalTitle">Nuevo Tipo de Persona</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="personTypeForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Tipo</label>
+                            <input type="text" class="form-control" name="name" id="personTypeName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del tipo</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="personTypeStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="savePersonTypeBtn">Guardar Tipo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contract Modal -->
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-labelledby="contractModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractModalTitle">Nuevo Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contractForm" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre del Contrato</label>
+                                <input type="text" class="form-control" name="name" id="contractName" required>
+                                <div class="invalid-feedback">Por favor ingrese el nombre del contrato</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Contrato</label>
+                                <select class="form-select" name="contractType" id="contractType" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option value="Indefinido">Indefinido</option>
+                                    <option value="Temporal">Temporal</option>
+                                    <option value="Por Obra">Por Obra</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione el tipo de contrato</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Inicio</label>
+                                <input type="date" class="form-control" name="startDate" id="contractStartDate" required>
+                                <div class="invalid-feedback">Por favor ingrese la fecha de inicio</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Fin</label>
+                                <input type="date" class="form-control" name="endDate" id="contractEndDate">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Salario</label>
+                                <input type="number" class="form-control" name="salary" id="contractSalary" step="0.01" required>
+                                <div class="invalid-feedback">Por favor ingrese el salario</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" name="status" id="contractStatus" required>
+                                    <option value="">Seleccionar estado...</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                    <option value="Vencido">Vencido</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione el estado</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="saveContractBtn">Guardar Contrato</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contract Type Modal -->
+    <div class="modal fade" id="contractTypeModal" tabindex="-1" aria-labelledby="contractTypeModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractTypeModalTitle">Nuevo Tipo de Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contractTypeForm" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Tipo</label>
+                            <input type="text" class="form-control" name="name" id="contractTypeName" required>
+                            <div class="invalid-feedback">Por favor ingrese el nombre del tipo</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" id="contractTypeStatus" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el estado</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-wood" id="saveContractTypeBtn">Guardar Tipo</button>
                 </div>
             </div>
         </div>

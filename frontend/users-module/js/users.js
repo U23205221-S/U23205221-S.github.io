@@ -10,12 +10,27 @@ window.usersModule = {
     filteredUsers: [],
     filteredWorkers: [],
     filteredClients: [],
+    currentSection: 'system-users',
+    roles: [],
+    permissions: [],
+    currentConfigView: 'roles',
+    // Worker configuration data
+    positions: [],
+    idTypes: [],
+    personTypes: [],
+    contracts: [],
+    contractTypes: [],
+    currentWorkerConfigView: 'positions',
     
     init: async function(data) {
         console.log('Users module initialized');
+        
+        // Clean up any residual modals
+        this.cleanupModals();
+        
         await this.loadData();
         this.setupEventListeners();
-        this.renderTables();
+        this.switchSection('system-users'); // Initialize with system users
         this.updateStats();
         this.updateUserInfo();
         
@@ -23,6 +38,33 @@ window.usersModule = {
         if (window.restoreAdminState) {
             window.restoreAdminState();
         }
+    },
+
+    cleanupModals: function() {
+        // Remove any existing modal backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Clean up body classes
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Reset modal states
+        const modals = ['roleModal', 'permissionModal', 'positionModal', 'idTypeModal', 'personTypeModal', 'contractModal', 'contractTypeModal'];
+        modals.forEach(modalId => {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                const existingModal = bootstrap.Modal.getInstance(modalElement);
+                if (existingModal) {
+                    existingModal.dispose();
+                }
+                modalElement.classList.remove('show');
+                modalElement.style.display = 'none';
+                modalElement.setAttribute('aria-hidden', 'true');
+                modalElement.removeAttribute('aria-modal');
+            }
+        });
     },
 
     loadData: async function() {
@@ -50,16 +92,33 @@ window.usersModule = {
     },
 
     setupEventListeners: function() {
-        // Navigation
+        // Navigation - Handle all module navigation
         const navLinks = document.querySelectorAll('[data-module]');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const module = e.target.getAttribute('data-module') || 
-                            e.target.closest('[data-module]').getAttribute('data-module');
+                const clickedElement = e.target.closest('[data-module]');
+                const module = clickedElement ? clickedElement.getAttribute('data-module') : null;
+                const section = clickedElement ? clickedElement.getAttribute('data-section') : null;
                 
+                // Always prevent default for anchor tags
+                e.preventDefault();
+                
+                // Handle users submenu navigation
+                if (module === 'users' && section) {
+                    this.switchSection(section);
+                    return;
+                }
+                
+                // Handle navigation to other modules
                 if (module && module !== 'users') {
                     this.navigateToModule(module);
+                    return;
+                }
+                
+                // Handle main users link toggle (only if no section specified)
+                if (module === 'users' && !section && clickedElement.id === 'usersMainLink') {
+                    this.toggleUsersSubmenu();
+                    return;
                 }
             });
         });
@@ -124,6 +183,125 @@ window.usersModule = {
                 this.savePermissions();
             });
         }
+
+        // Configuration module buttons
+        const newRoleBtn = document.getElementById('newRoleBtn');
+        const newPermissionBtn = document.getElementById('newPermissionBtn');
+        const saveRoleBtn = document.getElementById('saveRoleBtn');
+        const savePermissionBtn = document.getElementById('savePermissionBtn');
+
+        if (newRoleBtn) {
+            newRoleBtn.addEventListener('click', () => {
+                this.showNewRoleModal();
+            });
+        }
+
+        if (newPermissionBtn) {
+            newPermissionBtn.addEventListener('click', () => {
+                this.showNewPermissionModal();
+            });
+        }
+
+        if (saveRoleBtn) {
+            saveRoleBtn.addEventListener('click', () => {
+                this.saveRole();
+            });
+        }
+
+        if (savePermissionBtn) {
+            savePermissionBtn.addEventListener('click', () => {
+                this.savePermission();
+            });
+        }
+
+        // Modal close event listeners
+        const roleModal = document.getElementById('roleModal');
+        const permissionModal = document.getElementById('permissionModal');
+
+        if (roleModal) {
+            roleModal.addEventListener('hidden.bs.modal', () => {
+                const form = document.getElementById('roleForm');
+                if (form) {
+                    form.reset();
+                    form.classList.remove('was-validated');
+                }
+                this.currentEditingRole = null;
+            });
+        }
+
+        if (permissionModal) {
+            permissionModal.addEventListener('hidden.bs.modal', () => {
+                const form = document.getElementById('permissionForm');
+                if (form) {
+                    form.reset();
+                    form.classList.remove('was-validated');
+                }
+                this.currentEditingPermission = null;
+            });
+        }
+
+        // Handle Escape key for modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Check if any configuration modal is open
+                const openRoleModal = document.querySelector('#roleModal.show');
+                const openPermissionModal = document.querySelector('#permissionModal.show');
+                
+                if (openRoleModal) {
+                    this.closeModal('roleModal');
+                } else if (openPermissionModal) {
+                    this.closeModal('permissionModal');
+                }
+            }
+        });
+
+        // Add specific event listeners for close buttons
+        document.addEventListener('click', (e) => {
+            // Handle role modal close buttons
+            if (e.target.matches('#roleModal .btn-close') || 
+                e.target.matches('#roleModal [data-bs-dismiss="modal"]')) {
+                e.preventDefault();
+                this.closeModal('roleModal');
+            }
+            
+            // Handle permission modal close buttons
+            if (e.target.matches('#permissionModal .btn-close') || 
+                e.target.matches('#permissionModal [data-bs-dismiss="modal"]')) {
+                e.preventDefault();
+                this.closeModal('permissionModal');
+            }
+
+            // Handle worker config modal close buttons
+            const workerModals = ['positionModal', 'idTypeModal', 'personTypeModal', 'contractModal', 'contractTypeModal'];
+            workerModals.forEach(modalId => {
+                if (e.target.matches(`#${modalId} .btn-close`) || 
+                    e.target.matches(`#${modalId} [data-bs-dismiss="modal"]`)) {
+                    e.preventDefault();
+                    this.closeModal(modalId);
+                }
+            });
+        });
+
+        // Worker configuration module buttons
+        const workerConfigButtons = [
+            { id: 'newPositionBtn', action: () => this.showNewPositionModal() },
+            { id: 'newIdTypeBtn', action: () => this.showNewIdTypeModal() },
+            { id: 'newPersonTypeBtn', action: () => this.showNewPersonTypeModal() },
+            { id: 'newContractBtn', action: () => this.showNewContractModal() },
+            { id: 'newContractTypeBtn', action: () => this.showNewContractTypeModal() },
+            { id: 'savePositionBtn', action: () => this.savePosition() },
+            { id: 'saveIdTypeBtn', action: () => this.saveIdType() },
+            { id: 'savePersonTypeBtn', action: () => this.savePersonType() },
+            { id: 'saveContractBtn', action: () => this.saveContract() },
+            { id: 'saveContractTypeBtn', action: () => this.saveContractType() }
+        ];
+
+        workerConfigButtons.forEach(({ id, action }) => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.addEventListener('click', action);
+            }
+        });
         
         // Modal close buttons
         const closeNewUserModalBtn = document.getElementById('closeNewUserModalBtn');
@@ -214,13 +392,7 @@ window.usersModule = {
             sortBy.addEventListener('change', () => this.applyFilters());
         }
 
-        // Tab switching
-        const userTabs = document.querySelectorAll('#userTabs .nav-link');
-        userTabs.forEach(tab => {
-            tab.addEventListener('shown.bs.tab', () => {
-                this.applyFilters();
-            });
-        });
+        // Remove old tab switching logic as we now use sections
 
         // Listen for state updates
         window.addEventListener('state-updated', (event) => {
@@ -228,6 +400,13 @@ window.usersModule = {
                 this.loadData(); // Reload and re-split data
                 this.applyFilters();
                 this.updateStats();
+            }
+        });
+        
+        // Handle navigation with section parameter
+        window.addEventListener('navigate-to-users-section', (event) => {
+            if (event.detail && event.detail.section) {
+                this.switchSection(event.detail.section);
             }
         });
     },
@@ -254,46 +433,154 @@ window.usersModule = {
         const userSearch = document.getElementById('userSearch')?.value.toLowerCase() || '';
         const sortBy = document.getElementById('sortBy')?.value || 'name';
 
-        // Filter System Users
-        this.filteredUsers = this.users.filter(user => {
-            const matchesStatus = !statusFilter || user.status === statusFilter;
-            const matchesRole = !roleFilter || user.role === roleFilter;
-            const matchesSearch = !userSearch || user.name.toLowerCase().includes(userSearch) || user.email.toLowerCase().includes(userSearch);
-            return matchesStatus && matchesRole && matchesSearch;
-        });
-
-        // Filter Workers
-        this.filteredWorkers = this.workers.filter(worker => {
-            const matchesStatus = !statusFilter || worker.status === statusFilter;
-            const matchesSearch = !userSearch || worker.name.toLowerCase().includes(userSearch) || worker.email.toLowerCase().includes(userSearch);
-            return matchesStatus && matchesSearch;
-        });
-
-        // Filter Clients
-        this.filteredClients = this.clients.filter(client => {
-            const matchesStatus = !statusFilter || client.status === statusFilter;
-            const matchesSearch = !userSearch || client.name.toLowerCase().includes(userSearch) || client.email.toLowerCase().includes(userSearch);
-            return matchesStatus && matchesSearch;
-        });
-
-        // Note: Sorting is simplified for now and only applies to system users as before.
-        // More complex sorting can be added if needed.
-        this.filteredUsers.sort((a, b) => {
-            switch (sortBy) {
-                case 'email': return a.email.localeCompare(b.email);
-                case 'lastLogin': return new Date(b.lastLogin) - new Date(a.lastLogin);
-                case 'role': return a.role.localeCompare(b.role);
-                default: return a.name.localeCompare(b.name);
-            }
-        });
+        // Filter based on current section
+        switch(this.currentSection) {
+            case 'system-users':
+                this.filteredUsers = this.users.filter(user => {
+                    const matchesStatus = !statusFilter || user.status === statusFilter;
+                    const matchesRole = !roleFilter || user.role === roleFilter;
+                    const matchesSearch = !userSearch || user.name.toLowerCase().includes(userSearch) || user.email.toLowerCase().includes(userSearch);
+                    return matchesStatus && matchesRole && matchesSearch;
+                });
+                
+                this.filteredUsers.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'email': return a.email.localeCompare(b.email);
+                        case 'lastLogin': return new Date(b.lastLogin) - new Date(a.lastLogin);
+                        case 'role': return a.role.localeCompare(b.role);
+                        default: return a.name.localeCompare(b.name);
+                    }
+                });
+                break;
+                
+            case 'workers':
+                this.filteredWorkers = this.workers.filter(worker => {
+                    const matchesStatus = !statusFilter || worker.status === statusFilter;
+                    const matchesSearch = !userSearch || worker.name.toLowerCase().includes(userSearch) || worker.email.toLowerCase().includes(userSearch);
+                    return matchesStatus && matchesSearch;
+                });
+                break;
+                
+            case 'clients':
+                this.filteredClients = this.clients.filter(client => {
+                    const matchesStatus = !statusFilter || client.status === statusFilter;
+                    const matchesSearch = !userSearch || client.name.toLowerCase().includes(userSearch) || client.email.toLowerCase().includes(userSearch);
+                    return matchesStatus && matchesSearch;
+                });
+                break;
+                
+            case 'user-config':
+            case 'worker-config':
+                // Configuration sections don't use standard filters
+                return;
+        }
 
         this.renderTables();
     },
 
+    switchSection: function(section) {
+        // Update current section
+        this.currentSection = section;
+        
+        // Hide all sections
+        document.querySelectorAll('.section-content').forEach(sec => {
+            sec.style.display = 'none';
+        });
+        
+        // Show selected section
+        const targetSection = document.getElementById(this.getSectionId(section));
+        if (targetSection) {
+            targetSection.style.display = 'block';
+        }
+        
+        // Update section title
+        const sectionTitle = document.getElementById('sectionTitle');
+        if (sectionTitle) {
+            sectionTitle.textContent = this.getSectionTitle(section);
+        }
+        
+        // Update active state in sidebar
+        document.querySelectorAll('.submenu-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        const activeLink = document.querySelector(`[data-section="${section}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+        
+        // Apply filters and render appropriate table
+        if (section === 'user-config') {
+            this.loadConfigurationData();
+            this.renderConfigurationSection();
+        } else if (section === 'worker-config') {
+            this.loadWorkerConfigurationData();
+            this.renderWorkerConfigurationSection();
+        } else {
+            this.applyFilters();
+        }
+    },
+    
+    getSectionId: function(section) {
+        const sectionMap = {
+            'system-users': 'systemUsersSection',
+            'workers': 'workersSection',
+            'clients': 'clientsSection',
+            'user-config': 'userConfigSection',
+            'worker-config': 'workerConfigSection'
+        };
+        return sectionMap[section] || 'systemUsersSection';
+    },
+    
+    getSectionTitle: function(section) {
+        const titleMap = {
+            'system-users': 'Usuarios del Sistema',
+            'workers': 'Trabajadores',
+            'clients': 'Clientes',
+            'user-config': 'Configuración de Usuarios',
+            'worker-config': 'Configuración de Trabajadores'
+        };
+        return titleMap[section] || 'Usuarios del Sistema';
+    },
+    
+    toggleUsersSubmenu: function() {
+        const submenu = document.getElementById('usersSubmenu');
+        const chevron = document.getElementById('usersChevron');
+        
+        if (submenu && chevron) {
+            submenu.classList.toggle('show');
+            
+            if (submenu.classList.contains('show')) {
+                chevron.classList.remove('bi-chevron-right');
+                chevron.classList.add('bi-chevron-down');
+            } else {
+                chevron.classList.remove('bi-chevron-down');
+                chevron.classList.add('bi-chevron-right');
+            }
+        }
+    },
+    
     renderTables: function() {
-        this.renderSystemUsers();
-        this.renderWorkers();
-        this.renderClients();
+        // Only render the table for the current section
+        switch(this.currentSection) {
+            case 'system-users':
+                this.renderSystemUsers();
+                break;
+            case 'workers':
+                this.renderWorkers();
+                break;
+            case 'clients':
+                this.renderClients();
+                break;
+            case 'user-config':
+                this.renderConfigurationSection();
+                break;
+            case 'worker-config':
+                this.renderWorkerConfigurationSection();
+                break;
+            default:
+                this.renderSystemUsers();
+        }
     },
 
     renderSystemUsers: function() {
@@ -334,34 +621,59 @@ window.usersModule = {
         const tableBody = document.getElementById('workersTableBody');
         if (!tableBody) return;
         tableBody.innerHTML = this.filteredWorkers.map(worker => `
-            <tr>
+            <tr class="fade-in">
                 <td>${worker.name}</td>
+                <td>${worker.person_type || 'Natural'}</td>
                 <td>${worker.identification_type}</td>
                 <td>${worker.identification}</td>
                 <td>${worker.position}</td>
                 <td>${worker.email}</td>
                 <td>${worker.phone}</td>
-                <td><span class="status-badge status-${worker.status.toLowerCase()}">${worker.status}</span></td>
-                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+                <td>${this.formatDate(worker.birth_date)}</td>
+                <td>${worker.district || 'N/A'}</td>
+                <td>${worker.address || 'N/A'}</td>
+                <td>${this.formatDate(worker.contract_start_date)} - ${this.formatDate(worker.contract_end_date)}</td>
+                <td>${worker.contract_type || 'N/A'}</td>
+                <td>$${worker.salary ? worker.salary.toLocaleString() : 'N/A'}</td>
+                <td>${this.formatDate(worker.createdAt)}</td>
+                <td><span class="status-badge status-${this.getStatusClass(worker.status)}">${worker.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.showWorkerDetail(${worker.id})" title="Ver detalles"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editWorker(${worker.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="8" class="text-center">No se encontraron trabajadores.</td></tr>`;
+        `).join('') || `<tr><td colspan="16" class="text-center">No se encontraron trabajadores</td></tr>`;
     },
 
     renderClients: function() {
         const tableBody = document.getElementById('clientsTableBody');
         if (!tableBody) return;
         tableBody.innerHTML = this.filteredClients.map(client => `
-            <tr>
+            <tr class="fade-in">
                 <td>${client.name}</td>
+                <td>${client.person_type || 'Natural'}</td>
                 <td>${client.identification_type}</td>
                 <td>${client.identification}</td>
-                <td>${client.client_type}</td>
+                <td>${client.client_type || 'Regular'}</td>
                 <td>${client.email}</td>
                 <td>${client.phone}</td>
-                <td><span class="status-badge status-${client.status.toLowerCase()}">${client.status}</span></td>
-                <td><button class="btn btn-sm btn-outline-primary">Ver</button></td>
+                <td>${client.department || 'N/A'}</td>
+                <td>${client.province || 'N/A'}</td>
+                <td>${client.district || 'N/A'}</td>
+                <td>${client.address || 'N/A'}</td>
+                <td>${client.reference || 'N/A'}</td>
+                <td>${client.total_orders || 0}</td>
+                <td>${this.formatDate(client.createdAt)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.showClientDetail(${client.id})" title="Ver detalles"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editClient(${client.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                </td>
             </tr>
-        `).join('') || `<tr><td colspan="8" class="text-center">No se encontraron clientes.</td></tr>`;
+        `).join('') || `<tr><td colspan="15" class="text-center">No se encontraron clientes</td></tr>`;
     },
 
     calculateAge: function(birthDate) {
@@ -374,6 +686,1311 @@ window.usersModule = {
             age--;
         }
         return age;
+    },
+    
+    formatDate: function(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } catch (error) {
+            return 'N/A';
+        }
+    },
+    
+    getStatusClass: function(status) {
+        const statusMap = {
+            'Activo': 'active',
+            'Inactivo': 'inactive',
+            'Suspendido': 'suspended'
+        };
+        return statusMap[status] || 'inactive';
+    },
+    
+    showWorkerDetail: function(workerId) {
+        const worker = this.workers.find(w => w.id === workerId);
+        if (!worker) return;
+        
+        // Implement worker detail modal
+        console.log('Show worker detail:', worker);
+    },
+    
+    showClientDetail: function(clientId) {
+        const client = this.clients.find(c => c.id === clientId);
+        if (!client) return;
+        
+        // Implement client detail modal
+        console.log('Show client detail:', client);
+    },
+    
+    editWorker: function(workerId) {
+        const worker = this.workers.find(w => w.id === workerId);
+        if (!worker) return;
+        
+        // Implement worker edit functionality
+        console.log('Edit worker:', worker);
+    },
+    
+    editClient: function(clientId) {
+        const client = this.clients.find(c => c.id === clientId);
+        if (!client) return;
+        
+        // Implement client edit functionality
+        console.log('Edit client:', client);
+    },
+
+    // Configuration Section Functions
+    loadConfigurationData: function() {
+        // Load roles from state or initialize with defaults
+        this.roles = window.MobiliAriState.getState('roles') || this.getDefaultRoles();
+        this.permissions = window.MobiliAriState.getState('permissions') || this.getDefaultPermissions();
+        
+        // Update state if empty
+        if (window.MobiliAriState.getState('roles').length === 0) {
+            window.MobiliAriState.updateState('roles', this.roles);
+        }
+        if (window.MobiliAriState.getState('permissions').length === 0) {
+            window.MobiliAriState.updateState('permissions', this.permissions);
+        }
+        
+        this.updateConfigStats();
+    },
+
+    getDefaultRoles: function() {
+        return [
+            {
+                id: 1,
+                name: 'Administrador',
+                description: 'Acceso completo al sistema',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            },
+            {
+                id: 2,
+                name: 'Empleado',
+                description: 'Acceso limitado a módulos operativos',
+                status: 'Activo',
+                createdAt: '2024-01-16',
+                updatedAt: '2024-01-16'
+            },
+            {
+                id: 3,
+                name: 'Cliente',
+                description: 'Acceso al catálogo y pedidos',
+                status: 'Activo',
+                createdAt: '2024-01-17',
+                updatedAt: '2024-01-17'
+            }
+        ];
+    },
+
+    getDefaultPermissions: function() {
+        return [
+            {
+                id: 1,
+                name: 'dashboard_access',
+                description: 'Acceso al dashboard principal',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            },
+            {
+                id: 2,
+                name: 'orders_management',
+                description: 'Gestión de pedidos y tareas',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            },
+            {
+                id: 3,
+                name: 'inventory_management',
+                description: 'Gestión de inventario y materia prima',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            },
+            {
+                id: 4,
+                name: 'users_management',
+                description: 'Gestión de usuarios del sistema',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            },
+            {
+                id: 5,
+                name: 'reports_access',
+                description: 'Acceso a reportes y estadísticas',
+                status: 'Activo',
+                createdAt: '2024-01-15',
+                updatedAt: '2024-01-15'
+            }
+        ];
+    },
+
+    updateConfigStats: function() {
+        const totalRoles = this.roles.filter(r => r.status === 'Activo').length;
+        const totalPermissions = this.permissions.filter(p => p.status === 'Activo').length;
+        
+        const totalRolesEl = document.getElementById('totalRoles');
+        const totalPermissionsEl = document.getElementById('totalPermissions');
+        
+        if (totalRolesEl) totalRolesEl.textContent = totalRoles;
+        if (totalPermissionsEl) totalPermissionsEl.textContent = totalPermissions;
+    },
+
+    renderConfigurationSection: function() {
+        this.updateConfigStats();
+        
+        // Show roles table by default
+        if (this.currentConfigView === 'roles') {
+            this.showRolesTable();
+        } else {
+            this.showPermissionsTable();
+        }
+    },
+
+    showRolesTable: function() {
+        this.currentConfigView = 'roles';
+        
+        // Hide permissions table, show roles table
+        const rolesContainer = document.getElementById('rolesTableContainer');
+        const permissionsContainer = document.getElementById('permissionsTableContainer');
+        
+        if (rolesContainer) rolesContainer.style.display = 'block';
+        if (permissionsContainer) permissionsContainer.style.display = 'none';
+        
+        this.renderRolesTable();
+    },
+
+    showPermissionsTable: function() {
+        this.currentConfigView = 'permissions';
+        
+        // Hide roles table, show permissions table
+        const rolesContainer = document.getElementById('rolesTableContainer');
+        const permissionsContainer = document.getElementById('permissionsTableContainer');
+        
+        if (rolesContainer) rolesContainer.style.display = 'none';
+        if (permissionsContainer) permissionsContainer.style.display = 'block';
+        
+        this.renderPermissionsTable();
+    },
+
+    renderRolesTable: function() {
+        const tableBody = document.getElementById('rolesTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.roles.map(role => `
+            <tr class="fade-in">
+                <td>${role.name}</td>
+                <td>${role.description}</td>
+                <td><span class="status-badge status-${this.getStatusClass(role.status)}">${role.status}</span></td>
+                <td>${this.formatDate(role.createdAt)}</td>
+                <td>${this.formatDate(role.updatedAt)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editRole(${role.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deleteRole(${role.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="6" class="text-center">No se encontraron roles</td></tr>`;
+    },
+
+    renderPermissionsTable: function() {
+        const tableBody = document.getElementById('permissionsTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.permissions.map(permission => `
+            <tr class="fade-in">
+                <td>${permission.name}</td>
+                <td>${permission.description}</td>
+                <td><span class="status-badge status-${this.getStatusClass(permission.status)}">${permission.status}</span></td>
+                <td>${this.formatDate(permission.createdAt)}</td>
+                <td>${this.formatDate(permission.updatedAt)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editPermission(${permission.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deletePermission(${permission.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="6" class="text-center">No se encontraron permisos</td></tr>`;
+    },
+
+    // CRUD Functions for Roles
+    showNewRoleModal: function() {
+        const modalElement = document.getElementById('roleModal');
+        const form = document.getElementById('roleForm');
+        const title = document.getElementById('roleModalTitle');
+        
+        title.textContent = 'Nuevo Rol';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingRole = null;
+        
+        // Clean up any existing modal instance
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Create new modal instance
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        bsModal.show();
+    },
+
+    editRole: function(roleId) {
+        const role = this.roles.find(r => r.id === roleId);
+        if (!role) return;
+        
+        const modal = document.getElementById('roleModal');
+        const form = document.getElementById('roleForm');
+        const title = document.getElementById('roleModalTitle');
+        
+        title.textContent = 'Editar Rol';
+        
+        // Fill form with role data
+        document.getElementById('roleName').value = role.name;
+        document.getElementById('roleDescription').value = role.description;
+        document.getElementById('roleStatus').value = role.status;
+        
+        this.currentEditingRole = role;
+        
+        // Clean up any existing modal instance
+        const existingModal = bootstrap.Modal.getInstance(modal);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Create new modal instance
+        const bsModal = new bootstrap.Modal(modal, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        bsModal.show();
+    },
+
+    saveRole: function() {
+        const form = document.getElementById('roleForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const roleData = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            status: formData.get('status'),
+            updatedAt: new Date().toISOString().split('T')[0]
+        };
+        
+        if (this.currentEditingRole) {
+            // Update existing role
+            const index = this.roles.findIndex(r => r.id === this.currentEditingRole.id);
+            if (index !== -1) {
+                this.roles[index] = { ...this.currentEditingRole, ...roleData };
+            }
+        } else {
+            // Create new role
+            const newRole = {
+                id: Math.max(...this.roles.map(r => r.id), 0) + 1,
+                ...roleData,
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            this.roles.push(newRole);
+        }
+        
+        // Update state and UI
+        window.MobiliAriState.updateState('roles', this.roles);
+        this.renderRolesTable();
+        this.updateConfigStats();
+        
+        // Close modal
+        this.closeModal('roleModal');
+        
+        this.showSuccessMessage(this.currentEditingRole ? 'Rol actualizado exitosamente' : 'Rol creado exitosamente');
+    },
+
+    deleteRole: function(roleId) {
+        if (!confirm('¿Está seguro de eliminar este rol?')) return;
+        
+        this.roles = this.roles.filter(r => r.id !== roleId);
+        window.MobiliAriState.updateState('roles', this.roles);
+        this.renderRolesTable();
+        this.updateConfigStats();
+        
+        this.showSuccessMessage('Rol eliminado exitosamente');
+    },
+
+    // CRUD Functions for Permissions
+    showNewPermissionModal: function() {
+        const modalElement = document.getElementById('permissionModal');
+        const form = document.getElementById('permissionForm');
+        const title = document.getElementById('permissionModalTitle');
+        
+        title.textContent = 'Nuevo Permiso';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingPermission = null;
+        
+        // Clean up any existing modal instance
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Create new modal instance
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        bsModal.show();
+    },
+
+    editPermission: function(permissionId) {
+        const permission = this.permissions.find(p => p.id === permissionId);
+        if (!permission) return;
+        
+        const modal = document.getElementById('permissionModal');
+        const form = document.getElementById('permissionForm');
+        const title = document.getElementById('permissionModalTitle');
+        
+        title.textContent = 'Editar Permiso';
+        
+        // Fill form with permission data
+        document.getElementById('permissionName').value = permission.name;
+        document.getElementById('permissionDescription').value = permission.description;
+        document.getElementById('permissionStatus').value = permission.status;
+        
+        this.currentEditingPermission = permission;
+        
+        // Clean up any existing modal instance
+        const existingModal = bootstrap.Modal.getInstance(modal);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Create new modal instance
+        const bsModal = new bootstrap.Modal(modal, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        bsModal.show();
+    },
+
+    savePermission: function() {
+        const form = document.getElementById('permissionForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const permissionData = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            status: formData.get('status'),
+            updatedAt: new Date().toISOString().split('T')[0]
+        };
+        
+        if (this.currentEditingPermission) {
+            // Update existing permission
+            const index = this.permissions.findIndex(p => p.id === this.currentEditingPermission.id);
+            if (index !== -1) {
+                this.permissions[index] = { ...this.currentEditingPermission, ...permissionData };
+            }
+        } else {
+            // Create new permission
+            const newPermission = {
+                id: Math.max(...this.permissions.map(p => p.id), 0) + 1,
+                ...permissionData,
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            this.permissions.push(newPermission);
+        }
+        
+        // Update state and UI
+        window.MobiliAriState.updateState('permissions', this.permissions);
+        this.renderPermissionsTable();
+        this.updateConfigStats();
+        
+        // Close modal
+        this.closeModal('permissionModal');
+        
+        this.showSuccessMessage(this.currentEditingPermission ? 'Permiso actualizado exitosamente' : 'Permiso creado exitosamente');
+    },
+
+    deletePermission: function(permissionId) {
+        if (!confirm('¿Está seguro de eliminar este permiso?')) return;
+        
+        this.permissions = this.permissions.filter(p => p.id !== permissionId);
+        window.MobiliAriState.updateState('permissions', this.permissions);
+        this.renderPermissionsTable();
+        this.updateConfigStats();
+        
+        this.showSuccessMessage('Permiso eliminado exitosamente');
+    },
+
+    // Worker Configuration Section Functions
+    loadWorkerConfigurationData: function() {
+        // Load worker configuration data from state or initialize with defaults
+        this.positions = window.MobiliAriState.getState('positions') || this.getDefaultPositions();
+        this.idTypes = window.MobiliAriState.getState('idTypes') || this.getDefaultIdTypes();
+        this.personTypes = window.MobiliAriState.getState('personTypes') || this.getDefaultPersonTypes();
+        this.contracts = window.MobiliAriState.getState('contracts') || this.getDefaultContracts();
+        this.contractTypes = window.MobiliAriState.getState('contractTypes') || this.getDefaultContractTypes();
+        
+        // Update state if empty
+        if (window.MobiliAriState.getState('positions').length === 0) {
+            window.MobiliAriState.updateState('positions', this.positions);
+        }
+        if (window.MobiliAriState.getState('idTypes').length === 0) {
+            window.MobiliAriState.updateState('idTypes', this.idTypes);
+        }
+        if (window.MobiliAriState.getState('personTypes').length === 0) {
+            window.MobiliAriState.updateState('personTypes', this.personTypes);
+        }
+        if (window.MobiliAriState.getState('contracts').length === 0) {
+            window.MobiliAriState.updateState('contracts', this.contracts);
+        }
+        if (window.MobiliAriState.getState('contractTypes').length === 0) {
+            window.MobiliAriState.updateState('contractTypes', this.contractTypes);
+        }
+        
+        this.updateWorkerConfigStats();
+    },
+
+    getDefaultPositions: function() {
+        return [
+            {
+                id: 1,
+                name: 'Carpintero Senior',
+                description: 'Carpintero con experiencia en muebles finos',
+                status: 'Activo'
+            },
+            {
+                id: 2,
+                name: 'Diseñador',
+                description: 'Diseñador de muebles y espacios',
+                status: 'Activo'
+            },
+            {
+                id: 3,
+                name: 'Vendedor',
+                description: 'Atención al cliente y ventas',
+                status: 'Activo'
+            }
+        ];
+    },
+
+    getDefaultIdTypes: function() {
+        return [
+            { id: 1, name: 'DNI', status: 'Activo' },
+            { id: 2, name: 'RUC', status: 'Activo' },
+            { id: 3, name: 'Pasaporte', status: 'Activo' },
+            { id: 4, name: 'Carnet de Extranjería', status: 'Activo' }
+        ];
+    },
+
+    getDefaultPersonTypes: function() {
+        return [
+            { id: 1, name: 'Natural', status: 'Activo' },
+            { id: 2, name: 'Jurídica', status: 'Activo' }
+        ];
+    },
+
+    getDefaultContracts: function() {
+        return [
+            {
+                id: 1,
+                name: 'Contrato Juan Pérez',
+                startDate: '2024-01-15',
+                endDate: '2024-12-31',
+                contractType: 'Indefinido',
+                salary: 1500.00,
+                status: 'Activo'
+            },
+            {
+                id: 2,
+                name: 'Contrato María García',
+                startDate: '2024-02-01',
+                endDate: '2024-08-31',
+                contractType: 'Temporal',
+                salary: 1200.00,
+                status: 'Activo'
+            }
+        ];
+    },
+
+    getDefaultContractTypes: function() {
+        return [
+            { id: 1, name: 'Indefinido', status: 'Activo' },
+            { id: 2, name: 'Temporal', status: 'Activo' },
+            { id: 3, name: 'Por Obra', status: 'Activo' },
+            { id: 4, name: 'Prácticas', status: 'Activo' }
+        ];
+    },
+
+    updateWorkerConfigStats: function() {
+        const totalPositions = this.positions.filter(p => p.status === 'Activo').length;
+        const totalIdTypes = this.idTypes.filter(t => t.status === 'Activo').length;
+        const totalPersonTypes = this.personTypes.filter(t => t.status === 'Activo').length;
+        const totalContracts = this.contracts.filter(c => c.status === 'Activo').length;
+        const totalContractTypes = this.contractTypes.filter(t => t.status === 'Activo').length;
+        
+        const elements = {
+            'totalPositions': totalPositions,
+            'totalIdTypes': totalIdTypes,
+            'totalPersonTypes': totalPersonTypes,
+            'totalContracts': totalContracts,
+            'totalContractTypes': totalContractTypes
+        };
+        
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        });
+    },
+
+    renderWorkerConfigurationSection: function() {
+        this.updateWorkerConfigStats();
+        
+        // Show positions table by default
+        if (this.currentWorkerConfigView === 'positions') {
+            this.showPositionsTable();
+        } else {
+            this[`show${this.currentWorkerConfigView.charAt(0).toUpperCase() + this.currentWorkerConfigView.slice(1)}Table`]();
+        }
+    },
+
+    showPositionsTable: function() {
+        this.currentWorkerConfigView = 'positions';
+        this.hideAllWorkerConfigTables();
+        
+        const container = document.getElementById('positionsTableContainer');
+        if (container) container.style.display = 'block';
+        
+        this.renderPositionsTable();
+    },
+
+    showIdTypesTable: function() {
+        this.currentWorkerConfigView = 'idTypes';
+        this.hideAllWorkerConfigTables();
+        
+        const container = document.getElementById('idTypesTableContainer');
+        if (container) container.style.display = 'block';
+        
+        this.renderIdTypesTable();
+    },
+
+    showPersonTypesTable: function() {
+        this.currentWorkerConfigView = 'personTypes';
+        this.hideAllWorkerConfigTables();
+        
+        const container = document.getElementById('personTypesTableContainer');
+        if (container) container.style.display = 'block';
+        
+        this.renderPersonTypesTable();
+    },
+
+    showContractsTable: function() {
+        this.currentWorkerConfigView = 'contracts';
+        this.hideAllWorkerConfigTables();
+        
+        const container = document.getElementById('contractsTableContainer');
+        if (container) container.style.display = 'block';
+        
+        this.renderContractsTable();
+    },
+
+    showContractTypesTable: function() {
+        this.currentWorkerConfigView = 'contractTypes';
+        this.hideAllWorkerConfigTables();
+        
+        const container = document.getElementById('contractTypesTableContainer');
+        if (container) container.style.display = 'block';
+        
+        this.renderContractTypesTable();
+    },
+
+    hideAllWorkerConfigTables: function() {
+        const containers = [
+            'positionsTableContainer',
+            'idTypesTableContainer', 
+            'personTypesTableContainer',
+            'contractsTableContainer',
+            'contractTypesTableContainer'
+        ];
+        
+        containers.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) container.style.display = 'none';
+        });
+    },
+
+    renderPositionsTable: function() {
+        const tableBody = document.getElementById('positionsTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.positions.map(position => `
+            <tr class="fade-in">
+                <td>${position.name}</td>
+                <td>${position.description}</td>
+                <td><span class="status-badge status-${this.getStatusClass(position.status)}">${position.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editPosition(${position.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deletePosition(${position.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="4" class="text-center">No se encontraron puestos</td></tr>`;
+    },
+
+    renderIdTypesTable: function() {
+        const tableBody = document.getElementById('idTypesTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.idTypes.map(idType => `
+            <tr class="fade-in">
+                <td>${idType.name}</td>
+                <td><span class="status-badge status-${this.getStatusClass(idType.status)}">${idType.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editIdType(${idType.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deleteIdType(${idType.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="3" class="text-center">No se encontraron tipos de identificación</td></tr>`;
+    },
+
+    renderPersonTypesTable: function() {
+        const tableBody = document.getElementById('personTypesTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.personTypes.map(personType => `
+            <tr class="fade-in">
+                <td>${personType.name}</td>
+                <td><span class="status-badge status-${this.getStatusClass(personType.status)}">${personType.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editPersonType(${personType.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deletePersonType(${personType.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="3" class="text-center">No se encontraron tipos de persona</td></tr>`;
+    },
+
+    renderContractsTable: function() {
+        const tableBody = document.getElementById('contractsTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.contracts.map(contract => `
+            <tr class="fade-in">
+                <td>${contract.name}</td>
+                <td>${this.formatDate(contract.startDate)}</td>
+                <td>${contract.endDate ? this.formatDate(contract.endDate) : 'Indefinido'}</td>
+                <td>${contract.contractType}</td>
+                <td>$${contract.salary ? contract.salary.toLocaleString() : 'N/A'}</td>
+                <td><span class="status-badge status-${this.getStatusClass(contract.status)}">${contract.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editContract(${contract.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deleteContract(${contract.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="7" class="text-center">No se encontraron contratos</td></tr>`;
+    },
+
+    renderContractTypesTable: function() {
+        const tableBody = document.getElementById('contractTypesTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = this.contractTypes.map(contractType => `
+            <tr class="fade-in">
+                <td>${contractType.name}</td>
+                <td><span class="status-badge status-${this.getStatusClass(contractType.status)}">${contractType.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-action btn-edit" onclick="usersModule.editContractType(${contractType.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="usersModule.deleteContractType(${contractType.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="3" class="text-center">No se encontraron tipos de contrato</td></tr>`;
+    },
+
+    // CRUD Functions for Positions
+    showNewPositionModal: function() {
+        const modalElement = document.getElementById('positionModal');
+        const form = document.getElementById('positionForm');
+        const title = document.getElementById('positionModalTitle');
+        
+        title.textContent = 'Nuevo Puesto';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingPosition = null;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    editPosition: function(positionId) {
+        const position = this.positions.find(p => p.id === positionId);
+        if (!position) return;
+        
+        const modalElement = document.getElementById('positionModal');
+        const form = document.getElementById('positionForm');
+        const title = document.getElementById('positionModalTitle');
+        
+        title.textContent = 'Editar Puesto';
+        
+        document.getElementById('positionName').value = position.name;
+        document.getElementById('positionDescription').value = position.description;
+        document.getElementById('positionStatus').value = position.status;
+        
+        this.currentEditingPosition = position;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    savePosition: function() {
+        const form = document.getElementById('positionForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const positionData = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            status: formData.get('status')
+        };
+        
+        if (this.currentEditingPosition) {
+            const index = this.positions.findIndex(p => p.id === this.currentEditingPosition.id);
+            if (index !== -1) {
+                this.positions[index] = { ...this.currentEditingPosition, ...positionData };
+            }
+        } else {
+            const newPosition = {
+                id: Math.max(...this.positions.map(p => p.id), 0) + 1,
+                ...positionData
+            };
+            this.positions.push(newPosition);
+        }
+        
+        window.MobiliAriState.updateState('positions', this.positions);
+        this.renderPositionsTable();
+        this.updateWorkerConfigStats();
+        
+        this.closeModal('positionModal');
+        this.showSuccessMessage(this.currentEditingPosition ? 'Puesto actualizado exitosamente' : 'Puesto creado exitosamente');
+    },
+
+    deletePosition: function(positionId) {
+        if (!confirm('¿Está seguro de eliminar este puesto?')) return;
+        
+        this.positions = this.positions.filter(p => p.id !== positionId);
+        window.MobiliAriState.updateState('positions', this.positions);
+        this.renderPositionsTable();
+        this.updateWorkerConfigStats();
+        
+        this.showSuccessMessage('Puesto eliminado exitosamente');
+    },
+
+    // CRUD Functions for ID Types
+    showNewIdTypeModal: function() {
+        const modalElement = document.getElementById('idTypeModal');
+        const form = document.getElementById('idTypeForm');
+        const title = document.getElementById('idTypeModalTitle');
+        
+        title.textContent = 'Nuevo Tipo de Identificación';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingIdType = null;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    editIdType: function(idTypeId) {
+        const idType = this.idTypes.find(t => t.id === idTypeId);
+        if (!idType) return;
+        
+        const modalElement = document.getElementById('idTypeModal');
+        const form = document.getElementById('idTypeForm');
+        const title = document.getElementById('idTypeModalTitle');
+        
+        title.textContent = 'Editar Tipo de Identificación';
+        
+        document.getElementById('idTypeName').value = idType.name;
+        document.getElementById('idTypeStatus').value = idType.status;
+        
+        this.currentEditingIdType = idType;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    saveIdType: function() {
+        const form = document.getElementById('idTypeForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const idTypeData = {
+            name: formData.get('name'),
+            status: formData.get('status')
+        };
+        
+        if (this.currentEditingIdType) {
+            const index = this.idTypes.findIndex(t => t.id === this.currentEditingIdType.id);
+            if (index !== -1) {
+                this.idTypes[index] = { ...this.currentEditingIdType, ...idTypeData };
+            }
+        } else {
+            const newIdType = {
+                id: Math.max(...this.idTypes.map(t => t.id), 0) + 1,
+                ...idTypeData
+            };
+            this.idTypes.push(newIdType);
+        }
+        
+        window.MobiliAriState.updateState('idTypes', this.idTypes);
+        this.renderIdTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.closeModal('idTypeModal');
+        this.showSuccessMessage(this.currentEditingIdType ? 'Tipo actualizado exitosamente' : 'Tipo creado exitosamente');
+    },
+
+    deleteIdType: function(idTypeId) {
+        if (!confirm('¿Está seguro de eliminar este tipo de identificación?')) return;
+        
+        this.idTypes = this.idTypes.filter(t => t.id !== idTypeId);
+        window.MobiliAriState.updateState('idTypes', this.idTypes);
+        this.renderIdTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.showSuccessMessage('Tipo eliminado exitosamente');
+    },
+
+    // CRUD Functions for Person Types
+    showNewPersonTypeModal: function() {
+        const modalElement = document.getElementById('personTypeModal');
+        const form = document.getElementById('personTypeForm');
+        const title = document.getElementById('personTypeModalTitle');
+        
+        title.textContent = 'Nuevo Tipo de Persona';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingPersonType = null;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    editPersonType: function(personTypeId) {
+        const personType = this.personTypes.find(t => t.id === personTypeId);
+        if (!personType) return;
+        
+        const modalElement = document.getElementById('personTypeModal');
+        const form = document.getElementById('personTypeForm');
+        const title = document.getElementById('personTypeModalTitle');
+        
+        title.textContent = 'Editar Tipo de Persona';
+        
+        document.getElementById('personTypeName').value = personType.name;
+        document.getElementById('personTypeStatus').value = personType.status;
+        
+        this.currentEditingPersonType = personType;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    savePersonType: function() {
+        const form = document.getElementById('personTypeForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const personTypeData = {
+            name: formData.get('name'),
+            status: formData.get('status')
+        };
+        
+        if (this.currentEditingPersonType) {
+            const index = this.personTypes.findIndex(t => t.id === this.currentEditingPersonType.id);
+            if (index !== -1) {
+                this.personTypes[index] = { ...this.currentEditingPersonType, ...personTypeData };
+            }
+        } else {
+            const newPersonType = {
+                id: Math.max(...this.personTypes.map(t => t.id), 0) + 1,
+                ...personTypeData
+            };
+            this.personTypes.push(newPersonType);
+        }
+        
+        window.MobiliAriState.updateState('personTypes', this.personTypes);
+        this.renderPersonTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.closeModal('personTypeModal');
+        this.showSuccessMessage(this.currentEditingPersonType ? 'Tipo actualizado exitosamente' : 'Tipo creado exitosamente');
+    },
+
+    deletePersonType: function(personTypeId) {
+        if (!confirm('¿Está seguro de eliminar este tipo de persona?')) return;
+        
+        this.personTypes = this.personTypes.filter(t => t.id !== personTypeId);
+        window.MobiliAriState.updateState('personTypes', this.personTypes);
+        this.renderPersonTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.showSuccessMessage('Tipo eliminado exitosamente');
+    },
+
+    // CRUD Functions for Contracts
+    showNewContractModal: function() {
+        const modalElement = document.getElementById('contractModal');
+        const form = document.getElementById('contractForm');
+        const title = document.getElementById('contractModalTitle');
+        
+        title.textContent = 'Nuevo Contrato';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingContract = null;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    editContract: function(contractId) {
+        const contract = this.contracts.find(c => c.id === contractId);
+        if (!contract) return;
+        
+        const modalElement = document.getElementById('contractModal');
+        const form = document.getElementById('contractForm');
+        const title = document.getElementById('contractModalTitle');
+        
+        title.textContent = 'Editar Contrato';
+        
+        document.getElementById('contractName').value = contract.name;
+        document.getElementById('contractType').value = contract.contractType;
+        document.getElementById('contractStartDate').value = contract.startDate;
+        document.getElementById('contractEndDate').value = contract.endDate || '';
+        document.getElementById('contractSalary').value = contract.salary;
+        document.getElementById('contractStatus').value = contract.status;
+        
+        this.currentEditingContract = contract;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    saveContract: function() {
+        const form = document.getElementById('contractForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const contractData = {
+            name: formData.get('name'),
+            contractType: formData.get('contractType'),
+            startDate: formData.get('startDate'),
+            endDate: formData.get('endDate') || null,
+            salary: parseFloat(formData.get('salary')),
+            status: formData.get('status')
+        };
+        
+        if (this.currentEditingContract) {
+            const index = this.contracts.findIndex(c => c.id === this.currentEditingContract.id);
+            if (index !== -1) {
+                this.contracts[index] = { ...this.currentEditingContract, ...contractData };
+            }
+        } else {
+            const newContract = {
+                id: Math.max(...this.contracts.map(c => c.id), 0) + 1,
+                ...contractData
+            };
+            this.contracts.push(newContract);
+        }
+        
+        window.MobiliAriState.updateState('contracts', this.contracts);
+        this.renderContractsTable();
+        this.updateWorkerConfigStats();
+        
+        this.closeModal('contractModal');
+        this.showSuccessMessage(this.currentEditingContract ? 'Contrato actualizado exitosamente' : 'Contrato creado exitosamente');
+    },
+
+    deleteContract: function(contractId) {
+        if (!confirm('¿Está seguro de eliminar este contrato?')) return;
+        
+        this.contracts = this.contracts.filter(c => c.id !== contractId);
+        window.MobiliAriState.updateState('contracts', this.contracts);
+        this.renderContractsTable();
+        this.updateWorkerConfigStats();
+        
+        this.showSuccessMessage('Contrato eliminado exitosamente');
+    },
+
+    // CRUD Functions for Contract Types
+    showNewContractTypeModal: function() {
+        const modalElement = document.getElementById('contractTypeModal');
+        const form = document.getElementById('contractTypeForm');
+        const title = document.getElementById('contractTypeModalTitle');
+        
+        title.textContent = 'Nuevo Tipo de Contrato';
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        this.currentEditingContractType = null;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    editContractType: function(contractTypeId) {
+        const contractType = this.contractTypes.find(t => t.id === contractTypeId);
+        if (!contractType) return;
+        
+        const modalElement = document.getElementById('contractTypeModal');
+        const form = document.getElementById('contractTypeForm');
+        const title = document.getElementById('contractTypeModalTitle');
+        
+        title.textContent = 'Editar Tipo de Contrato';
+        
+        document.getElementById('contractTypeName').value = contractType.name;
+        document.getElementById('contractTypeStatus').value = contractType.status;
+        
+        this.currentEditingContractType = contractType;
+        
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) existingModal.dispose();
+        
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true, keyboard: true, focus: true
+        });
+        bsModal.show();
+    },
+
+    saveContractType: function() {
+        const form = document.getElementById('contractTypeForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const contractTypeData = {
+            name: formData.get('name'),
+            status: formData.get('status')
+        };
+        
+        if (this.currentEditingContractType) {
+            const index = this.contractTypes.findIndex(t => t.id === this.currentEditingContractType.id);
+            if (index !== -1) {
+                this.contractTypes[index] = { ...this.currentEditingContractType, ...contractTypeData };
+            }
+        } else {
+            const newContractType = {
+                id: Math.max(...this.contractTypes.map(t => t.id), 0) + 1,
+                ...contractTypeData
+            };
+            this.contractTypes.push(newContractType);
+        }
+        
+        window.MobiliAriState.updateState('contractTypes', this.contractTypes);
+        this.renderContractTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.closeModal('contractTypeModal');
+        this.showSuccessMessage(this.currentEditingContractType ? 'Tipo actualizado exitosamente' : 'Tipo creado exitosamente');
+    },
+
+    deleteContractType: function(contractTypeId) {
+        if (!confirm('¿Está seguro de eliminar este tipo de contrato?')) return;
+        
+        this.contractTypes = this.contractTypes.filter(t => t.id !== contractTypeId);
+        window.MobiliAriState.updateState('contractTypes', this.contractTypes);
+        this.renderContractTypesTable();
+        this.updateWorkerConfigStats();
+        
+        this.showSuccessMessage('Tipo eliminado exitosamente');
+    },
+
+    closeModal: function(modalId) {
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement) return;
+        
+        // Force remove any existing instances
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        // Remove modal classes and backdrop
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        
+        // Remove backdrop
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        
+        // Remove modal-open class from body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Trigger hidden event manually
+        const hiddenEvent = new Event('hidden.bs.modal');
+        modalElement.dispatchEvent(hiddenEvent);
+    },
+
+    showSuccessMessage: function(message) {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
     },
 
     updateStats: function() {

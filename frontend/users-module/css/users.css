@@ -1,5 +1,5 @@
 /* ========================================
-    Users Module Styles
+    Users Module Styles - Submódulos Implementation
    ======================================== */
 
 .users-module {
@@ -48,6 +48,161 @@
 .users-module .sidebar-menu .nav-link i {
     width: 20px;
     text-align: center;
+}
+
+/* Submenu Styles */
+.users-module .submenu-link {
+    color: rgba(255, 255, 255, 0.6) !important;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.125rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.users-module .submenu-link:hover,
+.users-module .submenu-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white !important;
+    transform: translateX(3px);
+}
+
+.users-module .submenu-link i {
+    width: 16px;
+    font-size: 0.875rem;
+}
+
+/* Chevron Animation */
+.users-module #usersChevron {
+    transition: transform 0.3s ease;
+}
+
+.users-module #usersSubmenu.show ~ a #usersChevron {
+    transform: rotate(180deg);
+}
+
+/* Section Content */
+.users-module .section-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Configuration Cards */
+.users-module .config-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--neutral-200);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.users-module .config-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--wood-primary);
+}
+
+.users-module .config-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.users-module .config-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.users-module .config-card-info h5 {
+    color: var(--neutral-800);
+    font-weight: var(--font-weight-semibold);
+}
+
+.users-module .config-card-info p {
+    font-size: 0.875rem;
+}
+
+.users-module .config-card-stats {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--neutral-200);
+}
+
+.users-module .config-stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--wood-primary);
+    line-height: 1;
+}
+
+.users-module .config-stat-label {
+    font-size: 0.75rem;
+    color: var(--neutral-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+/* Configuration Tables */
+.users-module .config-table-container {
+    margin-top: 2rem;
+}
+
+.users-module .config-table-container h6 {
+    color: var(--wood-dark);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Modal Close Button Styling */
+.users-module .modal .btn-close {
+    background-color: var(--wood-primary);
+    border-radius: 50%;
+    opacity: 1;
+    width: 32px;
+    height: 32px;
+    background-size: 16px;
+    filter: invert(1);
+    transition: all 0.3s ease;
+}
+
+.users-module .modal .btn-close:hover {
+    background-color: var(--wood-dark);
+    transform: scale(1.1);
+}
+
+.users-module .modal .btn-close:focus {
+    box-shadow: 0 0 0 0.25rem rgba(139, 69, 19, 0.25);
+}
+
+/* Ensure modal backdrop is properly handled */
+.users-module .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal header styling */
+.users-module .modal-header {
+    border-bottom: 2px solid var(--wood-primary);
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+}
+
+.users-module .modal-title {
+    color: var(--wood-dark);
+    font-weight: var(--font-weight-semibold);
 }
 
 /* ========================================
