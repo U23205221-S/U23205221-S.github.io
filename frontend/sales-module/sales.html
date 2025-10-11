@@ -1,0 +1,392 @@
+<!-- Sales Module HTML -->
+<div class="sales-module micro-frontend">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark-wood text-white" id="sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h4 class="mb-0">
+                <i class="bi bi-house-door-fill me-2"></i>MobiliAri
+            </h4>
+            <small class="text-light">Sistema de Gestión</small>
+        </div>
+        
+        <div class="sidebar-menu p-3">
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="dashboard">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="orders">
+                        <i class="bi bi-clipboard-check me-2"></i>Pedidos y Tareas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="inventory">
+                        <i class="bi bi-boxes me-2"></i>Materia Prima
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-module="suppliers">
+                        <i class="bi bi-truck me-2"></i>Proveedores
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="products">
+                        <i class="bi bi-box-seam me-2"></i>Productos
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="reports">
+                        <i class="bi bi-graph-up me-2"></i>Reportes
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="users">
+                        <i class="bi bi-people me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white" href="#" data-module="payments">
+                        <i class="bi bi-credit-card me-2"></i>Pagos
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link text-white active" href="#" data-module="sales">
+                        <i class="bi bi-cart-check-fill me-2"></i>Ventas
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <div class="d-flex align-items-center">
+                    <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="Usuario">
+                    <div>
+                        <small class="d-block" id="userName">Usuario</small>
+                        <small class="text-light" id="userRole">Rol</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm mt-2 w-100" id="logoutBtnMgmt">
+                    <i class="bi bi-box-arrow-right me-1"></i>Salir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <nav class="navbar navbar-light bg-white shadow-sm border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h5 class="mb-0" id="moduleTitle">Gestión de Ventas</h5>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area p-4" id="contentArea">
+        <!-- Header Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-0">
+                            <i class="bi bi-cart-check-fill me-2 text-success"></i>
+                            Gestión de Ventas
+                        </h2>
+                        <p class="text-muted mb-0">Administra y visualiza todas las ventas realizadas</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-wood" id="exportSalesBtn">
+                            <i class="bi bi-download me-1"></i>Exportar
+                        </button>
+                        <button class="btn btn-success" id="newSaleBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Nueva Venta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="stats-card-title">Total Ventas</h6>
+                                <h4 class="stats-card-value" id="totalSales">0</h4>
+                            </div>
+                            <div class="stats-card-icon bg-primary">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="stats-card-title">Ventas Hoy</h6>
+                                <h4 class="stats-card-value" id="todaySales">0</h4>
+                            </div>
+                            <div class="stats-card-icon bg-success">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="stats-card-title">Ingresos Total</h6>
+                                <h4 class="stats-card-value" id="totalRevenue">$0</h4>
+                            </div>
+                            <div class="stats-card-icon bg-warning">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="stats-card-title">Pendientes</h6>
+                                <h4 class="stats-card-value" id="pendingSales">0</h4>
+                            </div>
+                            <div class="stats-card-icon bg-danger">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Buscar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchInput" 
+                                        placeholder="Buscar por producto, código o cliente...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Completada">Completada</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="En Proceso">En Proceso</option>
+                                    <option value="Entregada">Entregada</option>
+                                    <option value="Cancelada">Cancelada</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Fecha Desde</label>
+                                <input type="date" class="form-control" id="dateFromFilter">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Fecha Hasta</label>
+                                <input type="date" class="form-control" id="dateToFilter">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary" id="clearFiltersBtn">
+                                        <i class="bi bi-x-circle me-1"></i>Limpiar
+                                    </button>
+                                    <button class="btn btn-primary" id="applyFiltersBtn">
+                                        <i class="bi bi-funnel me-1"></i>Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2"></i>Lista de Ventas
+                        </h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <small class="text-muted">Mostrando <span id="showingCount">0</span> de <span id="totalCount">0</span> ventas</small>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="refreshTableBtn">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="exportExcelBtn">
+                                        <i class="bi bi-file-earmark-excel me-2"></i>Exportar Excel
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" id="exportPdfBtn">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Exportar PDF
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="sortable" data-sort="product_name">
+                                            <i class="bi bi-box me-1"></i>Producto
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="sale_number_id">
+                                            <i class="bi bi-hash me-1"></i>Código Venta
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="sale_date">
+                                            <i class="bi bi-calendar me-1"></i>Fecha
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="sale_time">
+                                            <i class="bi bi-clock me-1"></i>Hora
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="total">
+                                            <i class="bi bi-currency-dollar me-1"></i>Total
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="client">
+                                            <i class="bi bi-person me-1"></i>Cliente
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="status">
+                                            <i class="bi bi-flag me-1"></i>Estado
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="delivery_date">
+                                            <i class="bi bi-truck me-1"></i>Entrega
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="first_payment">
+                                            <i class="bi bi-cash me-1"></i>Primer Pago
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-sort="final_payment">
+                                            <i class="bi bi-cash-stack me-1"></i>Pago Final
+                                            <i class="bi bi-chevron-expand sort-icon"></i>
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="bi bi-gear me-1"></i>Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody">
+                                    <!-- Sales data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Paginación de ventas">
+                    <ul class="pagination justify-content-center" id="paginationContainer">
+                        <!-- Pagination will be generated here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sale Detail Modal -->
+    <div class="modal fade" id="saleDetailModal" tabindex="-1" aria-labelledby="saleDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saleDetailModalLabel">
+                        <i class="bi bi-eye me-2"></i>Detalles de la Venta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Sale details will be loaded here -->
+                    <div id="saleDetailContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="printSaleBtn">
+                        <i class="bi bi-printer me-1"></i>Imprimir
+                    </button>
+                    <button type="button" class="btn btn-wood" id="editSaleBtn">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">
+                        <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea eliminar esta venta?</p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                    </div>
+                    <div id="deleteConfirmContent">
+                        <!-- Sale info to delete will be shown here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-1"></i>Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

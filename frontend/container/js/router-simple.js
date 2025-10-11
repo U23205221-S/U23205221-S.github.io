@@ -106,6 +106,13 @@ class MicroFrontendRouter {
                 cssFile: 'css/payments.css',
                 jsFile: 'js/payments.js',
                 title: 'Pagos - MobiliAri'
+            },
+            sales: {
+                path: '../sales-module/',
+                htmlFile: 'sales.html',
+                cssFile: 'css/sales.css',
+                jsFile: 'js/sales.js',
+                title: 'Ventas - MobiliAri'
             }
         };
         
